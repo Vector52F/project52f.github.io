@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 52F — Deterministic Finance on QF Network</title>
+<meta name="description" content="A PSP22 token on QF Network where every parameter is derived from a fundamental mathematical constant. No arbitrary numbers. Pure logic.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #0e1520;
+  --ink-mid:    #111c2d;
+  --ink-card:   #142030;
+  --ink-light:  #1a2d44;
+  --gold:       #c9a84c;
+  --gold-warm:  #dfc078;
+  --gold-pale:  #f0dfa8;
+  --gold-dim:   #7a6030;
+  --gold-ghost: rgba(201,168,76,0.10);
+  --gold-glow:  rgba(201,168,76,0.18);
+  --teal:       #0e9b8e;
+  --teal-light: #15c4b4;
+  --teal-ghost: rgba(14,155,142,0.12);
+  --paper:      #edeae2;
+  --body-text:  #b8c4d0;
+  --muted:      #6e8299;
+  --faint:      rgba(205,213,223,0.06);
+  --border:     rgba(201,168,76,0.18);
+  --border-dim: rgba(201,168,76,0.08);
+  --red:        #d95f4b;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; font-size: 18px; }
+
+body {
+  background: var(--ink);
+  color: var(--body-text);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  line-height: 1.85;
+  overflow-x: hidden;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2.5rem; width: 100%; }
+.container--narrow { max-width: 800px; margin: 0 auto; padding: 0 2.5rem; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(14,21,32,0.94);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 0 2.5rem; height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  letter-spacing: 0.2em; color: var(--gold); text-decoration: none;
+  text-transform: uppercase; font-weight: 500;
+}
+.nav-links { display: flex; align-items: center; gap: 0.2rem; list-style: none; }
+.nav-links a {
+  font-family: 'DM Mono', monospace; font-size: 0.67rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  text-decoration: none; padding: 0.38rem 0.72rem; border-radius: 2px; transition: all 0.2s;
+}
+.nav-links a:hover { color: var(--gold); background: var(--gold-ghost); }
+.nav-links .nav-cta { color: var(--ink); background: var(--gold); font-weight: 500; margin-left: 0.5rem; }
+.nav-links .nav-cta:hover { background: var(--gold-warm); color: var(--ink); }
+.nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.nav-hamburger span { display: block; width: 22px; height: 1.5px; background: var(--muted); }
+.mobile-nav {
+  display: none; position: fixed; top: 62px; left: 0; right: 0; z-index: 99;
+  background: rgba(14,21,32,0.98); border-bottom: 1px solid var(--border-dim);
+  padding: 1.5rem 2.5rem 2rem; flex-direction: column; gap: 0.3rem;
+}
+.mobile-nav.open { display: flex; }
+.mobile-nav a {
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); text-decoration: none;
+  padding: 0.5rem 0; border-bottom: 1px solid var(--border-dim); transition: color 0.2s;
+}
+.mobile-nav a:hover { color: var(--gold); }
+.mobile-nav a:last-child { border-bottom: none; color: var(--gold); margin-top: 0.5rem; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding-top: 62px; position: relative; overflow: hidden;
+}
+#hero-canvas { position: absolute; inset: 0; opacity: 0.045; pointer-events: none; }
+.hero-inner {
+  display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 5rem;
+  align-items: center; padding: 5rem 0;
+}
+.hero-kicker {
+  font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--teal-light); margin-bottom: 1.4rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 4.5vw, 4.6rem);
+  font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: var(--paper);
+  margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
+}
+.hero-title strong { font-weight: 700; color: var(--gold); display: block; font-style: italic; }
+.hero-subtitle {
+  font-size: 1.05rem; font-style: italic; color: var(--gold-warm); margin-bottom: 2rem;
+  font-weight: 300; opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.hero-body {
+  font-size: 1.02rem; line-height: 1.9; color: var(--muted); max-width: 500px;
+  margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+}
+.constants-panel { opacity: 0; animation: fadeIn 1s ease 1s forwards; }
+.const-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+}
+.const-cell { background: var(--ink-card); padding: 1.6rem 1.4rem; transition: background 0.2s; }
+.const-cell:hover { background: var(--ink-light); }
+.const-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+.const-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.const-val { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--muted); margin-bottom: 0.3rem; }
+.const-use { font-size: 0.92rem; font-style: italic; color: var(--body-text); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; text-decoration: none; padding: 0.8rem 1.8rem;
+  border: none; cursor: pointer; transition: all 0.2s; border-radius: 1px;
+}
+.btn-gold { background: var(--gold); color: var(--ink); font-weight: 500; }
+.btn-gold:hover { background: var(--gold-warm); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
+.btn-ghost:hover { border-color: var(--gold); background: var(--gold-ghost); }
+
+/* ── SECTIONS ── */
+.section { padding: 7rem 0; position: relative; }
+.section--alt { background: var(--ink-mid); }
+.section-kicker { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 1rem; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 300; line-height: 1.15; color: var(--paper); margin-bottom: 1.4rem; }
+.section-title em { font-style: italic; color: var(--gold); }
+.section-title strong { font-weight: 700; }
+.section-lead { font-size: 1.05rem; line-height: 1.9; color: var(--muted); max-width: 640px; margin-bottom: 3rem; }
+.rule { width: 48px; height: 1px; background: var(--gold); opacity: 0.5; margin: 1.4rem 0; }
+
+/* ── DASHBOARD ── */
+.dashboard-teaser {
+  background: var(--ink-card); border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.dashboard-teaser::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 35%, var(--teal) 65%, transparent 100%);
+}
+.dash-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.8rem; border-bottom: 1px solid var(--border-dim);
+}
+.dash-title { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+.dash-status { display: flex; align-items: center; gap: 0.45rem; font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; color: var(--muted); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+.status-dot.live { background: var(--teal-light); box-shadow: 0 0 8px var(--teal); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+.dash-jackpot { padding: 1.4rem 1.8rem; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border-dim); gap: 1rem; }
+.jackpot-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+.jackpot-value { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--gold); line-height: 1; letter-spacing: -0.02em; }
+.jackpot-value .cur { font-size: 1.4rem; font-weight: 300; color: var(--gold-dim); vertical-align: top; margin-top: 0.35rem; display: inline-block; }
+.jackpot-change { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--teal-light); margin-bottom: 0.2rem; text-align: right; }
+.jackpot-tier { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; color: var(--muted); text-align: right; }
+
+.dash-pool { padding: 1rem 1.8rem; border-bottom: 1px solid var(--border-dim); }
+.pool-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem; }
+.pool-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.pool-pct { font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 500; color: var(--gold); }
+.pool-track { width: 100%; height: 5px; background: var(--faint); border-radius: 3px; overflow: hidden; margin-bottom: 0.35rem; }
+.pool-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--teal), var(--gold)); transition: width 1.5s ease; }
+.pool-sub { font-family: 'DM Mono', monospace; font-size: 0.57rem; color: var(--muted); font-style: italic; }
+
+.dash-slots { padding: 1.1rem 1.8rem; border-bottom: 1px solid var(--border-dim); }
+.slots-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+.slots-row { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+.slot {
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 500;
+  border-radius: 2px; transition: all 0.3s;
+}
+.slot--active { background: var(--teal-ghost); border: 1px solid rgba(14,155,142,0.3); color: var(--teal-light); }
+.slot--collision { background: rgba(201,168,76,0.25); border: 1px solid var(--gold); color: var(--gold); animation: collPulse 1s ease 3; }
+@keyframes collPulse { 0%,100%{box-shadow:none;} 50%{box-shadow:0 0 16px rgba(201,168,76,0.5);} }
+.slot--52 { width: 46px; height: 46px; background: rgba(201,168,76,0.1); border: 1px solid var(--gold-dim); color: var(--gold); font-size: 0.82rem; font-weight: 700; margin-left: 0.3rem; }
+.slot--52.champion { background: rgba(201,168,76,0.2); border-color: var(--gold); box-shadow: 0 0 18px rgba(201,168,76,0.2); }
+.slots-sep { width: 1px; height: 38px; background: var(--border-dim); margin: 0 0.1rem; }
+
+.dash-activity { padding: 0.9rem 1.8rem; }
+.activity-label { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.activity-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.3rem 0; border-bottom: 1px solid var(--border-dim); font-family: 'DM Mono', monospace; font-size: 0.6rem; }
+.activity-item:last-child { border-bottom: none; }
+.a-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.a-text { color: var(--muted); flex: 1; }
+.a-text .hi { color: var(--body-text); }
+.a-time { color: var(--muted); opacity: 0.55; }
+.dash-cta {
+  display: block; text-align: center; padding: 0.85rem;
+  background: var(--gold-ghost); border-top: 1px solid var(--border-dim);
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--gold); text-decoration: none; transition: background 0.2s;
+}
+.dash-cta:hover { background: var(--gold-glow); }
+
+/* ── ABOUT ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.about-body p { margin-bottom: 1.4rem; font-size: 1.02rem; line-height: 1.9; color: var(--body-text); }
+.about-body p em { color: var(--gold-warm); font-style: italic; }
+.about-body p strong { color: var(--paper); font-weight: 700; }
+.stats-stack { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.stat-item { background: var(--ink-card); padding: 1.6rem 1.8rem; transition: background 0.2s; }
+.stat-item:hover { background: var(--ink-light); }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 0.2rem; }
+.stat-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.stat-sub { font-size: 0.9rem; font-style: italic; color: var(--body-text); margin-top: 0.3rem; }
+
+/* ── MECHANICS ── */
+.tax-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.8rem; }
+.tax-card { background: var(--ink-card); padding: 1.8rem 1.5rem; }
+.tax-rate { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.tax-rate span { font-size: 1rem; font-weight: 300; color: var(--gold-dim); font-style: italic; }
+.tax-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.8rem; }
+.tax-rows { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.tax-row { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); padding: 0.2rem 0; border-bottom: 1px solid var(--border-dim); }
+.tax-row:last-child { border-bottom: none; }
+.tax-row .pct { color: var(--gold-warm); }
+.mech-text p { font-size: 1.02rem; line-height: 1.9; color: var(--body-text); margin-bottom: 1.2rem; }
+.code-block { background: #060f1c; border: 1px solid var(--border-dim); border-top: 2px solid var(--gold); padding: 1.3rem 1.6rem; overflow-x: auto; margin: 1.5rem 0; }
+.code-block pre { font-family: 'DM Mono', monospace; font-size: 0.72rem; line-height: 1.8; color: var(--muted); }
+.c-gold{color:var(--gold);} .c-teal{color:var(--teal-light);} .c-white{color:var(--paper);} .c-dim{color:#3a5060;}
+.slot52-callout { background: var(--ink-card); border: 1px solid var(--border-dim); border-left: 3px solid var(--gold); padding: 1.5rem 1.5rem; }
+.slot52-callout .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.5rem; }
+.slot52-callout .heading { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.slot52-callout p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+.slot52-callout .threshold { font-family: 'DM Mono', monospace; font-size: 0.66rem; color: var(--gold); margin-top: 0.8rem; }
+
+/* ── GAMES ── */
+.games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.game-card { background: var(--ink-card); padding: 2.2rem 1.8rem; text-decoration: none; transition: background 0.2s; display: block; }
+.game-card:hover { background: var(--ink-light); }
+.game-icon { font-size: 1.9rem; margin-bottom: 0.9rem; display: block; }
+.game-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--gold-warm); margin-bottom: 0.5rem; }
+.game-desc { font-size: 0.92rem; color: var(--muted); line-height: 1.7; margin-bottom: 1rem; }
+.game-badge { display: inline-flex; font-family: 'DM Mono', monospace; font-size: 0.57rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.18rem 0.5rem; border-radius: 2px; }
+.badge-free { background: var(--teal-ghost); color: var(--teal-light); }
+.badge-skill { background: var(--gold-ghost); color: var(--gold); }
+.badge-soon { background: var(--faint); color: var(--muted); }
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 1.5rem; max-width: 700px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0; width: 1px; background: var(--border); }
+.tl-item { position: relative; padding: 0 0 2.5rem 2rem; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -0.42rem; top: 0.45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--gold-dim); }
+.tl-item.done .tl-dot { background: var(--gold); border-color: var(--gold); }
+.tl-item.now .tl-dot { background: var(--teal); border-color: var(--teal-light); box-shadow: 0 0 12px rgba(14,155,142,0.5); }
+.tl-phase { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.tl-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.tl-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+.tl-badge { display: inline-block; margin-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.57rem; letter-spacing: 0.1em; padding: 0.15rem 0.5rem; border-radius: 2px; }
+.tl-done { background: var(--gold-ghost); color: var(--gold); }
+.tl-now { background: var(--teal-ghost); color: var(--teal-light); }
+.tl-next { background: var(--faint); color: var(--muted); }
+
+/* ── QF ── */
+.qf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+.qf-card { background: var(--ink-card); padding: 2rem 1.8rem; transition: background 0.2s; }
+.qf-card:hover { background: var(--ink-light); }
+.qf-icon { font-size: 1.6rem; margin-bottom: 0.8rem; display: block; }
+.qf-name { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--gold-warm); margin-bottom: 0.5rem; }
+.qf-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+/* ── FOOTER ── */
+footer { background: #07101a; border-top: 1px solid var(--border-dim); padding: 4rem 0 2rem; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand-name { font-family: 'DM Mono', monospace; font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem; }
+.footer-brand-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; font-style: italic; max-width: 280px; }
+.footer-col h4 { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; font-weight: 400; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 0.5rem; }
+.footer-col a { font-size: 0.9rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom { padding-top: 2rem; border-top: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.footer-legal { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; color: var(--muted); opacity: 0.55; }
+.footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: var(--muted); opacity: 0.45; max-width: 480px; text-align: right; line-height: 1.7; }
+
+/* ── ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--ink);} ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-inner,.two-col{grid-template-columns:1fr;gap:3rem;}
+  .games-grid,.qf-grid{grid-template-columns:1fr 1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;} .nav-hamburger{display:flex;}
+  /* Dashboard teaser section stacks on tablet */
+  #dashboard .container > div { grid-template-columns: 1fr !important; }
+  #build .container > div { grid-template-columns: 1fr !important; }
+  #mechanics .container > div { grid-template-columns: 1fr !important; }
+}
+@media(max-width:600px){
+  html{font-size:16px;}
+  body{overflow-x:hidden;}
+  .container,.container--narrow{padding:0 1.2rem;}
+  .section{padding:4rem 0;}
+  /* All two-column grids collapse to single */
+  .hero-inner,.two-col,
+  #dashboard .container > div,
+  #build .container > div,
+  #mechanics .container > div { grid-template-columns:1fr !important; gap:2rem !important; }
+  .hero-inner{padding:2.5rem 0;}
+  /* Constants panel — 2 cols on mobile is fine, just needs to stay in bounds */
+  .const-grid{grid-template-columns:1fr 1fr; width:100%;}
+  .const-cell{padding:1.1rem 1rem;}
+  .const-sym{font-size:2rem;}
+  .const-val{font-size:0.58rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  /* Games */
+  .games-grid,.qf-grid{grid-template-columns:1fr;}
+  .tax-pair{grid-template-columns:1fr;}
+  /* Footer */
+  .footer-grid{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;}
+  .footer-disclaimer{text-align:left;}
+  /* Slots */
+  .slots-row{gap:0.25rem; flex-wrap:wrap;}
+  .slot{width:32px;height:32px;font-size:0.62rem;}
+  .slot--52{width:38px;height:38px;}
+  /* Dashboard */
+  .dash-jackpot{flex-direction:column; align-items:flex-start; gap:0.5rem;}
+  .jackpot-change,.jackpot-tier{text-align:left;}
+  .jackpot-value{font-size:2.4rem;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="hero-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero">Project 52F</a>
+  <ul class="nav-links">
+    <li><a href="#about">Story</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#games">Games</a></li>
+    <li><a href="#build">Build</a></li>
+    <li><a href="#qf">QF Network</a></li>
+    <li><a href="games/52dle" class="nav-cta">Play →</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#about">Story</a>
+  <a href="#mechanics">Mechanics</a>
+  <a href="#games">Games</a>
+  <a href="#build">Build Progress</a>
+  <a href="#qf">QF Network</a>
+  <a href="games/52dle">Play 52-dle →</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-kicker">QF Network · PSP22 · Proof of Concept</p>
+        <h1 class="hero-title">Where mathematics<br><strong>governs everything.</strong></h1>
+        <p class="hero-subtitle">"A token where every parameter is a constant of nature"</p>
+        <p class="hero-body">Project 52F is a PSP22 token on QF Network. The buy tax is Euler's number. The sell tax is Pi. The prize threshold is the Golden Ratio. The collision slots are Fibonacci numbers. No arbitrary decisions. No admin toggles. Pure mathematical logic, permanently encoded on-chain.</p>
+        <div class="hero-actions">
+          <a href="#mechanics" class="btn btn-gold">How It Works</a>
+          <a href="#build" class="btn btn-ghost">Build Progress</a>
+        </div>
+      </div>
+      <div class="constants-panel">
+        <div class="const-grid">
+          <div class="const-cell">
+            <div class="const-sym">e</div>
+            <div class="const-label">Euler's Number</div>
+            <div class="const-val">2.71828182845904...</div>
+            <div class="const-use">Buy tax: 2.718%</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">π</div>
+            <div class="const-label">Pi</div>
+            <div class="const-val">3.14159265358979...</div>
+            <div class="const-use">Sell tax: 3.141%</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">φ</div>
+            <div class="const-label">Golden Ratio</div>
+            <div class="const-val">1.61803398875...</div>
+            <div class="const-use">Slot 52 threshold</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym" style="font-size:1.7rem;padding-top:0.3rem;">Fib</div>
+            <div class="const-label">Fibonacci</div>
+            <div class="const-val">1,1,2,3,5,8,13,21...</div>
+            <div class="const-use">Collision slots</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD TEASER -->
+<section id="dashboard" class="section section--alt">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1.15fr;gap:4rem;align-items:start;" class="reveal">
+      <div>
+        <p class="section-kicker">Live Dashboard</p>
+        <h2 class="section-title">The Birthday<br><em>Paradox Engine</em></h2>
+        <div class="rule"></div>
+        <p class="section-lead">Every buy and sell feeds a prize pool. When a transaction's VRF hash collides with an active Fibonacci slot, a prize fires automatically. No lottery draw. No admin control. Pure probability.</p>
+        <p style="font-size:0.95rem;color:var(--muted);line-height:1.85;margin-bottom:2rem;">The dashboard shows what the live contract will display once deployed on QF Network mainnet. Values are simulated during the pre-launch phase.</p>
+        <a href="#mechanics" class="btn btn-ghost">Full Mechanics →</a>
+      </div>
+      <div class="dashboard-teaser">
+        <div class="dash-header">
+          <span class="dash-title">Prize Pool · Contract State</span>
+          <div class="dash-status"><div class="status-dot"></div><span>Pre-launch · Simulated</span></div>
+        </div>
+        <div class="dash-jackpot">
+          <div>
+            <div class="jackpot-label">Current Prize Pool</div>
+            <div class="jackpot-value"><span class="cur">£</span><span id="jackpot-num">0.00</span></div>
+          </div>
+          <div>
+            <div class="jackpot-change" id="jackpot-change">Awaiting transactions</div>
+            <div class="jackpot-tier" id="jackpot-tier">🌱 Launch Tier · Max prize £50</div>
+          </div>
+        </div>
+        <div class="dash-pool">
+          <div class="pool-row">
+            <span class="pool-label">Pool Fill · Prize Eligibility Threshold</span>
+            <span class="pool-pct" id="pool-pct">0%</span>
+          </div>
+          <div class="pool-track"><div class="pool-fill" id="pool-fill" style="width:0%;"></div></div>
+          <div class="pool-sub" id="pool-sub">Accumulating tax from buys and sells — 50% threshold required</div>
+        </div>
+        <div class="dash-slots">
+          <div class="slots-label">Active Fibonacci Slots · Champion's Seat (52)</div>
+          <div class="slots-row" id="slots-row"></div>
+        </div>
+        <div class="dash-activity">
+          <div class="activity-label">Recent Activity</div>
+          <div id="activity-feed"></div>
+        </div>
+        <a href="#mechanics" class="dash-cta">View Full Mechanics &amp; Gate Sequence →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section">
+  <div class="container">
+    <div class="two-col reveal">
+      <div class="about-body">
+        <p class="section-kicker">The Story</p>
+        <h2 class="section-title">Built by one person.<br><em>No code. Just maths.</em></h2>
+        <div class="rule"></div>
+        <p>This project started with a simple question: <em>what if every decision in a token was forced to be mathematical?</em> Not rules set by a committee. Not parameters chosen for marketing reasons. Actual constants from nature — the kind that have been true since before humans existed.</p>
+        <p>The person behind Project 52F has <strong>no coding background.</strong> Everything here — two production-ready ink! v6 smart contracts, 33 unit tests, a full security audit, and this website — was built entirely through vibe coding: directing AI with domain knowledge, mathematical passion, and a very clear vision.</p>
+        <p>That's the second point of this project. <em>QF Network is fast enough, capable enough, and accessible enough that one person with a good idea can build something real on it.</em> Project 52F is proof of that.</p>
+        <p>If it makes money, great. But the goal is adoption — of QF Network, of deterministic thinking in DeFi, and of the idea that <strong>you don't need a team or a budget to build something that works.</strong></p>
+      </div>
+      <div class="stats-stack">
+        <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">Lines of code written by hand</div><div class="stat-sub">Every line produced through AI collaboration</div></div>
+        <div class="stat-item"><div class="stat-num">33</div><div class="stat-label">Unit tests across both contracts</div><div class="stat-sub">Token52F (20) · BirthdayParadox (13)</div></div>
+        <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">Decimal places of precision</div><div class="stat-sub">e and π encoded to 10⁻¹⁸ accuracy</div></div>
+        <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">Production contracts complete</div><div class="stat-sub">Token52F.rs · BirthdayParadox.rs</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MECHANICS -->
+<section id="mechanics" class="section section--alt">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;" class="reveal">
+      <div class="mech-text">
+        <p class="section-kicker">How It Works</p>
+        <h2 class="section-title">Tax. Pool.<br><em>Collision. Prize.</em></h2>
+        <div class="rule"></div>
+        <p>Every buy transaction carries a 2.718% tax — Euler's number, e — which flows entirely into the prize pool. Every sell carries a 3.141% tax — Pi, π — split between liquidity, the team, and the prize pool.</p>
+        <p>The Birthday Paradox engine monitors every buy transaction. When a transaction's VRF-derived hash suffix matches an active Fibonacci slot in the 52-entry ring buffer — and five other eligibility gates pass — a prize fires automatically.</p>
+        <p>No manual trigger. No admin key. The mathematics decide.</p>
+        <div class="code-block">
+<pre><span class="c-dim">// e and π to 18 decimal places — fixed-point</span>
+<span class="c-teal">const</span> <span class="c-white">E_BUY_TAX</span><span class="c-gold">: u128 =</span> <span class="c-white">27_182_818_284_590_452</span><span class="c-gold">;</span>
+<span class="c-teal">const</span> <span class="c-white">PI_SELL_TAX</span><span class="c-gold">: u128 =</span> <span class="c-white">31_415_926_535_897_932</span><span class="c-gold">;</span>
+<span class="c-dim">// multiply then divide — preserves all 18 digits</span>
+value <span class="c-gold">*</span> constant <span class="c-gold">/</span> <span class="c-white">1_000_000_000_000_000_000</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="tax-pair">
+          <div class="tax-card">
+            <div class="tax-name">Buy Tax</div>
+            <div class="tax-rate">2.718% <span>= e</span></div>
+            <div class="tax-rows"><div class="tax-row"><span>Prize Pool</span><span class="pct">100%</span></div></div>
+          </div>
+          <div class="tax-card">
+            <div class="tax-name">Sell Tax</div>
+            <div class="tax-rate">3.141% <span>= π</span></div>
+            <div class="tax-rows">
+              <div class="tax-row"><span>Liquidity</span><span class="pct">1.000%</span></div>
+              <div class="tax-row"><span>Team</span><span class="pct">1.000%</span></div>
+              <div class="tax-row"><span>Prize Pool</span><span class="pct">1.141%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="slot52-callout">
+          <div class="eyebrow">Slot 52 — Champion's Seat</div>
+          <div class="heading">Hold the throne. Win the prize.</div>
+          <p>The largest qualifying buy in the last 24 hours holds Slot 52. When any transaction hash equals 52, the champion wins the full tier maximum — automatically, instantly, on-chain. No luck required. Just conviction.</p>
+          <div class="threshold">Activates at £52,000 × φ = £84,136 market cap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section id="games" class="section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">Games Platform</p>
+      <h2 class="section-title">Skill-based competitions.<br><em>Mathematical puzzles.</em></h2>
+      <div class="rule"></div>
+      <p class="section-lead">Free to play during beta. Skill determines the winner — not chance. QF entry fees and on-chain leaderboards arriving with mainnet launch.</p>
+    </div>
+    <div class="games-grid reveal">
+      <a href="games/52dle" class="game-card">
+        <span class="game-icon">🔢</span>
+        <div class="game-name">52-dle</div>
+        <div class="game-desc">Daily mathematical deduction. Identify the hidden number — drawn from π, e, Fibonacci, or primes — in as few guesses as possible. New number every 24 hours.</div>
+        <span class="game-badge badge-free">Free · Daily</span>
+      </a>
+      <a href="games/sudoku-duel" class="game-card">
+        <span class="game-icon">⚔️</span>
+        <div class="game-name">Sudoku Duel</div>
+        <div class="game-desc">Solve the board. Your time becomes the target. Share a challenge link — your opponent races against a live countdown of your exact time. Pure skill.</div>
+        <span class="game-badge badge-skill">Free · Skill</span>
+      </a>
+      <a href="#games" class="game-card">
+        <span class="game-icon">🟦</span>
+        <div class="game-name">Daily Sudoku</div>
+        <div class="game-desc">One board, 24 hours, every player competing simultaneously. The three fastest wallets share the prize pool. Speed and accuracy win.</div>
+        <span class="game-badge badge-soon">Coming Soon</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section id="build" class="section section--alt">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:4rem;align-items:start;" class="reveal">
+      <div>
+        <p class="section-kicker">Build Progress</p>
+        <h2 class="section-title">Open build.<br><em>Nothing hidden.</em></h2>
+        <div class="rule"></div>
+        <p style="font-size:1rem;line-height:1.9;color:var(--muted);">Every design decision, every rejected idea, every security audit finding is part of the public record. This is what transparent development looks like — no closed rooms, no private decisions.</p>
+      </div>
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Phase 1</div>
+          <div class="tl-name">Token52F.rs</div>
+          <div class="tl-desc">Full PSP22 with e/π tax engine at 18 decimal precision, prize pool accounting, flush valve with hysteresis, admin oracle, and reentrancy protection.</div>
+          <span class="tl-badge tl-done">✓ Complete · 20 unit tests</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Phase 2</div>
+          <div class="tl-name">BirthdayParadox.rs</div>
+          <div class="tl-desc">Six-gate eligibility sequence, VRF collision detection, 52-slot ring buffer with poisoning protection, Slot 52 Champion's Seat, dual payout logic.</div>
+          <span class="tl-badge tl-done">✓ Complete · 13 unit tests</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Security Audit</div>
+          <div class="tl-name">Full Attack Vector Review</div>
+          <div class="tl-desc">10 attack vectors analysed. All critical findings resolved — reentrancy, flash loans, VRF grinding, sandwich attacks, ring buffer poisoning.</div>
+          <span class="tl-badge tl-done">✓ Complete · All criticals resolved</span>
+        </div>
+        <div class="tl-item now">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Phase 3</div>
+          <div class="tl-name">AMM Integration</div>
+          <div class="tl-desc">SPIN-Swap interface for market buy routing and liquidity management. Awaiting AMM documentation from QF Network team.</div>
+          <span class="tl-badge tl-now">⟳ In Progress</span>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Phase 4–5</div>
+          <div class="tl-name">Testnet → Mainnet</div>
+          <div class="tl-desc">Full compile validation on QF testnet, SPIN-Swap integration testing, then mainnet launch with 400 QF initial liquidity.</div>
+          <span class="tl-badge tl-next">○ Upcoming</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QF NETWORK -->
+<section id="qf" class="section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">Why QF Network</p>
+      <h2 class="section-title">Built for a community.<br><em>Not a valuation.</em></h2>
+      <div class="rule"></div>
+      <p class="section-lead">QF Network's infrastructure rivals anything on Ethereum or Solana — PolkaVM speed, tamper-resistant VRF, ink! v6 contracts, native AMM integration. It deserves more builders. Project 52F is an open invitation.</p>
+    </div>
+    <div class="qf-grid reveal">
+      <div class="qf-card"><span class="qf-icon">⚡</span><div class="qf-name">PolkaVM Speed</div><div class="qf-desc">Sub-second block times on a RISC-V virtual machine. The collision engine resolves prizes faster than most blockchains confirm a single transaction.</div></div>
+      <div class="qf-card"><span class="qf-icon">🔐</span><div class="qf-name">Tamper-Resistant VRF</div><div class="qf-desc">Randomness derived from block entropy two epochs prior. Validators cannot predict or influence prize outcomes — the system is cryptographically fair.</div></div>
+      <div class="qf-card"><span class="qf-icon">🦀</span><div class="qf-name">ink! v6 Contracts</div><div class="qf-desc">Rust-native smart contracts with dual-ABI output. SCALE for PolkaVM performance, Solidity-compatible ABI for frontend tooling.</div></div>
+      <div class="qf-card"><span class="qf-icon">🔄</span><div class="qf-name">SPIN-Swap DEX</div><div class="qf-desc">Native AMM integration. Every prize triggers a market buy — creating real on-chain price support, not just token burns.</div></div>
+      <div class="qf-card"><span class="qf-icon">🌐</span><div class="qf-name">PSP22 Standard</div><div class="qf-desc">Full OpenBrush PSP22 implementation. Works with any QF Network wallet, DEX, or tool that supports the standard. No custom integrations needed.</div></div>
+      <div class="qf-card"><span class="qf-icon">🏗️</span><div class="qf-name">Proof of Concept</div><div class="qf-desc">One person, no budget, no team — building something real using only mathematical knowledge and AI tools. If it works here, it works anywhere.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">Project 52F</div>
+        <p class="footer-brand-desc">A proof of concept in deterministic finance. Built with mathematical passion, AI tools, and genuine love for the QF Network community.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="#about">The Story</a></li>
+          <li><a href="#mechanics">Mechanics</a></li>
+          <li><a href="#build">Build Progress</a></li>
+          <li><a href="#qf">QF Network</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Games</h4>
+        <ul>
+          <li><a href="games/52dle">52-dle</a></li>
+          <li><a href="games/sudoku-duel">Sudoku Duel</a></li>
+          <li><a href="games">All Games</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="legal/terms">Terms &amp; Conditions</a></li>
+          <li><a href="legal/privacy">Privacy Policy</a></li>
+          <li><a href="legal/disclaimer">Disclaimer</a></li>
+          <li><a href="https://qfnetwork.xyz" target="_blank" rel="noopener">QF Network ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">52F · QF Network · ink! v6 · Specification v2.2 · February 2026</div>
+      <div class="footer-disclaimer">Proof of concept. Not financial advice. Crypto assets carry significant risk. Project 52F is a community project with no guarantees of return. Games platform operates skill-based competitions only. See Terms &amp; Conditions.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// FIBONACCI CANVAS
+(function(){
+  const c=document.getElementById('hero-canvas'),ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#c9a84c';ctx.lineWidth=0.6;
+    const cx=c.width*0.72,cy=c.height*0.5;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    for(let i=0;i<900;i++){const a=i*0.08,r=6*Math.pow(1.618,a/(Math.PI*2));ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));if(r>Math.max(c.width,c.height))break;}
+    ctx.stroke();
+    ctx.lineWidth=0.3;
+    const fibs=[1,1,2,3,5,8,13,21,34,55,89,144];let sx=c.width*0.08,sy=c.height*0.88,u=6,dir=0;
+    for(let i=2;i<fibs.length;i++){const sz=fibs[i]*u;ctx.strokeRect(sx,sy-sz,sz,sz);if(dir===0){sx+=sz;sy-=fibs[i-1]*u;}else if(dir===1){sx-=fibs[i-1]*u;sy-=sz;}else if(dir===2){sx-=sz;sy+=fibs[i-1]*u;}else{sx+=fibs[i-1]*u;sy+=sz;}dir=(dir+1)%4;if(sx<-300||sx>c.width+300)break;}
+  }
+  window.addEventListener('resize',resize);resize();
+})();
+
+// DASHBOARD SIMULATION
+(function(){
+  const FIB=[1,2,3,5,8,13,21,34];
+  let pool=0,jackpot=0,collSlot=null,collTimer=0;
+  const TXNS=[
+    {text:'0x3f4a…b291 bought',color:'#15c4b4'},
+    {text:'0x8c1e…a045 bought',color:'#15c4b4'},
+    {text:'0x2b7d…f813 sold',color:'#c9a84c'},
+    {text:'0x9a3c…1e7f bought',color:'#15c4b4'},
+    {text:'0x5f2b…c394 bought',color:'#15c4b4'},
+    {text:'0x1d8e…7a52 sold',color:'#c9a84c'},
+  ];
+  let log=[];
+
+  function renderSlots(){
+    const row=document.getElementById('slots-row');
+    row.innerHTML='';
+    FIB.forEach(n=>{
+      const el=document.createElement('div');
+      el.className='slot slot--active'+(collSlot===n?' slot--collision':'');
+      el.textContent=n;
+      row.appendChild(el);
+    });
+    const sep=document.createElement('div');sep.className='slots-sep';row.appendChild(sep);
+    const s52=document.createElement('div');
+    s52.className='slot slot--52'+(jackpot>5?' champion':'');
+    s52.textContent='52';row.appendChild(s52);
+  }
+
+  function renderActivity(){
+    const feed=document.getElementById('activity-feed');
+    if(!log.length){feed.innerHTML='<div class="activity-item"><div class="a-dot" style="background:var(--muted);"></div><span class="a-text">Awaiting first transaction...</span></div>';return;}
+    feed.innerHTML=log.slice(-4).reverse().map(a=>`
+      <div class="activity-item">
+        <div class="a-dot" style="background:${a.color};box-shadow:0 0 5px ${a.color}55;"></div>
+        <span class="a-text"><span class="hi">${a.text}</span> ${a.amount}</span>
+        <span class="a-time">${a.time}</span>
+      </div>`).join('');
+  }
+
+  function animateNum(el,target){
+    const start=parseFloat(el.textContent)||0,diff=target-start;
+    let step=0;const t=setInterval(()=>{step++;el.textContent=(start+diff*step/25).toFixed(2);if(step>=25)clearInterval(t);},25);
+  }
+
+  function tick(){
+    const tx=TXNS[Math.floor(Math.random()*TXNS.length)];
+    const amt=0.03+Math.random()*0.35;
+    const isBuy=tx.color==='#15c4b4';
+    const add=amt*(isBuy?0.02718:0.01141);
+    pool+=add;jackpot+=add;
+
+    const vrf=Math.random();
+    const hit=vrf<0.09&&pool>12.5;
+    if(hit){
+      collSlot=FIB[Math.floor(Math.random()*FIB.length)];
+      collTimer=4;
+      const prize=Math.min(jackpot*0.5,50);
+      jackpot-=prize;pool=0;
+      log.push({text:`🏆 PRIZE — slot ${collSlot} —`,amount:`£${prize.toFixed(2)} awarded`,color:'#c9a84c',time:'just now'});
+    } else {
+      if(collTimer>0)collTimer--;else collSlot=null;
+      log.push({text:tx.text,amount:`+£${add.toFixed(3)} to pool`,color:tx.color,time:'just now'});
+    }
+    if(log.length>20)log.shift();
+
+    animateNum(document.getElementById('jackpot-num'),jackpot);
+    const pct=Math.min(100,Math.round((pool/25)*100));
+    document.getElementById('pool-pct').textContent=pct+'%';
+    document.getElementById('pool-fill').style.width=pct+'%';
+    document.getElementById('pool-sub').textContent=pct>=50?'✓ Threshold met — prize eligible on next valid collision':`£${pool.toFixed(2)} of £12.50 threshold accumulated`;
+    document.getElementById('jackpot-change').textContent=`+£${add.toFixed(3)} last transaction`;
+    renderSlots();renderActivity();
+  }
+
+  renderSlots();renderActivity();
+  function schedule(){setTimeout(()=>{tick();schedule();},2200+Math.random()*3800);}
+  setTimeout(schedule,1800);
+})();
+
+// SCROLL REVEAL
+(function(){
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+// NAV ACTIVE
+(function(){
+  const secs=document.querySelectorAll('section[id]');
+  const links=document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll',()=>{
+    let cur='';
+    secs.forEach(s=>{if(window.scrollY>=s.offsetTop-80)cur=s.id;});
+    links.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+cur?'var(--gold)':'';});
+  });
+})();
+
+// MOBILE NAV
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+document.querySelectorAll('#mobile-nav a').forEach(a=>{
+  a.addEventListener('click',()=>document.getElementById('mobile-nav').classList.remove('open'));
+});
+</script>
+</body>
+</html>
