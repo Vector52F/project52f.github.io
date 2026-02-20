@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>52-dle — Project 52F</title>
+<meta name="description" content="Daily mathematical deduction. Identify the hidden number drawn from π, e, Fibonacci or primes. Six guesses. New puzzle every 24 hours.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Mono:wght@0,300;0,400;0,500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1520;--ink-mid:#111c2d;--ink-card:#142030;--ink-light:#1a2d44;
+  --gold:#c9a84c;--gold-warm:#dfc078;--gold-pale:#f0dfa8;--gold-dim:#7a6030;
+  --gold-ghost:rgba(201,168,76,0.10);--gold-glow:rgba(201,168,76,0.22);
+  --teal:#0e9b8e;--teal-light:#15c4b4;--teal-ghost:rgba(14,155,142,0.12);
+  --paper:#edeae2;--body:#b8c4d0;--muted:#6e8299;--faint:rgba(205,213,223,0.05);
+  --border:rgba(201,168,76,0.18);--border-dim:rgba(201,168,76,0.08);
+  --red:#d95f4b;--green:#52b788;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:17px;scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--body);font-family:'Libre Baskerville',Georgia,serif;line-height:1.75;min-height:100vh;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(14,21,32,0.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-dim);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.2em;color:var(--gold);text-decoration:none;text-transform:uppercase;}
+.nav-back{font-family:'DM Mono',monospace;font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:0.28rem 0.65rem;border:1px solid var(--border-dim);border-radius:2px;transition:all 0.2s;}
+.nav-back:hover{color:var(--gold);border-color:var(--gold-dim);}
+.page{padding-top:58px;display:flex;flex-direction:column;align-items:center;padding-bottom:5rem;}
+.game-header{text-align:center;padding:2.2rem 1.5rem 0;margin-bottom:1.5rem;}
+.game-kicker{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.6rem;}
+.game-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,6vw,3.6rem);font-weight:300;color:var(--paper);line-height:1;margin-bottom:0.3rem;}
+.game-title strong{font-weight:700;color:var(--gold);font-style:italic;}
+.game-sub{font-size:0.88rem;color:var(--muted);font-style:italic;}
+.wrap{width:100%;max-width:540px;padding:0 1rem;}
+
+/* STATUS BAR */
+.status-bar{display:flex;justify-content:center;gap:1.8rem;margin-bottom:1.4rem;padding:0.7rem 1rem;background:var(--ink-card);border:1px solid var(--border-dim);}
+.si{display:flex;flex-direction:column;align-items:center;gap:0.15rem;}
+.si-val{font-family:'DM Mono',monospace;font-size:1rem;color:var(--gold);font-weight:500;line-height:1;}
+.si-lbl{font-family:'DM Mono',monospace;font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);}
+
+/* CLUE PANEL */
+.clue-panel{background:var(--ink-card);border:1px solid var(--border);margin-bottom:1.2rem;position:relative;overflow:hidden;}
+.clue-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 40%,var(--teal) 60%,transparent);}
+.clue-head{display:flex;justify-content:space-between;align-items:center;padding:0.65rem 1.1rem;border-bottom:1px solid var(--border-dim);}
+.clue-ttl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);}
+.clue-cat{font-family:'DM Mono',monospace;font-size:0.56rem;color:var(--teal-light);letter-spacing:0.08em;}
+.clue-body{padding:0.9rem 1.1rem;}
+.clue-main{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--paper);line-height:1.65;margin-bottom:0.65rem;}
+.hints-list{display:flex;flex-direction:column;gap:0.22rem;}
+.hint-row{font-family:'DM Mono',monospace;font-size:0.63rem;color:var(--muted);padding:0.22rem 0;border-top:1px solid var(--border-dim);display:flex;gap:0.45rem;align-items:flex-start;}
+.hint-diamond{color:var(--gold);opacity:0.6;flex-shrink:0;margin-top:0.05rem;}
+.hint-area{display:flex;align-items:center;gap:0.7rem;margin-top:0.7rem;flex-wrap:wrap;}
+.hint-btn{display:flex;align-items:center;gap:0.35rem;padding:0.32rem 0.8rem;background:transparent;border:1px solid var(--border-dim);color:var(--muted);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;border-radius:1px;}
+.hint-btn:hover:not(:disabled){border-color:var(--gold-dim);color:var(--gold-warm);}
+.hint-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.hint-cost{color:var(--red);font-size:0.52rem;}
+.hints-left{font-family:'DM Mono',monospace;font-size:0.56rem;color:var(--muted);}
+
+/* GUESS GRID */
+.guess-grid{display:flex;flex-direction:column;gap:0.42rem;margin-bottom:1.1rem;}
+.guess-row{display:flex;gap:0.35rem;align-items:center;}
+.g-num{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);width:1rem;text-align:right;flex-shrink:0;}
+.g-cells{display:flex;gap:0.35rem;}
+.g-cell{width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:500;border:1px solid var(--border-dim);background:var(--ink-card);color:var(--paper);border-radius:2px;transition:background 0.2s,border-color 0.2s;}
+.g-cell.correct{background:rgba(82,183,136,0.22);border-color:#52b788;color:#52b788;}
+.g-cell.close{background:rgba(201,168,76,0.18);border-color:var(--gold-dim);color:var(--gold-warm);}
+.g-cell.wrong{background:var(--ink);border-color:rgba(110,130,153,0.2);color:var(--muted);}
+.g-cell.empty-active{border-color:var(--border);}
+.g-fb{font-family:'DM Mono',monospace;font-size:0.6rem;padding-left:0.35rem;min-width:110px;color:var(--muted);}
+.g-fb.hit{color:var(--green);}
+.g-fb.warm{color:var(--gold-warm);}
+
+/* INPUT */
+.input-wrap{margin-bottom:0.9rem;}
+.input-row{display:flex;gap:0.5rem;}
+.num-inp{flex:1;background:var(--ink-card);border:1px solid var(--border);color:var(--paper);font-family:'DM Mono',monospace;font-size:1rem;padding:0.65rem 0.9rem;border-radius:2px;outline:none;transition:border-color 0.2s;-moz-appearance:textfield;}
+.num-inp::-webkit-inner-spin-button,.num-inp::-webkit-outer-spin-button{-webkit-appearance:none;}
+.num-inp:focus{border-color:var(--gold);}
+.num-inp::placeholder{color:var(--muted);font-size:0.72rem;}
+.sub-btn{padding:0.65rem 1.3rem;background:var(--gold);color:var(--ink);font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;font-weight:500;transition:background 0.2s;white-space:nowrap;}
+.sub-btn:hover{background:var(--gold-warm);}
+.sub-btn:disabled{background:var(--ink-light);color:var(--muted);cursor:not-allowed;}
+.inp-err{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--red);margin-top:0.35rem;min-height:1rem;}
+
+/* KEYBOARD */
+.keyboard{display:flex;flex-direction:column;gap:0.35rem;align-items:center;margin-bottom:0.5rem;}
+.kb-row{display:flex;gap:0.28rem;}
+.kb-k{min-width:34px;height:40px;padding:0 0.3rem;background:var(--ink-card);border:1px solid var(--border-dim);color:var(--body);font-family:'DM Mono',monospace;font-size:0.8rem;cursor:pointer;border-radius:2px;transition:all 0.15s;display:flex;align-items:center;justify-content:center;}
+.kb-k:hover{background:var(--ink-light);}
+.kb-k.wide{min-width:52px;font-size:0.62rem;}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(8,13,22,0.9);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1.2rem;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal{background:var(--ink-card);border:1px solid var(--border);max-width:460px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 40%,var(--teal) 60%,transparent);}
+.modal-hd{padding:1.4rem 1.4rem 0.8rem;text-align:center;border-bottom:1px solid var(--border-dim);}
+.m-icon{font-size:2.2rem;display:block;margin-bottom:0.4rem;}
+.m-title{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:300;color:var(--paper);margin-bottom:0.2rem;}
+.m-sub{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.08em;}
+.modal-bd{padding:1.1rem 1.4rem;}
+
+/* SCORE DISPLAY */
+.score-box{text-align:center;padding:0.9rem;background:var(--ink);border:1px solid var(--border-dim);margin-bottom:1rem;}
+.score-big{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:700;color:var(--gold);line-height:1;}
+.score-lbl{font-family:'DM Mono',monospace;font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-top:0.15rem;}
+.score-bk{display:flex;justify-content:center;gap:1.3rem;margin-top:0.55rem;flex-wrap:wrap;}
+.sbk{text-align:center;}
+.sbk-v{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--body);}
+.sbk-l{font-family:'DM Mono',monospace;font-size:0.5rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);}
+.ans-reveal{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);text-align:center;margin-bottom:0.9rem;}
+.ans-reveal span{color:var(--gold-warm);}
+
+/* LB ENTRY */
+.lb-form{margin-bottom:0.9rem;}
+.lb-lbl{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;display:block;}
+.lb-row{display:flex;gap:0.45rem;}
+.lb-inp{flex:1;background:var(--ink);border:1px solid var(--border);color:var(--paper);font-family:'DM Mono',monospace;font-size:0.82rem;padding:0.5rem 0.75rem;border-radius:2px;outline:none;transition:border-color 0.2s;}
+.lb-inp:focus{border-color:var(--gold);}
+.lb-save{padding:0.5rem 1rem;background:var(--gold);color:var(--ink);font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;font-weight:500;transition:background 0.2s;white-space:nowrap;}
+.lb-save:hover{background:var(--gold-warm);}
+.lb-err{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--red);margin-top:0.28rem;min-height:0.85rem;}
+.lb-ok{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--green);margin-top:0.28rem;display:none;}
+
+/* LB TABLE */
+.lb-ttl{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:0.45rem;}
+.lb-tbl{width:100%;border-collapse:collapse;}
+.lb-tbl th{font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);padding:0.22rem 0.45rem;text-align:left;border-bottom:1px solid var(--border-dim);}
+.lb-tbl td{font-family:'DM Mono',monospace;font-size:0.65rem;padding:0.28rem 0.45rem;border-bottom:1px solid var(--border-dim);color:var(--body);}
+.lb-tbl tr:last-child td{border-bottom:none;}
+.lb-tbl tr.hl td{color:var(--gold-warm);}
+.lb-rank{color:var(--muted);width:1.4rem;}
+.lb-sc{color:var(--gold);font-weight:500;}
+.lb-empty{font-family:'DM Mono',monospace;font-size:0.63rem;color:var(--muted);font-style:italic;padding:0.4rem 0;}
+
+.next-box{text-align:center;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border-dim);}
+.next-box span{color:var(--teal-light);}
+
+.modal-acts{display:flex;gap:0.5rem;padding:0 1.4rem 1.4rem;justify-content:center;}
+.m-btn{padding:0.55rem 1.2rem;font-family:'DM Mono',monospace;font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+.m-ghost{background:transparent;border:1px solid var(--border-dim);color:var(--muted);}
+.m-ghost:hover{border-color:var(--gold-dim);color:var(--gold);}
+.m-gold{background:var(--gold);border:none;color:var(--ink);font-weight:500;}
+.m-gold:hover{background:var(--gold-warm);}
+
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}40%{transform:translateX(5px);}60%{transform:translateX(-3px);}80%{transform:translateX(3px);}}
+.shake{animation:shake 0.38s ease;}
+@media(max-width:480px){.g-cell{width:40px;height:40px;font-size:0.9rem;}.status-bar{gap:1rem;}.modal{margin:0.5rem;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Project 52F</a>
+  <a class="nav-back" href="/">← Back</a>
+</nav>
+
+<div class="page">
+
+  <div class="game-header">
+    <p class="game-kicker">Daily · Mathematical Deduction</p>
+    <h1 class="game-title">52<strong>-dle</strong></h1>
+    <p class="game-sub">Identify the hidden number. Six guesses. New puzzle every 24 hours.</p>
+  </div>
+
+  <div class="wrap">
+
+    <div class="status-bar">
+      <div class="si"><span class="si-val" id="sv-g">6</span><span class="si-lbl">Guesses Left</span></div>
+      <div class="si"><span class="si-val" id="sv-t">0:00</span><span class="si-lbl">Time</span></div>
+      <div class="si"><span class="si-val" id="sv-h">0</span><span class="si-lbl">Hints</span></div>
+      <div class="si"><span class="si-val" id="sv-s">—</span><span class="si-lbl">Est. Score</span></div>
+    </div>
+
+    <div class="clue-panel">
+      <div class="clue-head">
+        <span class="clue-ttl">Today's Clue</span>
+        <span class="clue-cat" id="clue-cat"></span>
+      </div>
+      <div class="clue-body">
+        <div class="clue-main" id="clue-main">Loading…</div>
+        <div class="hints-list" id="hints-list"></div>
+        <div class="hint-area">
+          <button class="hint-btn" id="hint-btn" onclick="revealHint()">
+            <span>Reveal Hint</span>
+            <span class="hint-cost">−150 pts</span>
+          </button>
+          <span class="hints-left" id="hints-left"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="guess-grid" id="guess-grid"></div>
+
+    <div class="input-wrap">
+      <div class="input-row">
+        <input type="number" class="num-inp" id="g-inp" placeholder="Enter a number…" min="1" max="99999" autocomplete="off">
+        <button class="sub-btn" id="sub-btn" onclick="submitGuess()">Guess</button>
+      </div>
+      <div class="inp-err" id="inp-err"></div>
+    </div>
+
+    <div class="keyboard">
+      <div class="kb-row">
+        <button class="kb-k" onclick="kbN('1')">1</button><button class="kb-k" onclick="kbN('2')">2</button><button class="kb-k" onclick="kbN('3')">3</button><button class="kb-k" onclick="kbN('4')">4</button><button class="kb-k" onclick="kbN('5')">5</button><button class="kb-k" onclick="kbN('6')">6</button><button class="kb-k" onclick="kbN('7')">7</button><button class="kb-k" onclick="kbN('8')">8</button><button class="kb-k" onclick="kbN('9')">9</button><button class="kb-k" onclick="kbN('0')">0</button>
+      </div>
+      <div class="kb-row">
+        <button class="kb-k wide" onclick="kbDel()">⌫ Del</button>
+        <button class="kb-k wide" onclick="submitGuess()">Enter</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="m-icon" id="m-icon">🎯</span>
+      <div class="m-title" id="m-title">Correct!</div>
+      <div class="m-sub" id="m-sub"></div>
+    </div>
+    <div class="modal-bd">
+      <div class="score-box">
+        <div class="score-big" id="m-score">0</div>
+        <div class="score-lbl">Points</div>
+        <div class="score-bk">
+          <div class="sbk"><div class="sbk-v" id="bd-base">1000</div><div class="sbk-l">Base</div></div>
+          <div class="sbk"><div class="sbk-v" id="bd-guess">−0</div><div class="sbk-l">Guesses</div></div>
+          <div class="sbk"><div class="sbk-v" id="bd-hint">−0</div><div class="sbk-l">Hints</div></div>
+          <div class="sbk"><div class="sbk-v" id="bd-time">1.000×</div><div class="sbk-l">Time</div></div>
+        </div>
+      </div>
+      <div class="ans-reveal" id="ans-reveal"></div>
+
+      <div class="lb-form" id="lb-form">
+        <label class="lb-lbl" for="lb-name">Add your score to the leaderboard</label>
+        <div class="lb-row">
+          <input type="text" class="lb-inp" id="lb-name" placeholder="Your name…" maxlength="20" autocomplete="off">
+          <button class="lb-save" onclick="saveLB()">Save</button>
+        </div>
+        <div class="lb-err" id="lb-err"></div>
+        <div class="lb-ok" id="lb-ok"></div>
+      </div>
+
+      <div>
+        <div class="lb-ttl">Today's Leaderboard</div>
+        <div id="lb-out"></div>
+      </div>
+
+      <div class="next-box" id="next-box"></div>
+    </div>
+    <div class="modal-acts">
+      <button class="m-btn m-ghost" onclick="closeModal()">Close</button>
+      <button class="m-btn m-gold" onclick="shareRes()">Share Result</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── PROFANITY FILTER ────────────────────────────────────────────────
+const BAD = ["fuck","shit","cunt","dick","cock","ass","bitch","bastard","twat","wank","piss","crap","arse","slut","whore","fag","nigger","nigga","retard","spastic","prick","bellend","wanker","tosser","bollocks","knob","minge","slag","tit","tits","pussy","dildo","rape","nonce","paedo","pedo","nazi","hitler"];
+function checkName(raw){
+  const s = raw.toLowerCase().replace(/[^a-z0-9_\-.() ]/gi,'').trim();
+  if(!s) return {ok:false,msg:'Please enter a name.'};
+  if(s.length<2) return {ok:false,msg:'Name must be at least 2 characters.'};
+  for(const w of BAD) if(s.includes(w)) return {ok:false,msg:"That name isn't allowed — please choose another."};
+  return {ok:true,name:raw.trim().slice(0,20)};
+}
+
+// ─── PUZZLE BANK ─────────────────────────────────────────────────────
+const PUZZLES = [
+  {a:89, cat:"Fibonacci",     clue:"I am the eleventh Fibonacci number. I am also prime. The ratio of the next Fibonacci number to me is very close to φ.",                          hints:["I am in the sequence: …34, 55, ?, 144","I am between 80 and 100","55 + 34 = me"]},
+  {a:55, cat:"Fibonacci",     clue:"I am the tenth Fibonacci number. I am triangular. Five elevens.",                                                                                  hints:["I follow 34 in the Fibonacci sequence","5 × 11","I am between 50 and 65"]},
+  {a:34, cat:"Fibonacci",     clue:"I am the ninth Fibonacci number. I divide evenly by 2 and by 17. My predecessor is 21.",                                                           hints:["I follow 21 in the Fibonacci sequence","2 × 17","I am between 30 and 40"]},
+  {a:144,cat:"Fibonacci",     clue:"I am the only perfect square greater than 1 in the Fibonacci sequence. 12 × 12.",                                                                  hints:["12²","I am the 12th Fibonacci number","I am between 140 and 150"]},
+  {a:21, cat:"Fibonacci",     clue:"I am the eighth Fibonacci number and a triangular number. Three sevens.",                                                                           hints:["3 × 7","I follow 13 in the Fibonacci sequence","I am less than 25"]},
+  {a:13, cat:"Fibonacci + Prime", clue:"I am simultaneously Fibonacci and prime — the sixth prime and seventh Fibonacci number. Considered unlucky by some, but entirely mathematical.", hints:["I am prime","I follow 8 in the Fibonacci sequence","I am less than 15"]},
+  {a:314,cat:"Pi — digits of π",  clue:"The first three significant digits of π concatenated: 3.14...",                                                                                hints:["π ≈ 3.14159…","Three hundred and fourteen","I begin with the digit 3"]},
+  {a:159,cat:"Pi — digits of π",  clue:"Digits 4 through 6 of π: 3.14[159]… A sequence beloved by those who memorise their constants.",                                               hints:["π = 3.14159265…","Three consecutive digits at positions 4–6","I am between 155 and 165"]},
+  {a:271,cat:"Euler's Number — e","clue":"The first three significant digits of e, the base of natural logarithms. The number governing natural growth.",                               hints:["e ≈ 2.71828…","Two hundred and seventy-something","I begin with the digit 2"]},
+  {a:828,cat:"Euler's Number — e","clue":"Digits 4 through 6 of e: 2.71[828]… This constant governs the buy tax of Project 52F.",                                                     hints:["e = 2.71828182…","Three consecutive digits at positions 4–6 of e","I am between 820 and 835"]},
+  {a:618,cat:"Golden Ratio — φ",  clue:"The first three decimal digits of φ after the decimal point: 1.[618]…  φ − 1 = 1/φ — the only number with this property.",                  hints:["φ = 1.61803398…","Six hundred and eighteen","Digits 2–4 after the decimal of φ"]},
+  {a:1618,cat:"Golden Ratio — φ", clue:"The first four digits of φ: 1.618… Used in the Parthenon, nautilus shells, and the Slot 52 activation threshold.",                           hints:["φ ≈ 1.61803…","One thousand six hundred and eighteen","I am between 1610 and 1625"]},
+  {a:52,  cat:"Project 52F",      clue:"I am not prime. I am 4 × 13. My square is the minimum QF buy for the Champion's Seat. I am the soul of this project.",                       hints:["4 × 13","My square is 2,704","I am between 50 and 55"]},
+  {a:2704,cat:"Project 52F",      clue:"I am 52 squared. The minimum native QF buy to claim Slot 52 — the Champion's Seat.",                                                           hints:["52 × 52","I am a perfect square","I am between 2700 and 2710"]},
+  {a:2718,cat:"Euler's Number — e","clue":"The first four digits of e as an integer: 2718. The buy tax of Project 52F is e% — 2.71828% — drawn from this constant.",                 hints:["e ≈ 2.71828…","Two thousand seven hundred and eighteen","The buy tax as a 4-digit integer"]},
+  {a:3141,cat:"Pi — digits of π",  clue:"The first four digits of π as an integer: 3141. The sell tax of Project 52F is π% — 3.14159%.",                                             hints:["π ≈ 3.14159…","Three thousand one hundred and forty-one","The sell tax as a 4-digit integer"]},
+  {a:97,  cat:"Prime",             clue:"I am the 25th prime and the largest two-digit prime. My reverse, 79, is also prime — we are emirp twins.",                                    hints:["The largest prime below 100","I am between 90 and 100","My digits sum to 16"]},
+  {a:53,  cat:"Prime",             clue:"I am the 16th prime. The nearest prime greater than 52 — the soul of this project plus one.",                                                 hints:["I am prime","I am one more than 52","I am between 50 and 55"]},
+  {a:42,  cat:"Mathematical Culture","clue":"The answer to life, the universe, and everything. Also: 6 × 7. Ten less than 52.",                                                        hints:["6 × 7","The famous Hitchhiker's Guide number","I am between 40 and 45"]},
+  {a:1,   cat:"Fibonacci",         clue:"I appear twice in the Fibonacci sequence — the only number to do so. I am the multiplicative identity. Everything times me is itself.",      hints:["F(1) = F(2) = me","I am the first and second Fibonacci number","I am less than 5"]},
+];
+
+// ─── DAY / STATE ──────────────────────────────────────────────────────
+function dayStr(){
+  const d=new Date(); return `${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+}
+function dayIdx(){
+  const epoch=new Date('2026-01-01');
+  return Math.floor((new Date()-epoch)/(864e5)) % PUZZLES.length;
+}
+const SKEY = ()=>'52dle_s_'+dayStr();
+const LKEY = ()=>'52dle_lb_'+dayStr();
+const SUBK = ()=>'52dle_sub_'+dayStr();
+
+// ─── SCORING ──────────────────────────────────────────────────────────
+const BASE=1000, G_COST=100, H_COST=150, T_K=0.015;
+function score(guesses,hints,secs,won){
+  if(!won) return 0;
+  const pen = Math.max(0,(guesses-1)*G_COST + hints*H_COST);
+  const mult= 1/(1+T_K*Math.log(1+secs));
+  return Math.max(1,Math.round((BASE-pen)*mult));
+}
+function liveScore(guesses,hints,secs){
+  const pen=Math.max(0,guesses*G_COST+hints*H_COST);
+  return Math.max(0,Math.round((BASE-pen)*(1/(1+T_K*Math.log(1+secs)))));
+}
+
+// ─── LEADERBOARD ─────────────────────────────────────────────────────
+function loadLB(){ try{return JSON.parse(localStorage.getItem(LKEY()))||[];}catch{return[];} }
+function saveLB_entries(arr){ localStorage.setItem(LKEY(),JSON.stringify(arr)); }
+function addEntry(name,sc,guesses,hints,secs){
+  const arr=loadLB();
+  arr.push({name,sc,guesses,hints,secs,ts:Date.now()});
+  arr.sort((a,b)=>b.sc-a.sc);
+  saveLB_entries(arr);
+  return arr;
+}
+function renderLB(hl){
+  const arr=loadLB();
+  const el=document.getElementById('lb-out');
+  if(!arr.length){el.innerHTML='<div class="lb-empty">No scores yet today — be the first!</div>';return;}
+  el.innerHTML=`<table class="lb-tbl"><thead><tr><th>#</th><th>Name</th><th>Score</th><th>Guesses</th><th>Hints</th></tr></thead><tbody>`
+    +arr.slice(0,10).map((e,i)=>`<tr class="${e.name===hl?'hl':''}"><td class="lb-rank">${i+1}</td><td>${e.name}</td><td class="lb-sc">${e.sc.toLocaleString()}</td><td>${e.guesses}</td><td>${e.hints}</td></tr>`).join('')
+    +`</tbody></table>`;
+}
+
+// ─── GAME STATE ───────────────────────────────────────────────────────
+let P, ST, timerID;
+function initGame(){
+  P = PUZZLES[dayIdx()];
+  const saved=localStorage.getItem(SKEY());
+  if(saved){
+    ST=JSON.parse(saved);
+    if(ST.finished){renderAll();openModal(ST.won);return;}
+  } else {
+    ST={guesses:[],hints:0,start:Date.now(),finished:false,won:false,elapsed:0};
+  }
+  renderAll();
+  timerID=setInterval(tick,1000);
+}
+function saveState(){ localStorage.setItem(SKEY(),JSON.stringify(ST)); }
+
+function tick(){
+  if(ST.finished){clearInterval(timerID);return;}
+  const s=Math.floor((Date.now()-ST.start)/1000);
+  const m=Math.floor(s/60), sec=s%60;
+  document.getElementById('sv-t').textContent=`${m}:${sec.toString().padStart(2,'0')}`;
+  if(ST.guesses.length>0)
+    document.getElementById('sv-s').textContent=liveScore(ST.guesses.length,ST.hints,s).toLocaleString();
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────
+function renderAll(){ renderClue(); renderGrid(); renderStatus(); }
+
+function renderClue(){
+  document.getElementById('clue-cat').textContent=P.cat;
+  document.getElementById('clue-main').textContent=P.clue;
+  const hl=document.getElementById('hints-list');
+  hl.innerHTML='';
+  for(let i=0;i<ST.hints;i++){
+    const d=document.createElement('div'); d.className='hint-row';
+    d.innerHTML=`<span class="hint-diamond">◆</span><span>${P.hints[i]}</span>`;
+    hl.appendChild(d);
+  }
+  const rem=P.hints.length-ST.hints;
+  document.getElementById('hints-left').textContent=rem>0?`${rem} hint${rem!==1?'s':''} available`:'No more hints';
+  document.getElementById('hint-btn').disabled=rem===0||ST.finished;
+}
+
+function renderGrid(){
+  const grid=document.getElementById('guess-grid');
+  grid.innerHTML='';
+  const aStr=P.a.toString();
+  const maxL=Math.max(aStr.length,4);
+  for(let r=0;r<6;r++){
+    const row=document.createElement('div'); row.className='guess-row';
+    const gn=document.createElement('div'); gn.className='g-num'; gn.textContent=r+1; row.appendChild(gn);
+    const cells=document.createElement('div'); cells.className='g-cells';
+    const g=ST.guesses[r]; const gStr=g!==undefined?g.toString():'';
+    const dLen=Math.max(maxL,gStr.length);
+    const aPad=aStr.padStart(dLen,'0'), gPad=gStr.padStart(dLen,'0');
+    for(let c=0;c<dLen;c++){
+      const cel=document.createElement('div'); cel.className='g-cell';
+      cel.textContent=gStr[c]||'';
+      if(g!==undefined){
+        if(gStr===aStr) cel.classList.add('correct');
+        else if(c<gPad.length && c<aPad.length){
+          if(gPad[c]===aPad[c]) cel.classList.add('correct');
+          else if(aStr.includes(gPad[c])) cel.classList.add('close');
+          else cel.classList.add('wrong');
+        } else cel.classList.add('wrong');
+      } else if(r===ST.guesses.length) cel.classList.add('empty-active');
+      cells.appendChild(cel);
+    }
+    row.appendChild(cells);
+    const fb=document.createElement('div'); fb.className='g-fb';
+    if(g!==undefined){
+      const diff=g-P.a;
+      if(diff===0){fb.textContent='✓ Correct!';fb.classList.add('hit');}
+      else if(Math.abs(diff)<=5){fb.textContent=diff>0?'↓ Very close':'↑ Very close';fb.classList.add('warm');}
+      else if(Math.abs(diff)<=25){fb.textContent=diff>0?'↓ Close':'↑ Close';fb.classList.add('warm');}
+      else if(Math.abs(diff)<=150){fb.textContent=diff>0?'↓ Lower':'↑ Higher';}
+      else{fb.textContent=diff>0?'↓ Much lower':'↑ Much higher';}
+    }
+    row.appendChild(fb);
+    grid.appendChild(row);
+  }
+}
+
+function renderStatus(){
+  document.getElementById('sv-g').textContent=ST.finished?'—':Math.max(0,6-ST.guesses.length);
+  document.getElementById('sv-h').textContent=ST.hints;
+}
+
+// ─── INPUT ────────────────────────────────────────────────────────────
+function kbN(n){ if(ST.finished)return; const i=document.getElementById('g-inp'); if(i.value.length<6)i.value+=n; i.focus(); }
+function kbDel(){ if(ST.finished)return; const i=document.getElementById('g-inp'); i.value=i.value.slice(0,-1); i.focus(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Enter') submitGuess(); });
+
+function submitGuess(){
+  if(ST.finished)return;
+  const inp=document.getElementById('g-inp');
+  const err=document.getElementById('inp-err');
+  err.textContent='';
+  const v=inp.value.trim();
+  if(!v||isNaN(v)){err.textContent='Please enter a number.';document.getElementById('guess-grid').classList.add('shake');setTimeout(()=>document.getElementById('guess-grid').classList.remove('shake'),380);return;}
+  const n=parseInt(v,10);
+  if(n<1||n>99999){err.textContent='Enter a number between 1 and 99,999.';return;}
+  ST.guesses.push(n); inp.value=''; saveState(); renderAll();
+  if(n===P.a){
+    ST.finished=true;ST.won=true;ST.elapsed=Math.floor((Date.now()-ST.start)/1000);
+    saveState();clearInterval(timerID);setTimeout(()=>openModal(true),550);
+  } else if(ST.guesses.length>=6){
+    ST.finished=true;ST.won=false;ST.elapsed=Math.floor((Date.now()-ST.start)/1000);
+    saveState();clearInterval(timerID);setTimeout(()=>openModal(false),550);
+  }
+  document.getElementById('sub-btn').disabled=ST.finished;
+}
+
+function revealHint(){
+  if(ST.hints>=P.hints.length||ST.finished)return;
+  ST.hints++; saveState(); renderClue(); renderStatus();
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────
+function openModal(won){
+  const el=ST.elapsed||Math.floor((Date.now()-ST.start)/1000);
+  const gu=ST.guesses.length;
+  const sc=score(gu,ST.hints,el,won);
+  document.getElementById('m-icon').textContent=won?'🎯':'📐';
+  document.getElementById('m-title').textContent=won?'Correct!':'Out of guesses';
+  document.getElementById('m-sub').textContent=won?`Solved in ${gu} guess${gu!==1?'es':''} · ${el}s`:`The answer was ${P.a}`;
+  document.getElementById('m-score').textContent=sc.toLocaleString();
+  document.getElementById('bd-base').textContent=BASE.toLocaleString();
+  document.getElementById('bd-guess').textContent='−'+((gu-1)*G_COST).toLocaleString();
+  document.getElementById('bd-hint').textContent='−'+(ST.hints*H_COST).toLocaleString();
+  const tm=1/(1+T_K*Math.log(1+el));
+  document.getElementById('bd-time').textContent=tm.toFixed(3)+'×';
+  document.getElementById('ans-reveal').innerHTML=`The answer was <span>${P.a}</span> — <em>${P.cat}</em>`;
+  if(!won||localStorage.getItem(SUBK())) document.getElementById('lb-form').style.display='none';
+  renderLB(); nextPuzzleCountdown();
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+function saveLB(){
+  const raw=document.getElementById('lb-name').value;
+  const err=document.getElementById('lb-err');
+  const ok=document.getElementById('lb-ok');
+  err.textContent=''; ok.style.display='none';
+  const res=checkName(raw);
+  if(!res.ok){err.textContent=res.msg;return;}
+  const el=ST.elapsed||0, gu=ST.guesses.length;
+  const sc=score(gu,ST.hints,el,true);
+  addEntry(res.name,sc,gu,ST.hints,el);
+  localStorage.setItem(SUBK(),'1');
+  document.getElementById('lb-form').style.display='none';
+  ok.textContent=`Saved! Nice work, ${res.name}.`; ok.style.display='block';
+  renderLB(res.name);
+}
+
+function nextPuzzleCountdown(){
+  const now=new Date(), tmrw=new Date(now);
+  tmrw.setDate(tmrw.getDate()+1); tmrw.setHours(0,0,0,0);
+  const diff=tmrw-now, h=Math.floor(diff/36e5), m=Math.floor((diff%36e5)/6e4);
+  document.getElementById('next-box').innerHTML=`Next puzzle in <span>${h}h ${m}m</span>`;
+}
+
+function shareRes(){
+  const gu=ST.guesses.length, el=ST.elapsed||0;
+  const sc=score(gu,ST.hints,el,ST.won);
+  const boxes=ST.guesses.map(g=>g===P.a?'🟩':Math.abs(g-P.a)<=25?'🟨':'⬛').join('');
+  const txt=`52-dle #${dayIdx()+1}\n${ST.won?`Solved in ${gu}/6`:'Failed today'}\n${boxes}\nScore: ${sc.toLocaleString()}\nproject52f.uk/games/52dle`;
+  navigator.clipboard&&navigator.clipboard.writeText(txt);
+  const btn=event.target; btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Share Result',2000);
+}
+
+initGame();
+</script>
+</body>
+</html>
