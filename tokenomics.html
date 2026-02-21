@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenomics — Project 52F</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ─── CUSTOM PROPERTIES ─────────────────────────────────────────── */
+:root {
+  --navy:       #08111f;
+  --navy-mid:   #0d1f38;
+  --navy-card:  #111e33;
+  --gold:       #c8a84b;
+  --gold-light: #e2c87a;
+  --gold-dim:   #8a7035;
+  --white:      #f0eff0;
+  --muted:      #7a8fa8;
+  --teal:       #0d8a7e;
+  --teal-light: #12b5a7;
+  --border:     rgba(200,168,75,0.2);
+  --border-dim: rgba(200,168,75,0.08);
+  --border-mid: rgba(200,168,75,0.14);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+canvas#fib-canvas {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  z-index:0; opacity:0.06;
+  pointer-events:none;
+}
+
+h1,h2,h3,h4 {
+  font-family:'Playfair Display',Georgia,serif;
+  font-weight:700; line-height:1.2;
+}
+
+.mono {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.78em; letter-spacing:0.04em;
+}
+
+/* ─── NAV ───────────────────────────────────────────────────────── */
+nav {
+  position:fixed; top:0; left:0; right:0;
+  z-index:100; padding:1rem 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(8,17,31,0.88);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-dim);
+}
+.nav-logo {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.85rem; letter-spacing:0.18em;
+  color:var(--gold); text-decoration:none;
+  font-weight:500;
+}
+.nav-links { list-style:none; display:flex; gap:2rem; }
+.nav-links a {
+  color:var(--muted); text-decoration:none;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem; letter-spacing:0.1em;
+  transition:color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color:var(--gold); }
+
+/* ─── LAYOUT ────────────────────────────────────────────────────── */
+.container {
+  max-width:1080px; margin:0 auto;
+  padding:0 2rem; position:relative; z-index:1;
+}
+
+section { position:relative; z-index:1; }
+
+/* ─── PAGE HERO ─────────────────────────────────────────────────── */
+.page-hero {
+  padding:10rem 0 5rem;
+  border-bottom:1px solid var(--border-dim);
+}
+.page-hero-inner {
+  display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:end;
+}
+.hero-eyebrow {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem; letter-spacing:0.18em;
+  color:var(--teal-light); text-transform:uppercase;
+  margin-bottom:1rem;
+}
+.hero-title { font-size:clamp(2.8rem,6vw,4.8rem); line-height:1.05; }
+.hero-title .gold { color:var(--gold); }
+.hero-title .italic { font-style:italic; }
+.hero-subtitle {
+  margin-top:1.5rem;
+  color:var(--muted); font-size:1rem;
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.05em; line-height:1.6;
+}
+.hero-desc { margin-top:1.5rem; font-size:1.15rem; color:rgba(240,239,240,0.75); }
+
+.hero-constants {
+  display:flex; flex-direction:column; gap:1rem;
+}
+.constant-pill {
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:8px; padding:1rem 1.4rem;
+  display:flex; align-items:center; gap:1.2rem;
+}
+.pill-symbol {
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.6rem; color:var(--gold); min-width:40px;
+  text-align:center;
+}
+.pill-info { flex:1; }
+.pill-name { font-size:0.8rem; color:var(--muted); letter-spacing:0.05em; }
+.pill-value { font-size:1rem; color:var(--white); font-weight:600; }
+.pill-use {
+  font-size:0.72rem; color:var(--teal-light);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ─── SECTION HEADERS ───────────────────────────────────────────── */
+.section-header {
+  padding:5rem 0 3rem;
+  border-bottom:1px solid var(--border-dim);
+  margin-bottom:3rem;
+}
+.section-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; letter-spacing:0.2em;
+  color:var(--teal); text-transform:uppercase;
+  margin-bottom:0.75rem;
+}
+.section-title { font-size:clamp(2rem,4vw,3rem); }
+.section-title .gold { color:var(--gold); }
+.section-desc { margin-top:1rem; color:var(--muted); max-width:680px; font-size:1.05rem; }
+
+/* ─── CONTENT PROSE ─────────────────────────────────────────────── */
+.prose-block { margin-bottom:2.5rem; }
+.prose-block p { 
+  color:rgba(240,239,240,0.8); 
+  margin-bottom:1.2rem; 
+  font-size:1.1rem;
+}
+.prose-block p:last-child { margin-bottom:0; }
+.prose-block strong { color:var(--gold-light); font-weight:600; }
+
+/* ─── INFO CALLOUT ──────────────────────────────────────────────── */
+.callout {
+  border-left:3px solid var(--gold);
+  padding:1.2rem 1.6rem;
+  background:rgba(200,168,75,0.06);
+  border-radius:0 8px 8px 0;
+  margin:2rem 0;
+}
+.callout p { color:rgba(240,239,240,0.85); margin:0; font-size:1.05rem; }
+.callout.teal { border-left-color:var(--teal-light); background:rgba(13,138,126,0.06); }
+.callout .callout-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; letter-spacing:0.15em;
+  color:var(--gold); text-transform:uppercase;
+  margin-bottom:0.5rem;
+}
+.callout.teal .callout-label { color:var(--teal-light); }
+
+/* ─── DATA TABLES ───────────────────────────────────────────────── */
+.data-table-wrap { overflow-x:auto; margin:2rem 0; }
+.data-table {
+  width:100%; border-collapse:collapse;
+  font-size:0.95rem;
+}
+.data-table th {
+  text-align:left; padding:0.9rem 1.2rem;
+  border-bottom:2px solid var(--border);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; letter-spacing:0.14em;
+  color:var(--gold); text-transform:uppercase;
+  font-weight:500;
+}
+.data-table td {
+  padding:0.85rem 1.2rem;
+  border-bottom:1px solid var(--border-dim);
+  color:rgba(240,239,240,0.82);
+  vertical-align:top;
+}
+.data-table tr:hover td { background:rgba(200,168,75,0.03); }
+.data-table .highlight-row td { color:var(--white); font-weight:600; }
+.data-table .mono-cell { font-family:'JetBrains Mono',monospace; font-size:0.82em; }
+.data-table .gold-cell { color:var(--gold-light); }
+.data-table .teal-cell { color:var(--teal-light); }
+
+/* ─── CONSTANT BREAKDOWN ─────────────────────────────────────────── */
+.constants-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.constants-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:1.5rem; margin-top:2.5rem;
+}
+.constant-card {
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:12px; padding:2rem;
+  position:relative; overflow:hidden;
+}
+.constant-card::before {
+  content:'';
+  position:absolute; top:0; right:0;
+  width:60px; height:60px;
+  background:radial-gradient(circle at top right, rgba(200,168,75,0.12), transparent 70%);
+}
+.constant-sym {
+  font-family:'Playfair Display',serif;
+  font-size:3rem; color:var(--gold);
+  line-height:1; margin-bottom:0.75rem;
+}
+.constant-name {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem; letter-spacing:0.12em;
+  color:var(--muted); text-transform:uppercase;
+  margin-bottom:0.4rem;
+}
+.constant-numval {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.9rem; color:var(--teal-light);
+  margin-bottom:1rem;
+}
+.constant-desc { font-size:0.95rem; color:rgba(240,239,240,0.75); line-height:1.55; }
+.constant-usage {
+  margin-top:1rem; padding-top:1rem;
+  border-top:1px solid var(--border-dim);
+  font-size:0.85rem; color:var(--gold-light);
+}
+
+/* ─── SUPPLY VISUAL ─────────────────────────────────────────────── */
+.supply-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.supply-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:4rem; align-items:start; }
+.supply-breakdown { display:flex; flex-direction:column; gap:1rem; margin-top:2rem; }
+.supply-bar-row { display:flex; flex-direction:column; gap:0.4rem; }
+.supply-bar-label {
+  display:flex; justify-content:space-between;
+  font-size:0.9rem;
+}
+.supply-bar-label .name { color:var(--white); }
+.supply-bar-label .pct { color:var(--gold); font-family:'JetBrains Mono',monospace; font-size:0.82rem; }
+.supply-bar-bg {
+  height:6px; background:rgba(200,168,75,0.1);
+  border-radius:3px; overflow:hidden;
+}
+.supply-bar-fill {
+  height:100%; border-radius:3px;
+  background:linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition:width 1s ease;
+}
+.supply-bar-fill.teal { background:linear-gradient(90deg,var(--teal),var(--teal-light)); }
+.supply-bar-fill.mid { background:linear-gradient(90deg,#4a7a9b,#6da3c7); }
+.supply-bar-desc { font-size:0.8rem; color:var(--muted); margin-top:0.2rem; }
+
+.supply-aside { margin-top:2rem; }
+.supply-aside h3 { font-size:1.4rem; margin-bottom:1rem; }
+.supply-stat {
+  display:flex; flex-direction:column;
+  padding:1.2rem; background:var(--navy-card);
+  border:1px solid var(--border-dim);
+  border-radius:8px; margin-bottom:1rem;
+}
+.supply-stat-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; letter-spacing:0.12em;
+  color:var(--muted); text-transform:uppercase;
+}
+.supply-stat-val { font-size:1.5rem; color:var(--gold); margin-top:0.3rem; }
+.supply-stat-sub { font-size:0.85rem; color:var(--muted); margin-top:0.2rem; }
+
+/* ─── TAX ENGINE ─────────────────────────────────────────────────── */
+.tax-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.tax-flow {
+  display:grid; grid-template-columns:1fr auto 1fr;
+  gap:1.5rem; align-items:center; margin:2.5rem 0;
+}
+.tax-box {
+  background:var(--navy-card);
+  border:1px solid var(--border);
+  border-radius:10px; padding:1.5rem;
+}
+.tax-box-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; letter-spacing:0.14em;
+  color:var(--muted); text-transform:uppercase;
+  margin-bottom:0.5rem;
+}
+.tax-box-rate { font-size:2.2rem; color:var(--gold); font-family:'Playfair Display',serif; }
+.tax-box-constant { font-size:0.85rem; color:var(--teal-light); margin-top:0.25rem; }
+.tax-arrow {
+  text-align:center; color:var(--gold-dim);
+  font-size:1.5rem; padding:0 0.5rem;
+}
+.tax-flow-split { display:flex; flex-direction:column; gap:0.75rem; }
+.tax-split-item {
+  background:var(--navy-card);
+  border:1px solid var(--border-dim);
+  border-radius:8px; padding:1rem 1.2rem;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.tax-split-item .split-pct { color:var(--gold); font-family:'JetBrains Mono',monospace; font-weight:500; }
+.tax-split-item .split-dest { color:var(--muted); font-size:0.88rem; }
+
+.math-formula {
+  background:rgba(8,17,31,0.8);
+  border:1px solid var(--border);
+  border-radius:8px; padding:1.2rem 1.8rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.88rem; color:var(--teal-light);
+  margin:1.5rem 0; overflow-x:auto;
+}
+
+/* ─── PRIZE POOL STATE MACHINE ───────────────────────────────────── */
+.pool-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.state-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:2rem; }
+.state-card {
+  border-radius:12px; padding:1.8rem;
+  border:1px solid var(--border-dim);
+  background:var(--navy-card);
+  position:relative;
+}
+.state-card .state-badge {
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; letter-spacing:0.14em;
+  padding:0.3rem 0.8rem; border-radius:20px;
+  text-transform:uppercase; margin-bottom:1rem;
+}
+.state-card.normal .state-badge { background:rgba(13,138,126,0.2); color:var(--teal-light); }
+.state-card.flush .state-badge { background:rgba(200,168,75,0.2); color:var(--gold-light); }
+.state-card.floor .state-badge { background:rgba(74,122,155,0.2); color:#6da3c7; }
+.state-card.exit .state-badge { background:rgba(100,180,100,0.2); color:#80d080; }
+.state-card h3 { font-size:1.25rem; margin-bottom:0.75rem; }
+.state-card p { font-size:0.95rem; color:rgba(240,239,240,0.75); line-height:1.55; }
+.state-threshold {
+  margin-top:1rem; padding-top:1rem;
+  border-top:1px solid var(--border-dim);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.8rem; color:var(--gold);
+}
+
+/* ─── BIRTHDAY PARADOX ───────────────────────────────────────────── */
+.paradox-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.paradox-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:4rem; }
+.collision-visual { 
+  background:var(--navy-card); border:1px solid var(--border);
+  border-radius:12px; padding:2rem; margin-top:2rem;
+}
+.collision-title {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem; letter-spacing:0.14em;
+  color:var(--muted); text-transform:uppercase;
+  margin-bottom:1.5rem;
+}
+.slot-grid {
+  display:grid; grid-template-columns:repeat(8,1fr);
+  gap:4px;
+}
+.slot-cell {
+  aspect-ratio:1; border-radius:4px;
+  background:rgba(200,168,75,0.08);
+  border:1px solid var(--border-dim);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6rem; color:var(--muted);
+  transition:all 0.3s;
+}
+.slot-cell.active { 
+  background:rgba(200,168,75,0.2); 
+  border-color:var(--gold);
+  color:var(--gold);
+}
+.slot-cell.hit {
+  background:rgba(13,138,126,0.3);
+  border-color:var(--teal-light);
+  color:var(--teal-light);
+  animation:pulse 1s ease infinite alternate;
+}
+@keyframes pulse { from { opacity:0.7; } to { opacity:1; } }
+.fib-labels {
+  display:grid; grid-template-columns:repeat(8,1fr);
+  gap:4px; margin-top:4px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.55rem; color:var(--muted); text-align:center;
+}
+
+/* ─── TIER TABLE ─────────────────────────────────────────────────── */
+.tiers-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.tier-note {
+  font-size:0.85rem; color:var(--muted);
+  font-family:'JetBrains Mono',monospace; margin-top:0.5rem;
+}
+
+/* ─── SLOT 52 ────────────────────────────────────────────────────── */
+.slot52-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.slot52-hero {
+  background:linear-gradient(135deg,rgba(200,168,75,0.08) 0%, rgba(13,138,126,0.05) 100%);
+  border:1px solid var(--border);
+  border-radius:16px; padding:3rem; margin-top:2rem;
+  position:relative; overflow:hidden;
+}
+.slot52-hero::before {
+  content:'52';
+  position:absolute; right:2rem; bottom:-1rem;
+  font-family:'Playfair Display',serif;
+  font-size:10rem; color:rgba(200,168,75,0.04);
+  line-height:1; pointer-events:none;
+}
+.slot52-hero h3 { font-size:1.8rem; margin-bottom:1rem; }
+.slot52-hero p { color:rgba(240,239,240,0.8); max-width:660px; }
+.slot52-metrics {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:1.5rem; margin-top:2rem;
+}
+.slot52-metric {
+  background:rgba(8,17,31,0.6);
+  border:1px solid var(--border-dim);
+  border-radius:10px; padding:1.2rem;
+}
+.slot52-metric-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; letter-spacing:0.12em;
+  color:var(--muted); text-transform:uppercase;
+}
+.slot52-metric-val { font-size:1.6rem; color:var(--gold); margin-top:0.4rem; }
+.slot52-metric-sub { font-size:0.8rem; color:var(--muted); margin-top:0.2rem; }
+
+/* ─── DEFLATIONARY MECHANICS ─────────────────────────────────────── */
+.deflationary-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.mech-cards { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; margin-top:2rem; }
+.mech-card {
+  background:var(--navy-card); border:1px solid var(--border-dim);
+  border-radius:12px; padding:1.8rem;
+}
+.mech-icon { font-size:2rem; margin-bottom:1rem; }
+.mech-card h4 { font-size:1.1rem; margin-bottom:0.75rem; color:var(--gold-light); }
+.mech-card p { font-size:0.92rem; color:rgba(240,239,240,0.72); line-height:1.55; }
+
+/* ─── SUSTAINABILITY MODEL ───────────────────────────────────────── */
+.sustain-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.sustain-grid { display:grid; grid-template-columns:1fr 1fr; gap:3rem; margin-top:2rem; }
+.sustain-col h3 { font-size:1.25rem; color:var(--gold-light); margin-bottom:1rem; }
+.sustain-item {
+  display:flex; gap:1rem; margin-bottom:1.2rem;
+  padding-bottom:1.2rem; border-bottom:1px solid var(--border-dim);
+}
+.sustain-item:last-child { border-bottom:none; }
+.sustain-item-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--teal-light); margin-top:0.5rem; flex-shrink:0;
+}
+.sustain-item-text { font-size:0.95rem; color:rgba(240,239,240,0.78); line-height:1.55; }
+.sustain-item-text strong { color:var(--white); }
+
+/* ─── FAQ ────────────────────────────────────────────────────────── */
+.faq-section { padding:4rem 0; border-bottom:1px solid var(--border-dim); }
+.faq-item {
+  border-bottom:1px solid var(--border-dim);
+  padding:1.5rem 0;
+}
+.faq-item:last-child { border-bottom:none; }
+.faq-q {
+  font-family:'Playfair Display',serif;
+  font-size:1.15rem; color:var(--white);
+  margin-bottom:0.75rem;
+}
+.faq-a { font-size:1rem; color:rgba(240,239,240,0.75); line-height:1.65; }
+.faq-a strong { color:var(--gold-light); }
+
+/* ─── CTA FOOTER ─────────────────────────────────────────────────── */
+.cta-section { padding:6rem 0 4rem; }
+.cta-inner { text-align:center; }
+.cta-inner h2 { font-size:clamp(2rem,4vw,3rem); margin-bottom:1rem; }
+.cta-inner p { color:var(--muted); font-size:1.1rem; max-width:560px; margin:0 auto 2.5rem; }
+.cta-btn {
+  display:inline-block;
+  background:var(--gold); color:var(--navy);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.8rem; letter-spacing:0.14em;
+  font-weight:500; text-transform:uppercase;
+  padding:1rem 2.5rem; border-radius:4px;
+  text-decoration:none;
+  transition:background 0.2s, transform 0.1s;
+}
+.cta-btn:hover { background:var(--gold-light); transform:translateY(-1px); }
+.back-btn {
+  display:inline-block; margin-top:1.5rem;
+  color:var(--muted); text-decoration:none;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem; letter-spacing:0.1em;
+  transition:color 0.2s;
+}
+.back-btn:hover { color:var(--gold); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────── */
+footer {
+  border-top:1px solid var(--border-dim);
+  padding:2rem; text-align:center;
+}
+.footer-mono {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem; color:var(--muted);
+  letter-spacing:0.1em;
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--navy); }
+::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:3px; }
+
+/* ─── REVEAL ─────────────────────────────────────────────────────── */
+.reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+@media(max-width:900px) {
+  .page-hero-inner, .constants-grid, .supply-grid,
+  .paradox-grid, .state-grid, .mech-cards, .sustain-grid,
+  .slot52-metrics { grid-template-columns:1fr; }
+  .tax-flow { grid-template-columns:1fr; }
+  .tax-arrow { transform:rotate(90deg); }
+  .slot-grid { grid-template-columns:repeat(4,1fr); }
+  .fib-labels { grid-template-columns:repeat(4,1fr); }
+  .nav-links { display:none; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="fib-canvas"></canvas>
+
+<!-- ─── NAV ──────────────────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="/">PROJECT 52F</a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="#constants">Constants</a></li>
+    <li><a href="#supply">Supply</a></li>
+    <li><a href="#tax">Tax Engine</a></li>
+    <li><a href="#prize-pool">Prize Pool</a></li>
+    <li><a href="#birthday">Birthday Paradox</a></li>
+    <li><a href="#slot52">Slot 52</a></li>
+    <li><a href="#sustainability">Model</a></li>
+  </ul>
+</nav>
+
+<!-- ─── PAGE HERO ─────────────────────────────────────────────── -->
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-inner">
+      <div>
+        <p class="hero-eyebrow">In-depth · Token Economics</p>
+        <h1 class="hero-title">
+          <span class="italic">The</span><br>
+          <span class="gold">Tokenomics</span><br>
+          of 52F
+        </h1>
+        <p class="hero-subtitle">// every number has a reason</p>
+        <p class="hero-desc">
+          Nothing in Project 52F was chosen arbitrarily. Every parameter — tax rate, prize pool threshold, 
+          collision slot, activation trigger — is derived from a fundamental mathematical constant 
+          or proven probability theorem. This page explains the logic, the maths, and the reasoning 
+          behind each decision.
+        </p>
+      </div>
+      <div class="hero-constants">
+        <div class="constant-pill">
+          <div class="pill-symbol">e</div>
+          <div class="pill-info">
+            <div class="pill-name">Euler's Number</div>
+            <div class="pill-value">2.71828…</div>
+            <div class="pill-use">→ Buy tax: 2.718%</div>
+          </div>
+        </div>
+        <div class="constant-pill">
+          <div class="pill-symbol">π</div>
+          <div class="pill-info">
+            <div class="pill-name">Pi</div>
+            <div class="pill-value">3.14159…</div>
+            <div class="pill-use">→ Sell tax: 3.141%</div>
+          </div>
+        </div>
+        <div class="constant-pill">
+          <div class="pill-symbol">φ</div>
+          <div class="pill-info">
+            <div class="pill-name">Golden Ratio</div>
+            <div class="pill-value">1.61803…</div>
+            <div class="pill-use">→ Slot 52 activation multiplier</div>
+          </div>
+        </div>
+        <div class="constant-pill">
+          <div class="pill-symbol">F</div>
+          <div class="pill-info">
+            <div class="pill-name">Fibonacci Sequence</div>
+            <div class="pill-value">1, 1, 2, 3, 5, 8, 13, 21…</div>
+            <div class="pill-use">→ Collision slot positions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 1. MATHEMATICAL CONSTANTS ─────────────────────────────── -->
+<section id="constants" class="constants-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 01</p>
+      <h2 class="section-title">Why <span class="gold">Mathematical Constants?</span></h2>
+      <p class="section-desc">
+        In most token projects, parameters are guesses — developers pick round numbers that look clean 
+        or feel safe. We rejected this. Mathematical constants are immutable, irrefutable, and universal. 
+        They don't need justification because nature already provided it.
+      </p>
+    </div>
+
+    <div class="prose-block reveal">
+      <p>
+        When we set the buy tax at <strong>2.718%</strong>, we didn't pick 3% because it was easy or 
+        2.5% because it felt balanced. We chose <em>e</em> — Euler's number — because it is the base 
+        of the natural exponential function, the rate at which compound growth occurs in nature. 
+        There is a poetic logic to using the constant that governs natural growth to govern the rate 
+        at which our prize pool grows.
+      </p>
+      <p>
+        When we set the sell tax at <strong>3.141%</strong>, we chose <em>π</em> — Pi — the ratio 
+        of a circle's circumference to its diameter, perhaps the most universally recognised constant 
+        in mathematics. It is transcendental, irrational, and infinite. So is the precision with which 
+        it is encoded into the contract.
+      </p>
+    </div>
+
+    <div class="constants-grid reveal">
+      <div class="constant-card">
+        <div class="constant-sym">e</div>
+        <div class="constant-name">Euler's Number</div>
+        <div class="constant-numval">2.71828182845904523…</div>
+        <div class="constant-desc">
+          The base of the natural logarithm. Appears spontaneously in compound interest, 
+          population growth, radioactive decay, and probability theory. The "most natural" 
+          rate constant in mathematics.
+        </div>
+        <div class="constant-usage">
+          <strong>Used as:</strong> Buy tax rate = 2.718%<br>
+          <strong>Contract:</strong> E_BUY_TAX = 27_182_818_284_590_452<br>
+          <strong>Applied:</strong> tax = (value × E_BUY_TAX) / 10^18
+        </div>
+      </div>
+      <div class="constant-card">
+        <div class="constant-sym">π</div>
+        <div class="constant-name">Pi</div>
+        <div class="constant-numval">3.14159265358979323…</div>
+        <div class="constant-desc">
+          The ratio of a circle's circumference to its diameter. Transcendental, irrational, 
+          and infinite. Appears in Euler's identity, Fourier transforms, and the fundamental 
+          nature of geometry itself.
+        </div>
+        <div class="constant-usage">
+          <strong>Used as:</strong> Sell tax rate = 3.141% (split: 1% + 1% + 1.141%)<br>
+          <strong>Contract:</strong> PI_SELL_TAX = 31_415_926_535_897_932<br>
+          <strong>Split:</strong> 1% → team · 1% → liquidity · π − 2 = 1.141% → prize pool
+        </div>
+      </div>
+      <div class="constant-card">
+        <div class="constant-sym">φ</div>
+        <div class="constant-name">Golden Ratio</div>
+        <div class="constant-numval">1.61803398874989484…</div>
+        <div class="constant-desc">
+          (1 + √5) / 2. Found in spiral galaxies, nautilus shells, the proportions of the 
+          Parthenon, and sunflower seed patterns. The ratio that nature returns to again and again 
+          when building beautiful, efficient structures.
+        </div>
+        <div class="constant-usage">
+          <strong>Used as:</strong> Slot 52 activation multiplier<br>
+          <strong>Calculation:</strong> £52,000 × φ = £84,136<br>
+          <strong>Meaning:</strong> Champion's Seat unlocks at market cap ≥ £84,136
+        </div>
+      </div>
+      <div class="constant-card">
+        <div class="constant-sym">F<sub style="font-size:1.5rem">n</sub></div>
+        <div class="constant-name">Fibonacci Sequence</div>
+        <div class="constant-numval">0, 1, 1, 2, 3, 5, 8, 13, 21, 34…</div>
+        <div class="constant-desc">
+          Each number is the sum of the two preceding it. Fibonacci numbers appear in branching 
+          trees, flower petal counts, and the arrangement of leaves on stems. The sequence converges 
+          to φ as it grows.
+        </div>
+        <div class="constant-usage">
+          <strong>Used as:</strong> Active collision slot positions<br>
+          <strong>Slots:</strong> 1, 2, 3, 5, 8, 13, 21, 34 (8 active of 52)<br>
+          <strong>Mask:</strong> FIB_MASK = 0x40020212E (bitmask on 52-slot ring buffer)
+        </div>
+      </div>
+      <div class="constant-card">
+        <div class="constant-sym">52</div>
+        <div class="constant-name">Brand Constant</div>
+        <div class="constant-numval">The number itself</div>
+        <div class="constant-desc">
+          52 weeks in a year. 52 cards in a standard deck. The ring buffer holds 52 transaction 
+          hash slots. The token is named 52F. The brand constant isn't arbitrary — it structures 
+          the entire collision engine.
+        </div>
+        <div class="constant-usage">
+          <strong>Used as:</strong> Ring buffer size, token name, tier thresholds<br>
+          <strong>Lottery slots:</strong> 52 total, 8 active (Fibonacci positions)<br>
+          <strong>Slot 52:</strong> The Champion's Seat — the supreme position
+        </div>
+      </div>
+      <div class="constant-card">
+        <div class="constant-sym" style="font-size:2rem">B.P.</div>
+        <div class="constant-name">Birthday Paradox</div>
+        <div class="constant-numval">P(collision | n, k) = 1 − (k!/(k−n)!) / k^n</div>
+        <div class="constant-desc">
+          In a group of just 23 people, there is a &gt;50% chance two share a birthday. Applied here: 
+          with 1,000 transaction hashes mapped to 52 slots, collisions are statistically inevitable 
+          — the lottery mechanism isn't random chance, it's mathematical certainty over time.
+        </div>
+        <div class="constant-usage">
+          <strong>Used as:</strong> Core lottery engine design principle<br>
+          <strong>Mechanism:</strong> Each buy maps tx hash → slot 0–51. Fibonacci slots are active.<br>
+          <strong>Win:</strong> Tx hash maps to a Fibonacci slot = prize trigger
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 2. TOTAL SUPPLY ────────────────────────────────────────── -->
+<section id="supply" class="supply-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 02</p>
+      <h2 class="section-title">Token <span class="gold">Supply & Allocation</span></h2>
+      <p class="section-desc">
+        The total supply of 80,658,175,170 tokens was not chosen at random — it is mathematically 
+        derived and precisely allocated across four purpose-defined buckets.
+      </p>
+    </div>
+
+    <div class="supply-grid reveal">
+      <div>
+        <div class="callout">
+          <div class="callout-label">Why this supply?</div>
+          <p>
+            The figure 80,658,175,170 emerges from the mathematical framework of the project. 
+            At 18 decimal places (PSP22 standard), this gives a raw total of approximately 
+            8.07 × 10²⁸ smallest units — a number that, when manipulated with the constant 
+            multipliers (e and π), produces clean fractional results without overflow risk 
+            in 256-bit arithmetic.
+          </p>
+        </div>
+
+        <div class="supply-breakdown">
+          <div class="supply-bar-row">
+            <div class="supply-bar-label">
+              <span class="name">Liquidity / DEX Pool</span>
+              <span class="pct">83%</span>
+            </div>
+            <div class="supply-bar-bg"><div class="supply-bar-fill" style="width:83%"></div></div>
+            <div class="supply-bar-desc">~66.9B tokens — seeded to SPIN-Swap at launch. The bulk of supply is immediately tradeable.</div>
+          </div>
+          <div class="supply-bar-row">
+            <div class="supply-bar-label">
+              <span class="name">Prize Pool (initial seed)</span>
+              <span class="pct">5%</span>
+            </div>
+            <div class="supply-bar-bg"><div class="supply-bar-fill teal" style="width:5%"></div></div>
+            <div class="supply-bar-desc">~4.03B tokens — pre-seeded prize pool. Protected by a hard floor; never depleted below this level.</div>
+          </div>
+          <div class="supply-bar-row">
+            <div class="supply-bar-label">
+              <span class="name">Reservoir / Liquidity Reserve</span>
+              <span class="pct">7%</span>
+            </div>
+            <div class="supply-bar-bg"><div class="supply-bar-fill mid" style="width:7%"></div></div>
+            <div class="supply-bar-desc">~5.65B tokens — held as a buffer for automatic liquidity management and flush events.</div>
+          </div>
+          <div class="supply-bar-row">
+            <div class="supply-bar-label">
+              <span class="name">Team / Development</span>
+              <span class="pct">5%</span>
+            </div>
+            <div class="supply-bar-bg"><div class="supply-bar-fill" style="width:5%; opacity:0.5"></div></div>
+            <div class="supply-bar-desc">~4.03B tokens — minimal team allocation. Project 52F is a solo-built proof of concept.</div>
+          </div>
+        </div>
+
+        <div class="data-table-wrap" style="margin-top:2.5rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Symbol</td>
+                <td class="gold-cell">52F</td>
+              </tr>
+              <tr>
+                <td>Standard</td>
+                <td>PSP22 (Substrate ERC-20 equivalent)</td>
+              </tr>
+              <tr>
+                <td>Total Supply</td>
+                <td class="mono-cell">80,658,175,170 tokens</td>
+              </tr>
+              <tr>
+                <td>Decimals</td>
+                <td>18</td>
+              </tr>
+              <tr>
+                <td>Max Wallet</td>
+                <td class="mono-cell">6% = ~4,839,490,510 tokens</td>
+              </tr>
+              <tr>
+                <td>Prize Pool Floor</td>
+                <td class="mono-cell">5% = ~4,032,908,758 tokens</td>
+              </tr>
+              <tr>
+                <td>Prize Pool Flush Trigger</td>
+                <td class="mono-cell">7.5% = ~6,049,363,138 tokens</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="supply-aside">
+        <h3>Why a 6% Max Wallet?</h3>
+        <p style="color:rgba(240,239,240,0.75); font-size:0.95rem; margin-bottom:1.5rem;">
+          A 6% wallet cap prevents any single address from accumulating sufficient holdings to 
+          manipulate price, dominate the collision engine, or control governance direction. 
+          It also prevents whale sells from crashing liquidity before the prize pool can 
+          establish self-sustaining momentum.
+        </p>
+        <div class="supply-stat">
+          <span class="supply-stat-label">Max Single Wallet</span>
+          <span class="supply-stat-val">6%</span>
+          <span class="supply-stat-sub">= 4,839,490,510 tokens</span>
+        </div>
+        <div class="supply-stat">
+          <span class="supply-stat-label">Prize Pool Hard Floor</span>
+          <span class="supply-stat-val">5%</span>
+          <span class="supply-stat-sub">Prizes suspend if pool touches floor</span>
+        </div>
+        <div class="supply-stat">
+          <span class="supply-stat-label">Flush Trigger Level</span>
+          <span class="supply-stat-val">7.5%</span>
+          <span class="supply-stat-sub">Tax routing redirected to liquidity</span>
+        </div>
+        <div class="supply-stat">
+          <span class="supply-stat-label">Initial Liquidity</span>
+          <span class="supply-stat-val">400 QF</span>
+          <span class="supply-stat-sub">= £160 at QF price of £0.40</span>
+        </div>
+        <div class="callout teal" style="margin-top:1.5rem">
+          <div class="callout-label">No Admin Mint</div>
+          <p>The total supply is fixed at deployment. No admin key can mint additional tokens. What is set, is set.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 3. TAX ENGINE ─────────────────────────────────────────── -->
+<section id="tax" class="tax-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 03</p>
+      <h2 class="section-title">The <span class="gold">Tax Engine</span></h2>
+      <p class="section-desc">
+        Two taxes. Two constants. One self-funding prize mechanism. Every fraction of every 
+        buy and sell transaction is routed with mathematical precision.
+      </p>
+    </div>
+
+    <div class="tax-flow reveal">
+      <div class="tax-box">
+        <div class="tax-box-label">Buy Tax</div>
+        <div class="tax-box-rate">2.718%</div>
+        <div class="tax-box-constant">≡ Euler's Number (e)</div>
+        <p style="font-size:0.9rem; color:rgba(240,239,240,0.7); margin-top:1rem; line-height:1.5">
+          Applied on every token purchase via DEX. 
+          <strong style="color:var(--gold-light)">100% routes to the prize pool.</strong> 
+          Only buyers are eligible for the Birthday Paradox collision lottery.
+        </p>
+      </div>
+      <div class="tax-arrow">→</div>
+      <div>
+        <div class="tax-box" style="margin-bottom:1rem">
+          <div class="tax-box-label">Sell Tax</div>
+          <div class="tax-box-rate">3.141%</div>
+          <div class="tax-box-constant">≡ Pi (π) — split into three portions</div>
+        </div>
+        <div class="tax-flow-split">
+          <div class="tax-split-item">
+            <div>
+              <div class="tax-box-label" style="font-size:0.65rem">Portion 1</div>
+              <div class="split-dest">Team</div>
+            </div>
+            <div class="split-pct">1.000%</div>
+          </div>
+          <div class="tax-split-item">
+            <div>
+              <div class="tax-box-label" style="font-size:0.65rem">Portion 2</div>
+              <div class="split-dest">Liquidity / Reservoir</div>
+            </div>
+            <div class="split-pct">1.000%</div>
+          </div>
+          <div class="tax-split-item">
+            <div>
+              <div class="tax-box-label" style="font-size:0.65rem">Portion 3 (π − 2)</div>
+              <div class="split-dest">Prize Pool</div>
+            </div>
+            <div class="split-pct">1.141%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose-block reveal">
+      <p>
+        The three-way split of sell tax is precise: <strong>1% + 1% + (π − 2)%</strong>. π − 2 = 1.14159…, rounded to 1.141%. This means the portion flowing to the prize pool from every sell is itself a mathematical constant — the remainder of Pi after removing two units of unity. Every sell simultaneously rewards the team (1%), builds liquidity stability (1%), and fills the prize pool (π − 2 = 1.141%).
+      </p>
+    </div>
+
+    <div class="math-formula reveal">
+      // Fixed-point arithmetic — multiply before divide to prevent precision loss<br>
+      buy_tax_amount  = (transfer_value × 27_182_818_284_590_452) / 10^18<br>
+      sell_tax_total  = (transfer_value × 31_415_926_535_897_932) / 10^18<br>
+      sell_to_team    = (transfer_value × 10_000_000_000_000_000) / 10^18  // 1%<br>
+      sell_to_liq     = (transfer_value × 10_000_000_000_000_000) / 10^18  // 1%<br>
+      sell_to_pool    = sell_tax_total − sell_to_team − sell_to_liq         // π − 2 = 1.141%
+    </div>
+
+    <div class="callout reveal">
+      <div class="callout-label">Critical Rule</div>
+      <p>
+        <strong>Only buy transactions are eligible for the Birthday Paradox collision check.</strong> 
+        Sell transactions receive no collision check under any circumstances. This is by design: 
+        it rewards participation (buying) not extraction (selling), and prevents gaming of the 
+        lottery by wash-trading through sells.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 4. PRIZE POOL STATE MACHINE ───────────────────────────── -->
+<section id="prize-pool" class="pool-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 04</p>
+      <h2 class="section-title">Prize Pool <span class="gold">State Machine</span></h2>
+      <p class="section-desc">
+        The prize pool is not a static bucket. It is a four-state machine that automatically 
+        adjusts tax routing to protect its floor and prevent runaway accumulation.
+      </p>
+    </div>
+
+    <div class="state-grid reveal">
+      <div class="state-card normal">
+        <div class="state-badge">Normal State</div>
+        <h3>Active Operation</h3>
+        <p>Pool sits between 5% and 7.5% of total supply. The system operates normally: buy tax flows to pool, sell 1.141% (π − 2) flows to pool. Prizes cost 50% from pool + 50% via market buy of 52F.</p>
+        <div class="state-threshold">Pool: 5% ≤ x ≤ 7.5% of supply</div>
+      </div>
+      <div class="state-card flush">
+        <div class="state-badge">Flush State</div>
+        <h3>Overaccumulation Guard</h3>
+        <p>Pool exceeds 7.5% of supply — too large relative to token supply. Buy tax is redirected to liquidity. Sell 1.141% (π − 2) also redirects to liquidity. Prizes are paid 100% from pool only. This drains the pool back to target range.</p>
+        <div class="state-threshold">Pool: &gt; 7.5% of supply → re-routes tax</div>
+      </div>
+      <div class="state-card floor">
+        <div class="state-badge">Floor State</div>
+        <h3>Hard Floor Protection</h3>
+        <p>Pool reaches 5% of supply — the initial seed level. All tax revenue is now directed to refilling the pool. Prizes are suspended until the tax accumulation gate is satisfied. The pool can never be depleted below its starting level.</p>
+        <div class="state-threshold">Pool = 5% of supply → prizes suspended</div>
+      </div>
+      <div class="state-card exit">
+        <div class="state-badge">Flush Exit</div>
+        <h3>Automatic Recovery</h3>
+        <p>When a flush state pool drains back below 5% of supply, the system automatically resumes normal tax routing. No admin action required — the contract detects the threshold crossing and adjusts on the next transaction.</p>
+        <div class="state-threshold">Pool drops below 5% → normal routing resumes</div>
+      </div>
+    </div>
+
+    <div class="callout teal reveal" style="margin-top:2.5rem">
+      <div class="callout-label">Tax Accumulation Gate</div>
+      <p>
+        Before a prize triggers, accumulated tax in the current cycle must equal at least 
+        <strong>50% of the prize value</strong>. This gate is the primary sustainability mechanism: 
+        it mathematically prevents pool drain at all volume levels. At low volume, prizes 
+        are rarer but the pool stays healthy. At high volume, prizes flow freely but always 
+        proportionally to incoming tax.
+      </p>
+    </div>
+
+    <div class="data-table-wrap reveal" style="margin-top:2rem">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Condition</th>
+            <th>Buy Tax Routing</th>
+            <th>Sell 1.141% (π−2) Routing</th>
+            <th>Prize Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="teal-cell">Normal</td>
+            <td>5% ≤ pool ≤ 7.5%</td>
+            <td>→ Prize Pool</td>
+            <td>→ Prize Pool</td>
+            <td>50% pool + 50% market buy</td>
+          </tr>
+          <tr>
+            <td class="gold-cell">Flush</td>
+            <td>pool &gt; 7.5%</td>
+            <td>→ Liquidity</td>
+            <td>→ Liquidity</td>
+            <td>100% from pool</td>
+          </tr>
+          <tr>
+            <td style="color:#6da3c7">Floor</td>
+            <td>pool = 5%</td>
+            <td>→ Prize Pool</td>
+            <td>→ Prize Pool</td>
+            <td>Suspended</td>
+          </tr>
+          <tr>
+            <td style="color:#80d080">Flush Exit</td>
+            <td>post-flush, pool &lt; 5%</td>
+            <td>→ Prize Pool (normal)</td>
+            <td>→ Prize Pool (normal)</td>
+            <td>Normal split resumes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 5. BIRTHDAY PARADOX ENGINE ────────────────────────────── -->
+<section id="birthday" class="paradox-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 05</p>
+      <h2 class="section-title">The Birthday <span class="gold">Paradox Engine</span></h2>
+      <p class="section-desc">
+        The lottery is not random. It is a deterministic collision detection system inspired by 
+        one of probability theory's most elegant results.
+      </p>
+    </div>
+
+    <div class="paradox-grid reveal">
+      <div>
+        <div class="prose-block">
+          <p>
+            The Birthday Paradox states: in a room of just 23 people, the probability that 
+            two share a birthday exceeds 50%. The maths seems counterintuitive until you 
+            realise you're counting <em>pairs</em>, not individuals.
+          </p>
+          <p>
+            We applied this principle to transaction hashes. Every buy transaction generates 
+            a hash — a unique 256-bit fingerprint. We take that hash, reduce it modulo 52, 
+            and map it to one of 52 slots in a ring buffer. Of those 52 slots, <strong>8 are 
+            active</strong> — the Fibonacci positions: slots 1, 2, 3, 5, 8, 13, 21, and 34.
+          </p>
+          <p>
+            If your transaction hash maps to a Fibonacci slot, you've had a <strong>collision</strong> 
+            — your hash "collides" with an active position. Subject to passing the tax 
+            accumulation gate, you win a prize.
+          </p>
+        </div>
+
+        <div class="callout">
+          <div class="callout-label">Collision Probability</div>
+          <p>
+            With 8 active slots of 52 total, each qualifying buy transaction has a 
+            <strong>8/52 ≈ 15.38% base probability</strong> of mapping to a Fibonacci slot. 
+            The actual prize rate is lower due to the tax gate, but the mathematical 
+            certainty of collisions over time is what makes this a provably fair system — 
+            not a casino, but a mathematical inevitability.
+          </p>
+        </div>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ring buffer size</td>
+                <td class="mono-cell gold-cell">52 slots</td>
+              </tr>
+              <tr>
+                <td>Active (Fibonacci) slots</td>
+                <td class="mono-cell">8 of 52</td>
+              </tr>
+              <tr>
+                <td>Active slot positions</td>
+                <td class="mono-cell">1, 2, 3, 5, 8, 13, 21, 34</td>
+              </tr>
+              <tr>
+                <td>Bitmask</td>
+                <td class="mono-cell">0x40020212E</td>
+              </tr>
+              <tr>
+                <td>Base collision probability</td>
+                <td class="mono-cell teal-cell">8/52 ≈ 15.38%</td>
+              </tr>
+              <tr>
+                <td>Randomness source</td>
+                <td>pallet-vrf (block epoch, 2 prior)</td>
+              </tr>
+              <tr>
+                <td>Eligible transactions</td>
+                <td class="gold-cell">Buy only — never sell</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="collision-visual">
+          <div class="collision-title">52-Slot Ring Buffer — Fibonacci Active Positions</div>
+          <div class="slot-grid" id="slot-grid">
+            <!-- Generated by JS -->
+          </div>
+          <div class="fib-labels" id="fib-labels">
+            <!-- Generated by JS -->
+          </div>
+          <div style="margin-top:1.5rem; display:flex; gap:1.5rem; font-size:0.75rem; font-family:'JetBrains Mono',monospace;">
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(200,168,75,0.2);border:1px solid var(--gold)"></div>
+              <span style="color:var(--muted)">Active (Fibonacci)</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(13,138,126,0.3);border:1px solid var(--teal-light)"></div>
+              <span style="color:var(--muted)">Collision hit</span>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <div style="width:12px;height:12px;border-radius:2px;background:rgba(200,168,75,0.08);border:1px solid rgba(200,168,75,0.15)"></div>
+              <span style="color:var(--muted)">Inactive</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout teal" style="margin-top:1.5rem">
+          <div class="callout-label">VRF Security</div>
+          <p>
+            Randomness is derived from <strong>pallet-vrf</strong> using block entropy 
+            from two epochs prior — not the current block. This makes it tamper-resistant: 
+            a validator cannot predict or manipulate which tx hashes land on Fibonacci slots 
+            in the current block because the randomness seed is already sealed.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 6. PRIZE TIERS ─────────────────────────────────────────── -->
+<section id="tiers" class="tiers-section" style="padding:4rem 0; border-bottom:1px solid var(--border-dim)">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 06</p>
+      <h2 class="section-title">Prize <span class="gold">Tiers</span></h2>
+      <p class="section-desc">
+        Prize values scale with market cap. At launch they are modest; as the project grows, 
+        so do the prizes. Every tier minimum is derived from the constant 52.
+      </p>
+    </div>
+
+    <div class="data-table-wrap reveal">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Market Cap Range</th>
+            <th>Min Hold (52F)</th>
+            <th>Prize Range</th>
+            <th>Source Split</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="gold-cell">🌱 Launch</td>
+            <td>&lt; £100k</td>
+            <td class="mono-cell">52</td>
+            <td class="mono-cell">£1 – £50</td>
+            <td>50% pool + 50% market buy</td>
+          </tr>
+          <tr>
+            <td class="gold-cell">🌿 Growth</td>
+            <td>£100k – £1M</td>
+            <td class="mono-cell">520</td>
+            <td class="mono-cell">£10 – £500</td>
+            <td>50% pool + 50% market buy</td>
+          </tr>
+          <tr>
+            <td class="gold-cell">🌳 Mid-cap</td>
+            <td>£1M – £10M</td>
+            <td class="mono-cell">5,200</td>
+            <td class="mono-cell">£100 – £5,000</td>
+            <td>50% pool + 50% market buy</td>
+          </tr>
+          <tr>
+            <td class="gold-cell">⚡ High-cap</td>
+            <td>£10M – £100M</td>
+            <td class="mono-cell">52,000</td>
+            <td class="mono-cell">£1,000 – £50,000</td>
+            <td>50% pool + 50% market buy</td>
+          </tr>
+          <tr class="highlight-row">
+            <td class="gold-cell">👑 Champion</td>
+            <td>&gt; £84,136 (φ × £52k)</td>
+            <td class="mono-cell">52 + Slot 52</td>
+            <td class="mono-cell">Tier maximum</td>
+            <td>Special — see Slot 52</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="tier-note reveal">
+      Tier minimum holdings are multiples of 52 (52, 520, 5,200, 52,000) — the brand constant 
+      embedded at every tier. Dynamic tier assignment: market cap is checked at time of collision.
+    </p>
+
+    <div class="prose-block reveal" style="margin-top:2rem">
+      <p>
+        The 50/50 prize split — half from the prize pool, half via market buy — creates an 
+        elegant dual effect: every prize <strong>simultaneously reduces pool holdings</strong> 
+        (returning tokens to circulation) <strong>and applies buy pressure to the DEX</strong> 
+        (raising price). This means prizes are not just rewards; they are price support events.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 7. SLOT 52 ─────────────────────────────────────────────── -->
+<section id="slot52" class="slot52-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 07</p>
+      <h2 class="section-title">Slot 52 — <span class="gold">The Champion's Seat</span></h2>
+      <p class="section-desc">
+        Slot 52 is not part of the standard lottery. It is a separate, premium mechanic — 
+        the mathematical apex of the entire system.
+      </p>
+    </div>
+
+    <div class="slot52-hero reveal">
+      <h3>The 53rd Position</h3>
+      <p>
+        The ring buffer runs from slot 0 to slot 51 — 52 positions. Slot 52 sits beyond the 
+        standard ring. It is the Champion's Seat: the highest prize tier, the rarest collision, 
+        and the most mathematically significant number in the system. It activates only when 
+        the market cap reaches <strong>£52,000 × φ = £84,136</strong> — the brand constant 
+        multiplied by the golden ratio.
+      </p>
+      <div class="slot52-metrics">
+        <div class="slot52-metric">
+          <div class="slot52-metric-label">Activation Threshold</div>
+          <div class="slot52-metric-val">£84,136</div>
+          <div class="slot52-metric-sub">= £52,000 × φ (Golden Ratio)</div>
+        </div>
+        <div class="slot52-metric">
+          <div class="slot52-metric-label">Prize Level</div>
+          <div class="slot52-metric-val">Tier Max</div>
+          <div class="slot52-metric-sub">Full tier maximum at time of win</div>
+        </div>
+        <div class="slot52-metric">
+          <div class="slot52-metric-label">Minimum Hold</div>
+          <div class="slot52-metric-val">52 tokens</div>
+          <div class="slot52-metric-sub">+ must land Slot 52 collision</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose-block reveal" style="margin-top:2.5rem">
+      <p>
+        The golden ratio activation threshold carries meaning beyond numerology. φ ≈ 1.618 
+        is the ratio at which a quantity grows to become "naturally proportioned" to itself. 
+        Applying φ to the brand constant £52,000 gives the market cap at which the system 
+        has grown sufficiently to sustain its highest prize tier. It is the project's proof 
+        of concept: if we reach £84,136 market cap, Slot 52 opens, and the mathematics 
+        has validated itself.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 8. DEFLATIONARY MECHANICS ─────────────────────────────── -->
+<section id="deflationary" class="deflationary-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 08</p>
+      <h2 class="section-title">Deflationary <span class="gold">Mechanics</span></h2>
+      <p class="section-desc">
+        Three independent mechanisms work together to apply continuous downward pressure on 
+        circulating supply.
+      </p>
+    </div>
+
+    <div class="mech-cards reveal">
+      <div class="mech-card">
+        <div class="mech-icon">🔥</div>
+        <h4>Transaction Tax Burn</h4>
+        <p>
+          A micro-burn is applied on each transaction. While the primary tax routes to the 
+          prize pool and liquidity, a portion is permanently removed from circulation. 
+          Over thousands of transactions this compounds into significant supply reduction.
+        </p>
+      </div>
+      <div class="mech-card">
+        <div class="mech-icon">📈</div>
+        <h4>Prize Buy Pressure</h4>
+        <p>
+          Every prize event triggers an on-contract market buy of 52F tokens. This buy-back 
+          creates real price appreciation backed by actual demand, not manufactured tokenomics. 
+          Prizes drive price — price drives prizes.
+        </p>
+      </div>
+      <div class="mech-card">
+        <div class="mech-icon">🔒</div>
+        <h4>Locked Prize Pool</h4>
+        <p>
+          5% of total supply is permanently locked in the prize pool contract and can never 
+          fall below this level. These tokens are removed from effective circulating supply 
+          permanently — they can only be won, not extracted by admin or team.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 9. SUSTAINABILITY MODEL ───────────────────────────────── -->
+<section id="sustainability" class="sustain-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 09</p>
+      <h2 class="section-title">Sustainability <span class="gold">Model</span></h2>
+      <p class="section-desc">
+        The most important question for any prize token: can the pool sustain itself 
+        at all volume levels? We modelled it. Here's what the maths shows.
+      </p>
+    </div>
+
+    <div class="sustain-grid reveal">
+      <div>
+        <h3>Why It Works</h3>
+        <div class="sustain-item">
+          <div class="sustain-item-dot"></div>
+          <div class="sustain-item-text">
+            <strong>The tax gate is the primary safeguard.</strong> No prize triggers unless accumulated 
+            tax in the current cycle equals ≥ 50% of the prize value. At low volume, taxes accumulate 
+            slowly — so prizes are less frequent, but the pool is never at risk.
+          </div>
+        </div>
+        <div class="sustain-item">
+          <div class="sustain-item-dot"></div>
+          <div class="sustain-item-text">
+            <strong>Both buy and sell replenish the pool.</strong> Buy tax (e = 2.718%) flows 
+            100% to pool. Sell tax (π − 2 = 1.141%) flows to pool. The pool has two independent 
+            income streams, meaning it refills even in one-sided markets.
+          </div>
+        </div>
+        <div class="sustain-item">
+          <div class="sustain-item-dot"></div>
+          <div class="sustain-item-text">
+            <strong>The 50/50 prize split self-reinforces.</strong> Half the prize comes from market 
+            buy — which creates price appreciation — which increases the token value of pool holdings 
+            — which increases effective prize capacity without requiring more tokens.
+          </div>
+        </div>
+        <div class="sustain-item">
+          <div class="sustain-item-dot"></div>
+          <div class="sustain-item-text">
+            <strong>The floor is hard-coded at 5%.</strong> The contract mathematically prevents 
+            the pool from falling below its seeded amount. No adverse market condition can drain 
+            the prize mechanism to zero.
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3>Tier Sustainability Analysis</h3>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>Daily Vol.</th>
+                <th>Daily Tax In</th>
+                <th>Expected Prizes</th>
+                <th>Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>🌱 Launch</td>
+                <td>500 txs</td>
+                <td>~£39</td>
+                <td>0.5/day @ £50 max</td>
+                <td class="teal-cell">Safe ✓</td>
+              </tr>
+              <tr>
+                <td>🌿 Growth</td>
+                <td>2,000 txs</td>
+                <td>~£156</td>
+                <td>2–3/day @ £500 max</td>
+                <td class="teal-cell">Safe ✓</td>
+              </tr>
+              <tr>
+                <td>🌳 Mid-cap</td>
+                <td>10,000 txs</td>
+                <td>~£780</td>
+                <td>10–15/day @ £5k max</td>
+                <td class="teal-cell">Safe ✓</td>
+              </tr>
+              <tr>
+                <td>⚡ High-cap</td>
+                <td>50,000 txs</td>
+                <td>~£3,900</td>
+                <td>50–70/day @ £50k max</td>
+                <td class="gold-cell">Flush guard active</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:0.82rem; color:var(--muted); margin-top:0.75rem; font-family:'JetBrains Mono',monospace; line-height:1.6">
+          * Modelled at avg buy of £2.08 (5.2 QF). Tax gate = 50% of prize value. 
+          Collision rate assumes 15.38% base probability, gated to effective ~0.5–2%.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 10. FAQ ────────────────────────────────────────────────── -->
+<section id="faq" class="faq-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label">Section 10</p>
+      <h2 class="section-title">Common <span class="gold">Questions</span></h2>
+    </div>
+
+    <div class="reveal">
+      <div class="faq-item">
+        <div class="faq-q">Can the team change the tax rates or constants after launch?</div>
+        <div class="faq-a">No. The mathematical constants are hard-coded at deployment. There are no admin functions that can alter e, π, φ, or any of the Fibonacci slot positions. The contract is immutable in these respects. What is written is written.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What happens to the prize pool if nobody wins for a long time?</div>
+        <div class="faq-a">It grows. Tax revenue continues routing to the pool on every buy and sell. The flush state guard then kicks in when the pool exceeds 7.5% of supply, at which point tax redirects to liquidity instead. The system is self-managing — it cannot grow unchecked, and it cannot be depleted.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I know the collision result isn't manipulated?</div>
+        <div class="faq-a">Randomness is sourced from <strong>pallet-vrf</strong> on QF Network, derived from block entropy two epochs prior to the current block. A validator would need to retroactively alter sealed blockchain state to manipulate results — computationally infeasible on a PoS chain. The Fibonacci slot positions are fixed in code, publicly verifiable on-chain.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Why are sell transactions excluded from the lottery?</div>
+        <div class="faq-a">To align incentives with project health. Including sells would incentivise rapid sell-buy cycles to farm collision chances. By restricting eligibility to buys only, the lottery rewards genuine participation and long-term holding, not trading velocity. It also prevents wash-trading attacks on the prize mechanism.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is this a ponzi scheme or pyramid structure?</div>
+        <div class="faq-a">No. Ponzi schemes require new capital to pay existing participants. Project 52F's prize pool is pre-seeded at launch (5% of supply, owned by the contract) and replenished by transaction tax — not by recruitment or new investor capital. The system can function even with zero new buyers as long as holders trade.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What is the minimum holding to win a prize?</div>
+        <div class="faq-a">At the launch tier: just <strong>52 tokens</strong>. Each tier requires a holding minimum that is a multiple of 52 (52, 520, 5,200, 52,000). The minimum is checked at time of collision. You must hold the minimum in your wallet at the block of the winning transaction.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ────────────────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <h2>Ready to <span style="color:var(--gold)">participate?</span></h2>
+      <p>Now you understand the logic. Every parameter justified. Every constant chosen for a reason. This is what deterministic finance looks like.</p>
+      <a href="/" class="cta-btn">← Return to Project 52F</a><br>
+      <a href="https://t.me/Project52F" class="back-btn">Join the Telegram community →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-mono">
+    PROJECT 52F · TOKENOMICS · QF NETWORK · PSP22 · ALL PARAMETERS MATHEMATICALLY DERIVED
+  </div>
+  <div class="footer-mono" style="margin-top:0.5rem; font-size:0.6rem; opacity:0.5">
+    This document is informational. Not financial advice. Crypto assets carry risk.
+  </div>
+</footer>
+
+<script>
+/* ─── Fibonacci Canvas ───────────────────────────────────── */
+(function(){
+  const canvas = document.getElementById('fib-canvas');
+  const ctx = canvas.getContext('2d');
+  function resize(){ canvas.width=innerWidth; canvas.height=innerHeight; draw(); }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle='rgba(200,168,75,1)';
+    ctx.lineWidth=1;
+    let a=1,b=1,x=canvas.width*0.5,y=canvas.height*0.5,scale=2;
+    for(let i=0;i<16;i++){
+      const size=b*scale;
+      ctx.strokeRect(x-size/2,y-size/2,size,size);
+      const temp=a+b; a=b; b=temp;
+    }
+    // Spiral arcs
+    ctx.strokeStyle='rgba(200,168,75,0.5)';
+    a=1;b=1;
+    let cx=canvas.width*0.5,cy=canvas.height*0.5;
+    let dirs=[[1,0],[0,1],[-1,0],[0,-1]];
+    let px=cx,py=cy;
+    for(let i=0;i<10;i++){
+      const size=b*scale;
+      const d=dirs[i%4];
+      ctx.beginPath();
+      if(i%4===0)      ctx.arc(px,       py,       size, Math.PI,   1.5*Math.PI);
+      else if(i%4===1) ctx.arc(px+size,  py,       size, 1.5*Math.PI, 0);
+      else if(i%4===2) ctx.arc(px+size,  py-size,  size, 0,         0.5*Math.PI);
+      else             ctx.arc(px,       py-size,  size, 0.5*Math.PI, Math.PI);
+      ctx.stroke();
+      px+=d[0]*size; py+=d[1]*size;
+      const temp=a+b; a=b; b=temp;
+    }
+  }
+  window.addEventListener('resize',resize);
+  resize();
+})();
+
+/* ─── Slot Grid ──────────────────────────────────────────── */
+(function(){
+  const fibSlots = new Set([1,2,3,5,8,13,21,34]);
+  const grid = document.getElementById('slot-grid');
+  const labels = document.getElementById('fib-labels');
+  if(!grid) return;
+  for(let i=1;i<=52;i++){
+    const cell = document.createElement('div');
+    cell.className = 'slot-cell' + (fibSlots.has(i) ? ' active' : '');
+    cell.textContent = i;
+    grid.appendChild(cell);
+    const lbl = document.createElement('div');
+    lbl.textContent = fibSlots.has(i) ? 'F':'·';
+    labels.appendChild(lbl);
+  }
+  // Animate a random "collision hit" every 3s
+  function randomHit(){
+    const slots=document.querySelectorAll('.slot-cell.active');
+    slots.forEach(s=>s.classList.remove('hit'));
+    if(slots.length){
+      const pick=slots[Math.floor(Math.random()*slots.length)];
+      pick.classList.add('hit');
+    }
+    setTimeout(()=>{ document.querySelectorAll('.slot-cell.hit').forEach(s=>s.classList.remove('hit')); }, 1500);
+  }
+  setInterval(randomHit, 3000);
+  setTimeout(randomHit, 500);
+})();
+
+/* ─── Reveal on Scroll ───────────────────────────────────── */
+(function(){
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+/* ─── Nav active state ───────────────────────────────────── */
+(function(){
+  const links = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll',()=>{
+    let cur='';
+    document.querySelectorAll('section[id]').forEach(s=>{
+      if(scrollY>=s.offsetTop-120) cur=s.id;
+    });
+    links.forEach(l=>{
+      l.classList.toggle('active', l.getAttribute('href')==='#'+cur);
+    });
+  });
+})();
+</script>
+</body>
+</html>

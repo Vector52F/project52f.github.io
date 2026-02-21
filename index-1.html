@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 52F — Deterministic Finance on QF Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ─── CUSTOM PROPERTIES ─────────────────────────────────────────── */
+:root {
+  --navy:       #08111f;
+  --navy-mid:   #0d1f38;
+  --navy-card:  #111e33;
+  --gold:       #c8a84b;
+  --gold-light: #e2c87a;
+  --gold-dim:   #8a7035;
+  --white:      #f0eff0;
+  --muted:      #7a8fa8;
+  --teal:       #0d8a7e;
+  --teal-light: #12b5a7;
+  --border:     rgba(200,168,75,0.2);
+  --border-dim: rgba(200,168,75,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ─── CANVAS ─────────────────────────────────────────────────────── */
+#fib-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0; opacity: 0.06; pointer-events: none;
+}
+
+/* ─── TYPE ───────────────────────────────────────────────────────── */
+h1, h2, h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700; line-height: 1.15;
+}
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em; letter-spacing: 0.04em;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────── */
+.container {
+  max-width: 1080px; margin: 0 auto;
+  padding: 0 2rem; position: relative; z-index: 1;
+}
+section { position: relative; z-index: 1; }
+
+/* ─── NAV ────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(8,17,31,0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-dim);
+}
+.nav-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem; letter-spacing: 0.18em;
+  color: var(--gold); text-decoration: none; font-weight: 500;
+}
+.nav-links { list-style: none; display: flex; gap: 1.8rem; }
+.nav-links a {
+  color: var(--muted); text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--gold); }
+.nav-links a.tokenomics-link {
+  color: var(--teal-light);
+  border: 1px solid rgba(18,181,167,0.3);
+  padding: 0.35rem 0.8rem; border-radius: 4px;
+}
+.nav-links a.tokenomics-link:hover { color: var(--white); border-color: var(--teal-light); }
+
+/* ─── HERO ───────────────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 7rem 0 4rem;
+  border-bottom: 1px solid var(--border-dim);
+}
+.hero-inner {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; align-items: center;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.18em;
+  color: var(--teal-light); text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.hero-title {
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 1.0; margin-bottom: 1.5rem;
+}
+.hero-title .gold { color: var(--gold); }
+.hero-title .italic { font-style: italic; }
+.hero-subtitle {
+  font-style: italic; font-size: 1.15rem;
+  color: var(--muted); margin-bottom: 1.5rem;
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 1.2rem;
+}
+.hero-desc { color: rgba(240,239,240,0.75); font-size: 1.1rem; margin-bottom: 2.5rem; }
+.hero-cta {
+  display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
+}
+.btn-primary {
+  background: var(--gold); color: var(--navy);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem; letter-spacing: 0.14em; font-weight: 500;
+  text-transform: uppercase; padding: 0.9rem 2rem;
+  border-radius: 4px; text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: var(--gold-light); }
+.btn-secondary {
+  color: var(--muted); text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.1em;
+  transition: color 0.2s; border-bottom: 1px solid var(--border);
+  padding-bottom: 2px;
+}
+.btn-secondary:hover { color: var(--gold); }
+
+/* Constants panel */
+.hero-constants { display: flex; flex-direction: column; gap: 1rem; }
+.const-card {
+  background: var(--navy-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1.2rem 1.5rem;
+  display: flex; align-items: center; gap: 1.2rem;
+}
+.const-symbol {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; color: var(--gold);
+  min-width: 42px; text-align: center; line-height: 1;
+}
+.const-body { flex: 1; }
+.const-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.12em;
+  color: var(--muted); text-transform: uppercase;
+}
+.const-value { font-size: 1rem; color: var(--white); }
+.const-use {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; color: var(--teal-light); margin-top: 0.2rem;
+}
+
+/* ─── STORY ──────────────────────────────────────────────────────── */
+#story {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.section-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.2em;
+  color: var(--teal); text-transform: uppercase; margin-bottom: 0.75rem;
+}
+.section-title { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; }
+.section-title .gold { color: var(--gold); }
+.story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.story-text p {
+  color: rgba(240,239,240,0.78); font-size: 1.1rem;
+  margin-bottom: 1.2rem; line-height: 1.75;
+}
+.story-text strong { color: var(--gold-light); }
+.story-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2.5rem; }
+.story-stat {
+  background: var(--navy-card); border: 1px solid var(--border-dim);
+  border-radius: 10px; padding: 1.5rem;
+}
+.story-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem; color: var(--gold); line-height: 1;
+}
+.story-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  color: var(--muted); text-transform: uppercase; margin-top: 0.4rem;
+}
+.code-peek {
+  background: rgba(8,17,31,0.8); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1.5rem;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+  color: var(--teal-light); line-height: 1.8; overflow-x: auto;
+}
+.code-peek .comment { color: var(--muted); }
+.code-peek .gold { color: var(--gold); }
+.code-peek .white { color: var(--white); }
+
+/* ─── VIBE ───────────────────────────────────────────────────────── */
+#vibe {
+  padding: 5rem 0;
+  border-bottom: 1px solid var(--border-dim);
+  background: linear-gradient(180deg, transparent 0%, rgba(13,31,56,0.4) 50%, transparent 100%);
+}
+.vibe-inner {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+}
+.vibe-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-style: italic; line-height: 1.4;
+  border-left: 3px solid var(--gold);
+  padding-left: 2rem; color: var(--white);
+}
+.vibe-quote .gold { color: var(--gold); }
+.vibe-points { display: flex; flex-direction: column; gap: 1.5rem; }
+.vibe-point {
+  display: flex; gap: 1.2rem; align-items: flex-start;
+}
+.vibe-point-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem; color: var(--gold-dim);
+  min-width: 28px; padding-top: 3px;
+}
+.vibe-point-text { font-size: 1.05rem; color: rgba(240,239,240,0.8); line-height: 1.6; }
+.vibe-point-text strong { color: var(--white); }
+
+/* ─── MECHANICS ──────────────────────────────────────────────────── */
+#mechanics {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.mechanics-intro {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+  margin-bottom: 4rem;
+}
+.tax-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.tax-card {
+  background: var(--navy-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.8rem;
+}
+.tax-card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.14em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem;
+}
+.tax-card-rate {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem; color: var(--gold); line-height: 1;
+}
+.tax-card-const { font-size: 0.88rem; color: var(--teal-light); margin: 0.4rem 0; }
+.tax-card-desc { font-size: 0.92rem; color: rgba(240,239,240,0.7); line-height: 1.55; }
+
+.mechanics-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  margin-top: 3rem;
+}
+.mech-card {
+  background: var(--navy-card); border: 1px solid var(--border-dim);
+  border-radius: 10px; padding: 1.8rem;
+}
+.mech-card-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; color: var(--gold-dim); letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+.mech-card h3 { font-size: 1.15rem; margin-bottom: 0.75rem; }
+.mech-card p { font-size: 0.92rem; color: rgba(240,239,240,0.72); line-height: 1.6; }
+
+/* ─── PRIZE POOL ─────────────────────────────────────────────────── */
+#prizepool {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.pool-states {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+.pool-state {
+  border-radius: 10px; padding: 1.8rem;
+  border: 1px solid var(--border-dim); background: var(--navy-card);
+}
+.pool-state-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.12em;
+  padding: 0.25rem 0.7rem; border-radius: 20px;
+  text-transform: uppercase; margin-bottom: 0.8rem;
+}
+.pool-state.normal .pool-state-badge { background: rgba(13,138,126,0.2); color: var(--teal-light); }
+.pool-state.flush .pool-state-badge { background: rgba(200,168,75,0.2); color: var(--gold-light); }
+.pool-state.floor .pool-state-badge { background: rgba(74,122,155,0.2); color: #6da3c7; }
+.pool-state.exit .pool-state-badge { background: rgba(100,180,100,0.2); color: #80d080; }
+.pool-state h3 { font-size: 1.1rem; margin-bottom: 0.6rem; }
+.pool-state p { font-size: 0.9rem; color: rgba(240,239,240,0.72); line-height: 1.55; }
+.pool-threshold {
+  margin-top: 0.9rem; padding-top: 0.9rem;
+  border-top: 1px solid var(--border-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; color: var(--gold);
+}
+
+/* ─── BIRTHDAY PARADOX ───────────────────────────────────────────── */
+#birthday {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.birthday-inner { display: grid; grid-template-columns: 1.1fr 1fr; gap: 4rem; }
+.birthday-text p {
+  color: rgba(240,239,240,0.78); font-size: 1.1rem;
+  margin-bottom: 1.2rem; line-height: 1.75;
+}
+.birthday-text strong { color: var(--gold-light); }
+.slot-visual {
+  background: var(--navy-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.8rem;
+}
+.slot-visual-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.14em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 1.2rem;
+}
+.slot-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;
+}
+.slot-cell {
+  aspect-ratio: 1; border-radius: 4px;
+  background: rgba(200,168,75,0.06); border: 1px solid var(--border-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem; color: var(--muted); transition: all 0.3s;
+}
+.slot-cell.active { background: rgba(200,168,75,0.18); border-color: var(--gold); color: var(--gold); }
+.slot-cell.hit {
+  background: rgba(13,138,126,0.3); border-color: var(--teal-light);
+  color: var(--teal-light); animation: pulse 1s ease infinite alternate;
+}
+@keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
+.slot-legend {
+  margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted);
+}
+.slot-legend span { display: flex; align-items: center; gap: 0.4rem; }
+.slot-legend .dot {
+  width: 10px; height: 10px; border-radius: 2px;
+  border: 1px solid var(--border);
+}
+.dot-active { background: rgba(200,168,75,0.18); border-color: var(--gold) !important; }
+.dot-hit { background: rgba(13,138,126,0.3); border-color: var(--teal-light) !important; }
+
+/* ─── TIERS ──────────────────────────────────────────────────────── */
+#tiers {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.tiers-wrap { overflow-x: auto; margin-top: 2.5rem; }
+.tiers-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.tiers-table th {
+  text-align: left; padding: 0.9rem 1.2rem;
+  border-bottom: 2px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem; letter-spacing: 0.14em;
+  color: var(--gold); text-transform: uppercase; font-weight: 500;
+}
+.tiers-table td {
+  padding: 0.85rem 1.2rem; border-bottom: 1px solid var(--border-dim);
+  color: rgba(240,239,240,0.82); vertical-align: top;
+}
+.tiers-table tr:hover td { background: rgba(200,168,75,0.025); }
+.tiers-table .champion td { color: var(--white); font-weight: 600; }
+.mono-cell { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; }
+
+/* ─── SLOT 52 ────────────────────────────────────────────────────── */
+#slot52 {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.slot52-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.slot52-number {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(5rem, 14vw, 11rem);
+  color: var(--gold); line-height: 1;
+  font-weight: 900; font-style: italic;
+}
+.slot52-equation {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88rem; color: var(--teal-light);
+  margin-top: 0.75rem; line-height: 1.7;
+}
+.slot52-text p {
+  color: rgba(240,239,240,0.78); font-size: 1.1rem;
+  margin-bottom: 1.2rem; line-height: 1.75;
+}
+.slot52-text strong { color: var(--gold-light); }
+
+/* ─── QF NETWORK ─────────────────────────────────────────────────── */
+#qf {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.qf-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--border-dim); border-radius: 12px;
+  overflow: hidden; margin-top: 2.5rem;
+}
+.qf-cell {
+  padding: 1.8rem; border-right: 1px solid var(--border-dim);
+}
+.qf-cell:nth-child(3n) { border-right: none; }
+.qf-cell:nth-child(n+4) { border-top: 1px solid var(--border-dim); }
+.qf-cell-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.14em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 0.4rem;
+}
+.qf-cell-val { font-size: 1.05rem; color: var(--white); }
+.qf-cell-val.gold { color: var(--gold); }
+.qf-cell-val.teal { color: var(--teal-light); }
+
+/* ─── TOKENOMICS TEASER ──────────────────────────────────────────── */
+#tokenomics-teaser {
+  padding: 5rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.teaser-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 3rem;
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 3rem; align-items: center;
+  position: relative; overflow: hidden;
+}
+.teaser-card::before {
+  content: 'e·π·φ';
+  position: absolute; right: 2rem; bottom: -0.5rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 7rem; color: rgba(200,168,75,0.04);
+  line-height: 1; pointer-events: none;
+}
+.teaser-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.18em;
+  color: var(--teal-light); text-transform: uppercase; margin-bottom: 0.75rem;
+}
+.teaser-card h2 {
+  font-size: clamp(1.7rem, 3vw, 2.4rem); margin-bottom: 1rem; line-height: 1.2;
+}
+.teaser-card h2 .gold { color: var(--gold); font-style: italic; }
+.teaser-card p {
+  color: rgba(240,239,240,0.72); font-size: 1.05rem;
+  max-width: 560px; line-height: 1.65; margin-bottom: 1.5rem;
+}
+.teaser-pills {
+  display: flex; gap: 0.75rem; flex-wrap: wrap;
+}
+.teaser-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; color: var(--gold);
+  border: 1px solid rgba(200,168,75,0.25);
+  padding: 0.3rem 0.8rem; border-radius: 20px;
+}
+.teaser-cta { text-align: center; flex-shrink: 0; }
+.teaser-btn {
+  display: inline-block; background: var(--gold); color: var(--navy);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem; letter-spacing: 0.14em; font-weight: 500;
+  text-transform: uppercase; padding: 1rem 2rem;
+  border-radius: 4px; text-decoration: none; white-space: nowrap;
+  transition: background 0.2s;
+}
+.teaser-btn:hover { background: var(--gold-light); }
+.teaser-sub {
+  margin-top: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em;
+}
+
+/* ─── BUILD ──────────────────────────────────────────────────────── */
+#build {
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--border-dim);
+}
+.build-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item {
+  display: flex; gap: 1.5rem;
+  padding-left: 1.5rem; position: relative; padding-bottom: 2rem;
+  border-left: 1px solid var(--border-dim);
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -5px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--gold-dim); border: 2px solid var(--navy);
+  top: 5px;
+}
+.timeline-item.done .timeline-dot { background: var(--teal-light); }
+.timeline-item.active .timeline-dot { background: var(--gold); }
+.timeline-content { flex: 1; }
+.timeline-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 0.25rem;
+}
+.timeline-item.done .timeline-label { color: var(--teal); }
+.timeline-item.active .timeline-label { color: var(--gold); }
+.timeline-content h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+.timeline-content p { font-size: 0.88rem; color: rgba(240,239,240,0.65); line-height: 1.55; }
+
+.build-aside { display: flex; flex-direction: column; gap: 1.5rem; }
+.build-aside p {
+  color: rgba(240,239,240,0.75); font-size: 1.05rem; line-height: 1.7;
+}
+.build-aside strong { color: var(--gold-light); }
+.contact-box {
+  background: var(--navy-card); border: 1px solid var(--border-dim);
+  border-radius: 10px; padding: 1.5rem;
+}
+.contact-box p {
+  font-size: 0.92rem; color: var(--muted); margin-bottom: 1rem;
+}
+.contact-link {
+  display: flex; align-items: center; gap: 0.75rem;
+  color: var(--gold); text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem; transition: color 0.2s;
+}
+.contact-link:hover { color: var(--gold-light); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────── */
+footer {
+  padding: 3rem 0; border-top: 1px solid var(--border-dim);
+}
+.footer-inner {
+  display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 3rem; margin-bottom: 3rem;
+}
+.footer-brand p { font-size: 0.95rem; color: var(--muted); margin-top: 0.75rem; max-width: 280px; }
+.footer-col h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.14em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.footer-col a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.9rem; transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 2rem; border-top: 1px solid var(--border-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem; color: var(--muted); letter-spacing: 0.06em;
+}
+.footer-bottom .disclaimer {
+  max-width: 480px; line-height: 1.5; text-align: right;
+}
+
+/* ─── REVEAL ─────────────────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ─── SCROLLBAR ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .hero-inner, .story-grid, .vibe-inner, .mechanics-intro,
+  .birthday-inner, .slot52-inner, .build-inner,
+  .footer-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .tax-pair { grid-template-columns: 1fr; }
+  .mechanics-grid { grid-template-columns: 1fr 1fr; }
+  .pool-states { grid-template-columns: 1fr; }
+  .qf-grid { grid-template-columns: 1fr 1fr; }
+  .qf-cell:nth-child(3n) { border-right: 1px solid var(--border-dim); }
+  .qf-cell:nth-child(2n) { border-right: none; }
+  .teaser-card { grid-template-columns: 1fr; gap: 2rem; }
+  .slot52-number { font-size: clamp(5rem, 20vw, 8rem); }
+  .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+  .footer-bottom .disclaimer { text-align: center; max-width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .container { padding: 0 1rem; }
+  .hero-title { font-size: clamp(2.5rem, 10vw, 3.5rem); }
+  .mechanics-grid { grid-template-columns: 1fr; }
+  .story-stats { grid-template-columns: 1fr 1fr; }
+  .slot-grid { grid-template-columns: repeat(4, 1fr); }
+  .qf-grid { grid-template-columns: 1fr; }
+  .qf-cell:nth-child(2n) { border-right: none; }
+  .tiers-table { font-size: 0.78rem; display: block; overflow-x: auto; }
+  .teaser-btn { padding: 0.9rem 1.5rem; font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="fib-canvas"></canvas>
+
+<!-- ─── NAV ──────────────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="#hero">PROJECT 52F</a>
+  <ul class="nav-links">
+    <li><a href="#story">Story</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#birthday">Lottery</a></li>
+    <li><a href="#tiers">Tiers</a></li>
+    <li><a href="#slot52">Slot 52</a></li>
+    <li><a href="#build">Roadmap</a></li>
+    <li><a href="tokenomics.html" class="tokenomics-link">Tokenomics ↗</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ──────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-eyebrow">QF Network · PSP22 ·
+          Proof of Concept</p>
+        <h1 class="hero-title">
+          <span class="italic">Deterministic</span><br>
+          <span class="gold">Finance.</span>
+        </h1>
+        <p class="hero-subtitle">"A token governed entirely by the mathematics of nature"</p>
+        <p class="hero-desc">
+          Project 52F is a PSP22 token on QF Network where every parameter —
+          buy tax, sell tax, prize activation, collision slots — is derived from
+          a fundamental mathematical constant. No arbitrary numbers. No admin toggles.
+          Pure logic, deployed on-chain.
+        </p>
+        <div class="hero-cta">
+          <a href="#mechanics" class="btn-primary">Explore Mechanics</a>
+          <a href="tokenomics.html" class="btn-secondary">Full Tokenomics →</a>
+        </div>
+      </div>
+      <div class="hero-constants">
+        <div class="const-card">
+          <div class="const-symbol">e</div>
+          <div class="const-body">
+            <div class="const-name">Euler's Number</div>
+            <div class="const-value">2.71828…</div>
+            <div class="const-use">Buy tax: 2.718%</div>
+          </div>
+        </div>
+        <div class="const-card">
+          <div class="const-symbol">π</div>
+          <div class="const-body">
+            <div class="const-name">Pi</div>
+            <div class="const-value">3.14159…</div>
+            <div class="const-use">Sell tax: 3.141%</div>
+          </div>
+        </div>
+        <div class="const-card">
+          <div class="const-symbol">φ</div>
+          <div class="const-body">
+            <div class="const-name">Golden Ratio</div>
+            <div class="const-value">1.61803…</div>
+            <div class="const-use">Slot 52 activation × £52,000</div>
+          </div>
+        </div>
+        <div class="const-card">
+          <div class="const-symbol" style="font-size:1.5rem">F<sub>n</sub></div>
+          <div class="const-body">
+            <div class="const-name">Fibonacci Sequence</div>
+            <div class="const-value">1, 1, 2, 3, 5, 8, 13…</div>
+            <div class="const-use">Active collision slots</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STORY ─────────────────────────────────────────────── -->
+<section id="story">
+  <div class="container">
+    <div class="story-grid">
+      <div class="story-text reveal">
+        <p class="section-eyebrow">The Story</p>
+        <h2 class="section-title">Built by <span class="gold">one person.</span><br>Governed by constants.</h2>
+        <p>
+          Project 52F began with a question: what if a token's entire economic structure was
+          derived from mathematics that existed long before blockchain? Not picked for convenience,
+          not tuned for optics — but pulled directly from Euler, from Fibonacci, from Pi.
+        </p>
+        <p>
+          This is a solo-built proof of concept. One developer, one mathematical vision,
+          deployed natively in <strong>Rust on PolkaVM</strong> using ink! v6 — one of the first
+          contracts on QF Network. No venture capital. No team allocation beyond the minimum.
+          The authenticity is the point.
+        </p>
+        <p>
+          If the mathematics is sound, the token is sound. And we can show you the mathematics.
+        </p>
+        <div class="story-stats">
+          <div class="story-stat">
+            <div class="story-stat-num">5</div>
+            <div class="story-stat-label">Math constants embedded</div>
+          </div>
+          <div class="story-stat">
+            <div class="story-stat-num">52</div>
+            <div class="story-stat-label">Collision ring buffer slots</div>
+          </div>
+          <div class="story-stat">
+            <div class="story-stat-num">0</div>
+            <div class="story-stat-label">Admin-adjustable parameters</div>
+          </div>
+          <div class="story-stat">
+            <div class="story-stat-num">∞</div>
+            <div class="story-stat-label">Prize pool replenishment</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="code-peek">
+          <span class="comment">// Token52F.ink — tax constants</span><br>
+          <span class="comment">// Fixed-point · 18 decimal precision</span><br><br>
+          <span class="gold">const</span> <span class="white">E_BUY_TAX</span>: u128 =<br>
+          &nbsp;&nbsp;27_182_818_284_590_452; <span class="comment">// e</span><br><br>
+          <span class="gold">const</span> <span class="white">PI_SELL_TAX</span>: u128 =<br>
+          &nbsp;&nbsp;31_415_926_535_897_932; <span class="comment">// π</span><br><br>
+          <span class="comment">// Fibonacci slot bitmask (52 slots)</span><br>
+          <span class="gold">const</span> <span class="white">FIB_MASK</span>: u64 =<br>
+          &nbsp;&nbsp;0x40020212E; <span class="comment">// slots 1,2,3,5,8,13,21,34</span><br><br>
+          <span class="comment">// tax = (value × constant) / 10^18</span>
+        </div>
+        <div class="code-peek" style="margin-top: 1rem;">
+          <span class="comment">// Supply — mathematically derived</span><br><br>
+          <span class="white">TOTAL_SUPPLY</span> = 80_658_175_170;<br>
+          <span class="white">DECIMALS</span>     = 18;<br>
+          <span class="white">MAX_WALLET</span>   = 6%;  <span class="comment">// ~4.84B tokens</span><br>
+          <span class="white">POOL_FLOOR</span>   = 5%;  <span class="comment">// ~4.03B — hard floor</span><br>
+          <span class="white">POOL_FLUSH</span>   = 7.5%; <span class="comment">// redirect trigger</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── VIBE ──────────────────────────────────────────────── -->
+<section id="vibe">
+  <div class="container">
+    <div class="vibe-inner">
+      <div class="vibe-quote reveal">
+        "Every number in this contract has a <span class="gold">reason.</span><br>
+        Every reason traces back to a constant that <span class="gold">predates finance itself.</span>"
+      </div>
+      <div class="vibe-points reveal">
+        <div class="vibe-point">
+          <div class="vibe-point-num">01</div>
+          <div class="vibe-point-text">
+            <strong>No admin toggles.</strong> Once deployed, no wallet can alter the tax rates,
+            the collision slots, or the prize pool mechanics. The contract governs itself.
+          </div>
+        </div>
+        <div class="vibe-point">
+          <div class="vibe-point-num">02</div>
+          <div class="vibe-point-text">
+            <strong>No external funding required.</strong> The prize pool is pre-seeded at 5% of
+            supply and continuously replenished by transaction tax. It never needs a top-up.
+          </div>
+        </div>
+        <div class="vibe-point">
+          <div class="vibe-point-num">03</div>
+          <div class="vibe-point-text">
+            <strong>Provably fair.</strong> The Birthday Paradox engine uses VRF randomness from
+            sealed prior epochs. No validator can predict or manipulate which transactions win.
+          </div>
+        </div>
+        <div class="vibe-point">
+          <div class="vibe-point-num">04</div>
+          <div class="vibe-point-text">
+            <strong>Self-defending pool.</strong> Four automatic states guard the pool: Normal,
+            Flush, Floor, and Exit. The contract detects and responds to every imbalance.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MECHANICS ─────────────────────────────────────────── -->
+<section id="mechanics">
+  <div class="container">
+    <div class="mechanics-intro reveal">
+      <div>
+        <p class="section-eyebrow">Token Mechanics</p>
+        <h2 class="section-title">Two taxes.<br><span class="gold">Two constants.</span></h2>
+        <p style="color:rgba(240,239,240,0.72); font-size:1.05rem; margin-top:1rem; line-height:1.7">
+          Every transaction touches the prize pool. Buy tax flows in entirely.
+          Sell tax splits precisely: 1% to team, 1% to liquidity, π−2% (1.141%) to the pool.
+          The maths is not a metaphor — it is the code.
+        </p>
+      </div>
+      <div>
+        <div class="tax-pair">
+          <div class="tax-card">
+            <div class="tax-card-label">Buy Tax</div>
+            <div class="tax-card-rate">2.718%</div>
+            <div class="tax-card-const">≡ Euler's Number (e)</div>
+            <div class="tax-card-desc">100% routes to prize pool. Only buy transactions are eligible for collision lottery.</div>
+          </div>
+          <div class="tax-card">
+            <div class="tax-card-label">Sell Tax</div>
+            <div class="tax-card-rate">3.141%</div>
+            <div class="tax-card-const">≡ Pi (π) — split: 1% + 1% + 1.141%</div>
+            <div class="tax-card-desc">1% → team. 1% → liquidity. π−2% (1.141%) → prize pool. All three portions serve the ecosystem.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mechanics-grid reveal">
+      <div class="mech-card">
+        <div class="mech-card-num">// 01</div>
+        <h3>Tax Accumulation Gate</h3>
+        <p>Before any prize triggers, accumulated tax in the current cycle must reach ≥ 50% of the prize value. This prevents pool drain at low volume — prizes only fire when the pool has been proportionally refilled.</p>
+      </div>
+      <div class="mech-card">
+        <div class="mech-card-num">// 02</div>
+        <h3>Prize Split: 50 / 50</h3>
+        <p>Each prize is funded half from the pool (tokens released back to circulation) and half via on-contract market buy of 52F (applying direct buy pressure). Every win is simultaneously a price support event.</p>
+      </div>
+      <div class="mech-card">
+        <div class="mech-card-num">// 03</div>
+        <h3>Deflationary Pressure</h3>
+        <p>A micro-burn on each transaction, a locked prize pool floor (5% of supply permanently off-market), and buy-back on every prize win create three independent downward forces on circulating supply.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRIZE POOL ─────────────────────────────────────────── -->
+<section id="prizepool">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-eyebrow">Prize Pool</p>
+      <h2 class="section-title">A four-state <span class="gold">self-managing system.</span></h2>
+      <p style="color:rgba(240,239,240,0.72); font-size:1.05rem; margin-top:1rem; max-width:640px; line-height:1.7">
+        The pool is not a static wallet. It is a state machine that automatically
+        adjusts tax routing based on pool health. No admin required — ever.
+      </p>
+    </div>
+    <div class="pool-states reveal">
+      <div class="pool-state normal">
+        <div class="pool-state-badge">Normal</div>
+        <h3>Active Operation</h3>
+        <p>Pool between 5%–7.5% of supply. Tax flows normally. Prizes paid 50% from pool + 50% market buy.</p>
+        <div class="pool-threshold">5% ≤ pool ≤ 7.5%</div>
+      </div>
+      <div class="pool-state flush">
+        <div class="pool-state-badge">Flush</div>
+        <h3>Overaccumulation Guard</h3>
+        <p>Pool exceeds 7.5% of supply. Buy tax and sell 1.141% redirect to liquidity. Prizes paid 100% from pool to drain it back down.</p>
+        <div class="pool-threshold">pool &gt; 7.5% → tax reroutes</div>
+      </div>
+      <div class="pool-state floor">
+        <div class="pool-state-badge">Floor</div>
+        <h3>Hard Floor Protection</h3>
+        <p>Pool at 5% of supply — its initial seed level. All tax refills the pool. Prizes suspend until the tax gate is met again.</p>
+        <div class="pool-threshold">pool = 5% → prizes suspended</div>
+      </div>
+      <div class="pool-state exit">
+        <div class="pool-state-badge">Flush Exit</div>
+        <h3>Automatic Recovery</h3>
+        <p>After a flush, when the pool drops below 5%, normal tax routing resumes automatically on the next transaction.</p>
+        <div class="pool-threshold">post-flush &lt;5% → normal resumes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BIRTHDAY PARADOX ───────────────────────────────────── -->
+<section id="birthday">
+  <div class="container">
+    <div class="birthday-inner">
+      <div class="birthday-text reveal">
+        <p class="section-eyebrow">The Lottery Engine</p>
+        <h2 class="section-title">The Birthday <span class="gold">Paradox</span></h2>
+        <p>
+          In a room of just 23 people, there is a greater than 50% chance that two share a birthday.
+          The maths seems wrong until you count <em>pairs</em>, not people.
+        </p>
+        <p>
+          We applied this principle to transaction hashes. Every buy generates a 256-bit hash.
+          We reduce it modulo 52 and map it to a ring buffer of 52 slots. <strong>8 slots are active</strong>
+          — the Fibonacci positions: 1, 2, 3, 5, 8, 13, 21, 34.
+        </p>
+        <p>
+          If your transaction hash lands on a Fibonacci slot, you have a <strong>collision</strong>.
+          Subject to passing the tax accumulation gate, you win a prize. The probability is
+          8/52 ≈ 15.38% base — not a lottery of chance, but a mathematical inevitability over time.
+        </p>
+        <p style="font-size:0.92rem; color:var(--muted)">
+          Randomness sourced from pallet-vrf using block entropy two epochs prior —
+          tamper-resistant by design.
+        </p>
+      </div>
+      <div class="reveal">
+        <div class="slot-visual">
+          <div class="slot-visual-title">52-Slot Ring Buffer — Fibonacci Active Positions</div>
+          <div class="slot-grid" id="slot-grid"></div>
+          <div class="slot-legend">
+            <span><div class="dot dot-active"></div> Active (Fibonacci)</span>
+            <span><div class="dot dot-hit"></div> Collision hit</span>
+            <span><div class="dot"></div> Inactive</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TIERS ──────────────────────────────────────────────── -->
+<section id="tiers">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-eyebrow">Prize Tiers</p>
+      <h2 class="section-title">Prizes that <span class="gold">scale with success.</span></h2>
+      <p style="color:rgba(240,239,240,0.72); font-size:1.05rem; margin-top:1rem; max-width:640px; line-height:1.7">
+        Prize values are determined by market cap at the moment of collision.
+        Tier minimums are all multiples of 52 — the brand constant embedded at every level.
+      </p>
+    </div>
+    <div class="tiers-wrap reveal">
+      <table class="tiers-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Market Cap</th>
+            <th>Min Hold</th>
+            <th>Prize Range</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🌱 Launch</td>
+            <td>&lt; £100k</td>
+            <td class="mono-cell">52 tokens</td>
+            <td class="mono-cell">£1 – £50</td>
+            <td>50% pool + 50% buy</td>
+          </tr>
+          <tr>
+            <td>🌿 Growth</td>
+            <td>£100k – £1M</td>
+            <td class="mono-cell">520 tokens</td>
+            <td class="mono-cell">£10 – £500</td>
+            <td>50% pool + 50% buy</td>
+          </tr>
+          <tr>
+            <td>🌳 Mid-cap</td>
+            <td>£1M – £10M</td>
+            <td class="mono-cell">5,200 tokens</td>
+            <td class="mono-cell">£100 – £5,000</td>
+            <td>50% pool + 50% buy</td>
+          </tr>
+          <tr>
+            <td>⚡ High-cap</td>
+            <td>£10M – £100M</td>
+            <td class="mono-cell">52,000 tokens</td>
+            <td class="mono-cell">£1,000 – £50,000</td>
+            <td>50% pool + 50% buy</td>
+          </tr>
+          <tr class="champion">
+            <td>👑 Champion</td>
+            <td>&gt; £84,136 (φ × £52k)</td>
+            <td class="mono-cell">52 + Slot 52</td>
+            <td class="mono-cell">Tier maximum</td>
+            <td>Champion mechanics</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SLOT 52 ─────────────────────────────────────────────── -->
+<section id="slot52">
+  <div class="container">
+    <div class="slot52-inner">
+      <div class="reveal">
+        <div class="slot52-number">52</div>
+        <div class="slot52-equation">
+          Slot 52 activation threshold:<br>
+          £52,000 × φ = £52,000 × 1.61803…<br>
+          = <strong>£84,136</strong> market cap
+        </div>
+      </div>
+      <div class="slot52-text reveal">
+        <p class="section-eyebrow">The Champion's Seat</p>
+        <h2 class="section-title" style="margin-bottom:1.2rem">Beyond the <span class="gold">ring buffer.</span></h2>
+        <p>
+          The standard ring buffer holds slots 0–51. Slot 52 sits beyond it — the Champion's Seat.
+          It is not part of the regular lottery. It is a premium tier that activates only when the
+          market cap reaches <strong>£52,000 × φ = £84,136</strong>.
+        </p>
+        <p>
+          The golden ratio activation is not cosmetic. φ is the ratio at which a quantity
+          grows to become naturally proportioned to itself. Applying φ to our brand constant
+          £52,000 gives the market cap at which the system has grown sufficiently to sustain
+          its highest prize tier. It is the project's proof of concept.
+        </p>
+        <p>
+          Land Slot 52 after market cap exceeds £84,136, hold at least 52 tokens,
+          pass the tax gate — and you win the full tier maximum. The apex prize.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── QF NETWORK ────────────────────────────────────────── -->
+<section id="qf">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-eyebrow">The Network</p>
+      <h2 class="section-title">Built on <span class="gold">QF Network.</span></h2>
+      <p style="color:rgba(240,239,240,0.72); font-size:1.05rem; margin-top:1rem; max-width:640px; line-height:1.7">
+        QF Network (QuantumFusion) is a Substrate/PolkaVM-based Layer 1 blockchain.
+        Project 52F is one of the first contracts deployed natively on it.
+      </p>
+    </div>
+    <div class="qf-grid reveal">
+      <div class="qf-cell">
+        <div class="qf-cell-label">Chain</div>
+        <div class="qf-cell-val gold">QF Network</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">Runtime</div>
+        <div class="qf-cell-val">PolkaVM / RISC-V</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">Language</div>
+        <div class="qf-cell-val">Rust — ink! v6</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">Block Time</div>
+        <div class="qf-cell-val teal">~0.1 seconds</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">Token Standard</div>
+        <div class="qf-cell-val">PSP22</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">DEX</div>
+        <div class="qf-cell-val">SPIN-Swap</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">Randomness</div>
+        <div class="qf-cell-val">pallet-vrf</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">Initial Liquidity</div>
+        <div class="qf-cell-val gold">400 QF = £160</div>
+      </div>
+      <div class="qf-cell">
+        <div class="qf-cell-label">ABI Mode</div>
+        <div class="qf-cell-val">Dual (SCALE + Solidity)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TOKENOMICS TEASER ─────────────────────────────────── -->
+<section id="tokenomics-teaser">
+  <div class="container">
+    <div class="teaser-card reveal">
+      <div>
+        <p class="teaser-eyebrow">Deep Dive</p>
+        <h2>Understand the full <span class="gold">tokenomics</span></h2>
+        <p>
+          Every parameter justified. Every constant traced to its mathematical origin.
+          The full tokenomics page covers all 10 topics in depth — from the philosophy
+          of using e and π, to the sustainability model across all market cap tiers,
+          to the Birthday Paradox probability engine and the Slot 52 activation formula.
+        </p>
+        <div class="teaser-pills">
+          <span class="teaser-pill">e = buy tax</span>
+          <span class="teaser-pill">π = sell tax</span>
+          <span class="teaser-pill">φ × £52k = Champion's Seat</span>
+          <span class="teaser-pill">8/52 slots active</span>
+          <span class="teaser-pill">4-state pool machine</span>
+          <span class="teaser-pill">Sustainability modelled</span>
+        </div>
+      </div>
+      <div class="teaser-cta">
+        <a href="tokenomics.html" class="teaser-btn">Read Tokenomics →</a>
+        <div class="teaser-sub">10 sections · Full breakdown</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BUILD ──────────────────────────────────────────────── -->
+<section id="build">
+  <div class="container">
+    <div class="build-inner">
+      <div class="reveal">
+        <p class="section-eyebrow">Roadmap</p>
+        <h2 class="section-title" style="margin-bottom:2rem">Where we <span class="gold">are.</span></h2>
+        <div class="timeline">
+          <div class="timeline-item done">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-label">Complete ✓</div>
+              <h3>Mathematical Framework</h3>
+              <p>All constants defined, fixed-point arithmetic verified, Fibonacci bitmask tested, supply calculations confirmed.</p>
+            </div>
+          </div>
+          <div class="timeline-item done">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-label">Complete ✓</div>
+              <h3>Contract Architecture</h3>
+              <p>Token52F and BirthdayParadox contracts written in Rust/ink! v6. Security audit complete. Dual-ABI mode configured.</p>
+            </div>
+          </div>
+          <div class="timeline-item done">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-label">Complete ✓</div>
+              <h3>Formal Specification v2.2</h3>
+              <p>Full technical specification documented. Prize pool state machine formalised. All edge cases addressed.</p>
+            </div>
+          </div>
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-label">In Progress</div>
+              <h3>Testnet Deployment</h3>
+              <p>Awaiting QF Network mainnet documentation (Late Q1 2026). AMM-mock crate in use during development phase.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-label">Upcoming</div>
+              <h3>Mainnet Launch</h3>
+              <p>400 QF initial liquidity seeded to SPIN-Swap. Prize pool pre-seeded at 5% of supply. Telegram bot active for collision alerts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="build-aside reveal">
+        <p>
+          Project 52F is built transparently. <strong>All specification documents, contract architecture,
+          and mathematical proofs are available on request.</strong> This is not a blackbox —
+          every decision has a documented reason.
+        </p>
+        <p>
+          The project is deliberately small at launch. Low initial liquidity, modest prize tiers,
+          genuine proof of concept. If the maths works — and we believe it does — the system
+          scales naturally without intervention.
+        </p>
+        <div class="contact-box">
+          <p>Follow the build. Ask questions. The community is where this grows.</p>
+          <a href="https://t.me/Project52F" class="contact-link">
+            ↗ Telegram Community
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo" style="display:inline-block; margin-bottom:0.5rem">PROJECT 52F</div>
+        <p>A deterministic PSP22 token on QF Network. Every parameter derived from mathematical constants. No admin. No arbitrary numbers.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="#story">Story</a></li>
+          <li><a href="#mechanics">Mechanics</a></li>
+          <li><a href="#birthday">Lottery</a></li>
+          <li><a href="#slot52">Slot 52</a></li>
+          <li><a href="tokenomics.html">Full Tokenomics ↗</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Network</h4>
+        <ul>
+          <li><a href="https://t.me/Project52F">Telegram</a></li>
+          <li><a href="#">QF Network</a></li>
+          <li><a href="#">SPIN-Swap</a></li>
+          <li><a href="#">Contract (soon)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>PROJECT 52F · QF NETWORK · PSP22 · RUST / INK! V6</div>
+      <div class="disclaimer">
+        This website is informational only. Cryptocurrency investments carry significant risk.
+        Nothing here constitutes financial advice. Do your own research.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── Fibonacci Canvas ─────────────────────────────────── */
+(function(){
+  const c = document.getElementById('fib-canvas');
+  const ctx = c.getContext('2d');
+  function resize(){ c.width=innerWidth; c.height=innerHeight; draw(); }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='rgba(200,168,75,1)'; ctx.lineWidth=1;
+    let a=1,b=1,scale=2,cx=c.width*0.5,cy=c.height*0.5;
+    for(let i=0;i<16;i++){
+      ctx.strokeRect(cx-b*scale/2, cy-b*scale/2, b*scale, b*scale);
+      [a,b]=[b,a+b];
+    }
+    a=1;b=1;
+    ctx.strokeStyle='rgba(200,168,75,0.5)';
+    let px=cx,py=cy;
+    const dirs=[[1,0],[0,1],[-1,0],[0,-1]];
+    for(let i=0;i<10;i++){
+      const sz=b*scale, d=dirs[i%4];
+      ctx.beginPath();
+      if(i%4===0)      ctx.arc(px,      py,      sz,Math.PI,1.5*Math.PI);
+      else if(i%4===1) ctx.arc(px+sz,   py,      sz,1.5*Math.PI,0);
+      else if(i%4===2) ctx.arc(px+sz,   py-sz,   sz,0,0.5*Math.PI);
+      else             ctx.arc(px,      py-sz,   sz,0.5*Math.PI,Math.PI);
+      ctx.stroke();
+      px+=d[0]*sz; py+=d[1]*sz;
+      [a,b]=[b,a+b];
+    }
+  }
+  window.addEventListener('resize',resize); resize();
+})();
+
+/* ─── Slot Grid ────────────────────────────────────────── */
+(function(){
+  const fib=new Set([1,2,3,5,8,13,21,34]);
+  const g=document.getElementById('slot-grid');
+  if(!g) return;
+  for(let i=1;i<=52;i++){
+    const d=document.createElement('div');
+    d.className='slot-cell'+(fib.has(i)?' active':'');
+    d.textContent=i; g.appendChild(d);
+  }
+  function hit(){
+    document.querySelectorAll('.slot-cell.hit').forEach(s=>s.classList.remove('hit'));
+    const active=[...document.querySelectorAll('.slot-cell.active')];
+    if(active.length) active[Math.floor(Math.random()*active.length)].classList.add('hit');
+    setTimeout(()=>document.querySelectorAll('.slot-cell.hit').forEach(s=>s.classList.remove('hit')),1500);
+  }
+  setTimeout(hit,600); setInterval(hit,3000);
+})();
+
+/* ─── Reveal ───────────────────────────────────────────── */
+(function(){
+  const obs=new IntersectionObserver(e=>{
+    e.forEach(x=>{ if(x.isIntersecting) x.target.classList.add('visible'); });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+</script>
+</body>
+</html>
