@@ -1,0 +1,20 @@
+[package]
+name = "dampener_vault"
+version = "0.1.0"
+authors = ["Your Name"]
+edition = "2021"
+
+[dependencies]
+ink = { version = "5.0", default-features = false }
+# This allows the Vault to call the Token contract
+token_52f = { path = "../token_52f", default-features = false, features = ["ink-as-dependency"] }
+
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "token_52f/std",
+]
