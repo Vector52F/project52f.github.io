@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QFNS - QF Naming Service</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --qf-dark: #0a0f1c;
+            --qf-navy: #111827;
+            --qf-blue: #1e3a8a;
+            --qf-accent: #3b82f6;
+            --qf-light: #60a5fa;
+            --52f-orange: #f97316;
+            --52f-muted: #fb923c;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(148, 163, 184, 0.1);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--qf-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 2rem; 
+        }
+        
+        header {
+            padding: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .logo-qf { 
+            color: var(--qf-light); 
+            font-weight: 800;
+        }
+        
+        .logo-ns { 
+            color: var(--text-primary); 
+            font-weight: 600;
+        }
+        
+        .logo-52 { 
+            color: var(--52f-muted); 
+            font-size: 0.7rem; 
+            align-self: flex-end;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+            background: rgba(249, 115, 22, 0.15);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+        
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        nav a:hover { 
+            color: var(--qf-light); 
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--qf-accent);
+            transition: width 0.2s;
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 5rem 0;
+            background: radial-gradient(ellipse at top, rgba(30, 58, 138, 0.15) 0%, transparent 50%);
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+        
+        .hero h1 span {
+            color: var(--qf-light);
+        }
+        
+        .hero p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--qf-blue) 0%, var(--qf-accent) 100%);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .cta-button:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3);
+            border-color: var(--qf-accent);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        
+        .features {
+            padding: 4rem 0;
+            background: var(--qf-navy);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            background: var(--qf-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .feature-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .feature-card .icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            color: var(--qf-light);
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .feature-card p { 
+            color: var(--text-secondary); 
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .feature-card li {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 0.25rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+        
+        .feature-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--qf-accent);
+        }
+        
+        .auctions {
+            padding: 4rem 0;
+            background: var(--qf-dark);
+        }
+        
+        .auction-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .auction-card {
+            background: var(--qf-navy);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .auction-card h3 {
+            color: var(--52f-muted);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .auction-card .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .auction-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .referrals {
+            padding: 4rem 0;
+            background: var(--qf-navy);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .referral-structure {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .referral-tier {
+            text-align: center;
+            padding: 2rem;
+            background: var(--qf-dark);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            min-width: 200px;
+        }
+        
+        .referral-tier .percentage {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--qf-light);
+        }
+        
+        .referral-tier label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .pricing {
+            padding: 4rem 0;
+            text-align: center;
+            background: var(--qf-dark);
+        }
+        
+        .pricing-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .price-table {
+            display: inline-block;
+            background: var(--qf-navy);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: left;
+            min-width: 420px;
+            border: 1px solid var(--border);
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .price-row:last-child { 
+            border-bottom: none; 
+        }
+        
+        .price-row .label { 
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .price-row .amount { 
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: 'SF Mono', monospace;
+        }
+        
+        .price-row .auction {
+            color: var(--52f-muted);
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: rgba(249, 115, 22, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+        
+        .discounts {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .discount-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .discount-row span:last-child {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .about {
+            padding: 4rem 0;
+            background: var(--qf-navy);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .about-content p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--qf-light);
+        }
+        
+        .stat label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2.5rem 0;
+            background: var(--qf-dark);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .disclaimer {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-qf">QF</span>
+                <span class="logo-ns">NS</span>
+                <span class="logo-52">52</span>
+            </div>
+            <nav>
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#auctions">Auctions</a>
+                <a href="#referrals">Referrals</a>
+                <a href="#pricing">Pricing</a>
+                <a href="https://test.qfnetwork.xyz" target="_blank">Launch DApp</a>
+            </nav>
+        </header>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Your <span>QF Network</span> Identity</h1>
+            <p>Turn 5GrwvaEF5zXb26Fz9rcQp... into @alice</p>
+            <a href="https://test.qfnetwork.xyz" class="cta-button">Launch DApp</a>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="container">
+            <div class="section-header">
+                <h2>About QFNS</h2>
+                <p>The naming service for the QF Network ecosystem</p>
+            </div>
+            <div class="about-content">
+                <p>QFNS (QF Naming Service) provides human-readable names for QF Network wallet addresses. Instead of sharing long hexadecimal strings, users can register simple names like "alice" or "bob" that resolve directly to their wallets.</p>
+                <p>Built on ink! smart contracts with commit-reveal registration, QFNS ensures fair name allocation while preventing front-running attacks. Every transaction burns 5% of fees, creating deflationary pressure on the QF token.</p>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="number">0.1s</div>
+                        <label>Block Finality</label>
+                    </div>
+                    <div class="stat">
+                        <div class="number">5%</div>
+                        <label>Burn Rate</label>
+                    </div>
+                    <div class="stat">
+                        <div class="number">52</div>
+                        <label>Max Characters</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Features</h2>
+                <p>Designed for security, fairness, and usability</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🔒</div>
+                    <h3>Commit-Reveal Registration</h3>
+                    <p>Prevents front-running and ensures fair name allocation. Users commit to a name hash, wait for confirmation, then reveal their actual name.</p>
+                    <ul>
+                        <li>Hash-based commitment</li>
+                        <li>3-block confirmation delay</li>
+                        <li>Automatic reveal process</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">🔥</div>
+                    <h3>Deflationary Economics</h3>
+                    <p>Every registration and renewal burns 5% of transaction fees, permanently reducing QF token supply and creating scarcity.</p>
+                    <ul>
+                        <li>5% automatic burn</li>
+                        <li>Transparent on-chain</li>
+                        <li>Compounds over time</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">🎁</div>
+                    <h3>Referral Program</h3>
+                    <p>Earn rewards by inviting others. Both referrer and referee receive benefits, creating network effects for QFNS adoption.</p>
+                    <ul>
+                        <li>10% referrer reward</li>
+                        <li>10% referee discount</li>
+                        <li>Unlimited referrals</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">🏷️</div>
+                    <h3>Dutch Auctions</h3>
+                    <p>Premium 1-2 character names are sold via Dutch auctions, ensuring fair market pricing for the most desirable names.</p>
+                    <ul>
+                        <li>Price decays over time</li>
+                        <li>First to bid wins</li>
+                        <li>Transparent pricing</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">💎</div>
+                    <h3>52F Holder Benefits</h3>
+                    <p>Hold 5.2 million 52F tokens to unlock permanent 20% discount on all registrations and renewals.</p>
+                    <ul>
+                        <li>20% permanent discount</li>
+                        <li>Automatic verification</li>
+                        <li>Stackable with other discounts</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>Fast Finality</h3>
+                    <p>Built on QF Network's high-speed infrastructure with 0.1 second block finality for near-instant registration confirmation.</p>
+                    <ul>
+                        <li>0.1s block time</li>
+                        <li>Instant confirmation</li>
+                        <li>Low gas fees</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="auctions" id="auctions">
+        <div class="container">
+            <div class="section-header">
+                <h2>Premium Name Auctions</h2>
+                <p>1-2 character names available via Dutch auction</p>
+            </div>
+            
+            <div class="auction-info">
+                <div class="auction-card">
+                    <h3>Starting Price</h3>
+                    <div class="price">500K QF</div>
+                    <p>Decreases by 10K QF per block</p>
+                </div>
+                
+                <div class="auction-card">
+                    <h3>Reserve Price</h3>
+                    <div class="price">50K QF</div>
+                    <p>Minimum acceptable bid</p>
+                </div>
+                
+                <div class="auction-card">
+                    <h3>Duration</h3>
+                    <div class="price">~45 min</div>
+                    <p>From start to reserve price</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="referrals" id="referrals">
+        <div class="container">
+            <div class="section-header">
+                <h2>Referral Program</h2>
+                <p>Share QFNS and earn rewards</p>
+            </div>
+            
+            <div class="referral-structure">
+                <div class="referral-tier">
+                    <div class="percentage">10%</div>
+                    <label>You Earn</label>
+                </div>
+                
+                <div class="referral-tier">
+                    <div class="percentage">10%</div>
+                    <label>They Save</label>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem; color: var(--text-secondary);">
+                <p>Generate your unique referral code in the DApp and share with friends.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Pricing</h2>
+                <p class="pricing-subtitle">Fixed QF pricing. Transparent and predictable.</p>
+            </div>
+            
+            <div class="price-table">
+                <div class="price-row">
+                    <span class="label">1-2 Characters</span>
+                    <span class="auction">Dutch Auction Only</span>
+                </div>
+                <div class="price-row">
+                    <span class="label">3 Characters</span>
+                    <span class="amount">60,000 QF / year</span>
+                </div>
+                <div class="price-row">
+                    <span class="label">4 Characters</span>
+                    <span class="amount">15,000 QF / year</span>
+                </div>
+                <div class="price-row">
+                    <span class="label">5+ Characters</span>
+                    <span class="amount">500 QF / year</span>
+                </div>
+                
+                <div class="discounts">
+                    <div class="discount-row">
+                        <span>Multi-year discount (per extra year)</span>
+                        <span>-5%</span>
+                    </div>
+                    <div class="discount-row">
+                        <span>52F Holder discount (5.2M tokens)</span>
+                        <span>-20%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>QFNS - QF Naming Service</p>
+            <p class="disclaimer">Not affiliated with quantumfusion.pro</p>
+        </div>
+    </footer>
+</body>
+</html>
