@@ -1,10 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// PROJECT 52F — Token52F.rs
-/// Phase 1: Core Token & Eligibility Engine
-/// Formal Specification v5.1 (February 2026)
-/// Target: QF Network (Revive Pallet / PolkaVM / ink! v6)
-
 use ink::prelude::vec::Vec;
 use ink::storage::Mapping;
 
@@ -15,20 +10,19 @@ pub mod constants {
     pub const SCALING_FACTOR: u128 = 1_000_000_000_000_000_000u128;
     pub const TOTAL_SUPPLY: u128 = 80_658_175_170 * SCALING_FACTOR;
     
-    // Tax rates in BPS
     pub const E_BUY_TAX_BPS: u128 = 2718;
     pub const PI_SELL_TAX_BPS: u128 = 3141;
     pub const TEAM_TAX_BPS: u128 = 75;
     pub const LIQUIDITY_TAX_BPS: u128 = 100;
     
-    // Identity Gates with hysteresis (±10%)
+    pub const GATE_ENTRY: Balance = 5_720_000 * SCALING_FACTOR;
+    pub const GATE_EXIT: Balance = 4_680_000 * SCALING_FACTOR;
     pub const GATE_CENTER: Balance = 5_200_000 * SCALING_FACTOR;
-    pub const GATE_HYSTERESIS: Balance = 520_000 * SCALING_FACTOR;
-    pub const GATE_ENTRY: Balance = 5_720_000 * SCALING_FACTOR; // 5.2M + 10%
-    pub const GATE_EXIT: Balance = 4_680_000 * SCALING_FACTOR;  // 5.2M - 10%
     
     pub const BPS: u128 = 10_000;
     pub const TEAM_SWEEP_INTERVAL: u32 = 520_000;
+    
+    pub const BURN_ADDRESS: [u8; 32] = [0u8; 32];
 }
 
 use crate::constants::*;
@@ -48,8 +42,10 @@ mod token52f {
         team_address: AccountId,
         birthday_paradox: Option<AccountId>,
         dampener_vault: Option<AccountId>,
+        victory_lap_satellite: Option<AccountId>,
         last_team_sweep: BlockNumber,
         prize_pool_balance: Balance,
+        total_burned: Balance,
     }
 
     #[ink(event)]
@@ -86,6 +82,14 @@ mod token52f {
         block: BlockNumber,
     }
 
+    #[ink(event)]
+    pub struct Burn {
+        #[ink(topic)] from: AccountId,
+        amount: Balance,
+        new_total_supply: Balance,
+        total_burned: Balance,
+    }
+
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
@@ -98,6 +102,7 @@ mod token52f {
         InvalidAddress,
         MathsError,
         TransferFailed,
+        NotAuthorized,
     }
 
     impl Token52F {
@@ -129,12 +134,13 @@ mod token52f {
                 team_address: team,
                 birthday_paradox: None,
                 dampener_vault: None,
+                victory_lap_satellite: None,
                 last_team_sweep: Self::env().block_number(),
                 prize_pool_balance: prize_pool,
+                total_burned: 0,
             }
         }
 
-        // ERC-20 Standard Functions
         #[ink(message)]
         pub fn total_supply(&self) -> Balance {
             self.total_supply
@@ -241,16 +247,13 @@ mod token52f {
             Ok(())
         }
 
-        // HYSTERESIS ELIGIBILITY LOGIC
         fn update_eligibility(&mut self, account: AccountId) {
             let bal = self.balances.get(account).unwrap_or(0);
             let is_currently_eligible = self.eligible_wallets.get(account).unwrap_or(false);
             
             let should_be_eligible = if !is_currently_eligible {
-                // Not eligible: must rise to GATE_ENTRY (5.72M)
                 bal >= GATE_ENTRY
             } else {
-                // Eligible: can fall to GATE_EXIT (4.68M)
                 bal >= GATE_EXIT
             };
             
@@ -346,6 +349,37 @@ mod token52f {
             }
         }
 
+        // VICTORY LAP: Burn function for satellite
+        #[ink(message)]
+        pub fn burn_from_satellite(&mut self, amount: Balance) -> Result<(), Error> {
+            // Only VictoryLapSatellite can call
+            if Some(self.env().caller()) != self.victory_lap_satellite {
+                return Err(Error::NotAuthorized);
+            }
+            
+            // Burn from contract's prize pool balance
+            let contract_addr = self.env().account_id();
+            let contract_bal = self.balances.get(contract_addr).unwrap_or(0);
+            
+            if contract_bal < amount {
+                return Err(Error::InsufficientBalance);
+            }
+            
+            // True burn: reduce supply, don't credit anywhere
+            self.balances.insert(contract_addr, &(contract_bal - amount));
+            self.total_supply -= amount;
+            self.total_burned += amount;
+            
+            self.env().emit_event(Burn {
+                from: contract_addr,
+                amount,
+                new_total_supply: self.total_supply,
+                total_burned: self.total_burned,
+            });
+            
+            Ok(())
+        }
+
         // Admin functions
         #[ink(message)]
         pub fn set_birthday_paradox(&mut self, address: AccountId) -> Result<(), Error> {
@@ -358,6 +392,13 @@ mod token52f {
         pub fn set_dampener_vault(&mut self, address: AccountId) -> Result<(), Error> {
             self.ensure_owner()?;
             self.dampener_vault = Some(address);
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn set_victory_lap_satellite(&mut self, address: AccountId) -> Result<(), Error> {
+            self.ensure_owner()?;
+            self.victory_lap_satellite = Some(address);
             Ok(())
         }
 
@@ -414,6 +455,11 @@ mod token52f {
         #[ink(message)]
         pub fn get_contract_qf_balance(&self) -> QFBalance {
             self.env().balance()
+        }
+
+        #[ink(message)]
+        pub fn get_burn_stats(&self) -> (Balance, Balance) {
+            (self.total_burned, self.total_supply)
         }
     }
 }
