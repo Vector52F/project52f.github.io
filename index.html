@@ -1,293 +1,813 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <!-- Google tag (gtag.js) -->
+     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XHW6SEMGRE"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project 52F | Transcendental Tokenomics</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Courier New', monospace;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        header {
-            text-align: center;
-            padding: 4rem 0;
-            border-bottom: 1px solid #333;
-        }
-        
-        h1 {
-            font-size: 4rem;
-            color: #00ff88;
-            text-shadow: 0 0 20px #00ff88;
-            margin-bottom: 0.5rem;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            color: #888;
-            letter-spacing: 0.3em;
-        }
-        
-        .math-constant {
-            display: inline-block;
-            color: #ff6b6b;
-            font-weight: bold;
-        }
-        
-        section {
-            padding: 3rem 0;
-            border-bottom: 1px solid #222;
-        }
-        
-        h2 {
-            color: #00ff88;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .highlight-box {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-left: 4px solid #00ff88;
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .victory-lap {
-            background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%);
-            border-left-color: #ffd700;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
-            50% { box-shadow: 0 0 20px 10px rgba(255, 215, 0, 0); }
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        
-        .stat-card {
-            background: #111;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #333;
-            transition: transform 0.3s, border-color 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: #00ff88;
-        }
-        
-        .stat-value {
-            font-size: 2.5rem;
-            color: #00ff88;
-            font-weight: bold;
-        }
-        
-        .stat-label {
-            color: #888;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        
-        .contract-address {
-            background: #000;
-            padding: 1rem;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: #00ff88;
-            word-break: break-all;
-            border: 1px solid #333;
-        }
-        
-        .mechanism-flow {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            padding: 2rem;
-            background: #0f0f0f;
-            border-radius: 8px;
-            margin: 2rem 0;
-        }
-        
-        .flow-step {
-            background: #1a1a1a;
-            padding: 1rem 1.5rem;
-            border-radius: 4px;
-            border: 1px solid #333;
-            text-align: center;
-        }
-        
-        .flow-arrow {
-            color: #00ff88;
-            font-size: 1.5rem;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 3rem 0;
-            color: #666;
-        }
-        
-        .beer-emoji {
-            font-size: 2rem;
-            animation: bounce 1s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .network-badge {
-            display: inline-block;
-            background: #e6007a;
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-left: 1rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Project 52F — Deterministic Finance on QF Network</title>
+<meta name="description" content="A PSP22 token on QF Network where every parameter is derived from a fundamental mathematical constant. All taxes in native QF. No arbitrary numbers. Pure logic.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #0e1520;
+  --ink-mid:    #111c2d;
+  --ink-card:   #142030;
+  --ink-light:  #1a2d44;
+  --gold:       #c9a84c;
+  --gold-warm:  #dfc078;
+  --gold-pale:  #f0dfa8;
+  --gold-dim:   #7a6030;
+  --gold-ghost: rgba(201,168,76,0.10);
+  --gold-glow:  rgba(201,168,76,0.18);
+  --teal:       #0e9b8e;
+  --teal-light: #15c4b4;
+  --teal-ghost: rgba(14,155,142,0.12);
+  --paper:      #edeae2;
+  --body-text:  #b8c4d0;
+  --muted:      #6e8299;
+  --faint:      rgba(205,213,223,0.06);
+  --border:     rgba(201,168,76,0.18);
+  --border-dim: rgba(201,168,76,0.08);
+  --red:        #d95f4b;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; font-size: 18px; }
+
+body {
+  background: var(--ink);
+  color: var(--body-text);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  line-height: 1.85;
+  overflow-x: hidden;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2.5rem; width: 100%; }
+.container--narrow { max-width: 800px; margin: 0 auto; padding: 0 2.5rem; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(14,21,32,0.94);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 0 2.5rem; height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  letter-spacing: 0.2em; color: var(--gold); text-decoration: none;
+  text-transform: uppercase; font-weight: 500;
+}
+.nav-links { display: flex; align-items: center; gap: 0.2rem; list-style: none; }
+.nav-links a {
+  font-family: 'DM Mono', monospace; font-size: 0.67rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  text-decoration: none; padding: 0.38rem 0.72rem; border-radius: 2px; transition: all 0.2s;
+}
+.nav-links a:hover { color: var(--gold); background: var(--gold-ghost); }
+.nav-links .nav-cta { color: var(--ink); background: var(--gold); font-weight: 500; margin-left: 0.5rem; }
+.nav-links .nav-cta:hover { background: var(--gold-warm); color: var(--ink); }
+.nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.nav-hamburger span { display: block; width: 22px; height: 1.5px; background: var(--muted); }
+.mobile-nav {
+  display: none; position: fixed; top: 62px; left: 0; right: 0; z-index: 99;
+  background: rgba(14,21,32,0.98); border-bottom: 1px solid var(--border-dim);
+  padding: 1.5rem 2.5rem 2rem; flex-direction: column; gap: 0.3rem;
+}
+.mobile-nav.open { display: flex; }
+.mobile-nav a {
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); text-decoration: none;
+  padding: 0.5rem 0; border-bottom: 1px solid var(--border-dim); transition: color 0.2s;
+}
+.mobile-nav a:hover { color: var(--gold); }
+.mobile-nav a:last-child { border-bottom: none; color: var(--gold); margin-top: 0.5rem; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding-top: 62px; position: relative; overflow: hidden;
+}
+#hero-canvas { position: absolute; inset: 0; opacity: 0.045; pointer-events: none; }
+.hero-inner {
+  display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 5rem;
+  align-items: center; padding: 5rem 0;
+}
+.hero-kicker {
+  font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--teal-light); margin-bottom: 1.4rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 4.5vw, 4.6rem);
+  font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: var(--paper);
+  margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
+}
+.hero-title strong { font-weight: 700; color: var(--gold); display: block; font-style: italic; }
+.hero-subtitle {
+  font-size: 1.05rem; font-style: italic; color: var(--gold-warm); margin-bottom: 2rem;
+  font-weight: 300; opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.hero-body {
+  font-size: 1.02rem; line-height: 1.9; color: var(--muted); max-width: 500px;
+  margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+}
+.constants-panel { opacity: 0; animation: fadeIn 1s ease 1s forwards; }
+.const-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+}
+.const-cell { background: var(--ink-card); padding: 1.6rem 1.4rem; transition: background 0.2s; }
+.const-cell:hover { background: var(--ink-light); }
+.const-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+.const-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.const-val { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--muted); margin-bottom: 0.3rem; }
+.const-use { font-size: 0.92rem; font-style: italic; color: var(--body-text); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; text-decoration: none; padding: 0.8rem 1.8rem;
+  border: none; cursor: pointer; transition: all 0.2s; border-radius: 1px;
+}
+.btn-gold { background: var(--gold); color: var(--ink); font-weight: 500; }
+.btn-gold:hover { background: var(--gold-warm); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
+.btn-ghost:hover { border-color: var(--gold); background: var(--gold-ghost); }
+
+/* ── SECTIONS ── */
+.section { padding: 7rem 0; position: relative; }
+.section--alt { background: var(--ink-mid); }
+.section-kicker { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 1rem; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 300; line-height: 1.15; color: var(--paper); margin-bottom: 1.4rem; }
+.section-title em { font-style: italic; color: var(--gold); }
+.section-title strong { font-weight: 700; }
+.section-lead { font-size: 1.05rem; line-height: 1.9; color: var(--muted); max-width: 640px; margin-bottom: 3rem; }
+.rule { width: 48px; height: 1px; background: var(--gold); opacity: 0.5; margin: 1.4rem 0; }
+
+/* ── ARCHITECTURE ── */
+.arch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border); margin-top: 3rem;
+}
+.arch-card { background: var(--ink-card); padding: 2.2rem 1.8rem; position: relative; }
+.arch-card.victory { border-top: 3px solid var(--gold); }
+.arch-icon {
+  font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--gold);
+  margin-bottom: 1rem; width: 40px; height: 40px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.arch-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--paper); margin-bottom: 0.3rem; }
+.arch-role { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.arch-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+.arch-flow { border-top: 1px solid var(--border-dim); padding-top: 1rem; }
+.flow-item { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border-dim); color: var(--muted); }
+.flow-item span { color: var(--gold-warm); }
+.arch-constant { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); letter-spacing: 0.05em; }
+
+/* ── MECHANICS ── */
+.sect-grid { display: grid; gap: 4rem; align-items: start; }
+.sect-grid--mechanics { grid-template-columns: 1fr 1fr; }
+.tax-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.8rem; }
+.tax-card { background: var(--ink-card); padding: 1.8rem 1.5rem; }
+.tax-rate { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.tax-rate span { font-size: 1rem; font-weight: 300; color: var(--gold-dim); font-style: italic; }
+.tax-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.8rem; }
+.tax-rows { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.tax-row { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); padding: 0.2rem 0; border-bottom: 1px solid var(--border-dim); }
+.tax-row:last-child { border-bottom: none; }
+.tax-row .pct { color: var(--gold-warm); }
+.tax-row .dest { color: var(--body-text); }
+.mech-text p { font-size: 1.02rem; line-height: 1.9; color: var(--body-text); margin-bottom: 1.2rem; }
+
+/* Gates */
+.gate-list { margin-top: 2rem; }
+.gate-item { display: flex; gap: 1.2rem; padding: 1.2rem 0; border-bottom: 1px solid var(--border-dim); }
+.gate-num { width: 32px; height: 32px; border-radius: 50%; background: var(--teal-ghost); color: var(--teal-light); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.8rem; flex-shrink: 0; }
+.gate-item strong { display: block; color: var(--paper); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; margin-bottom: 0.3rem; }
+.gate-item span { color: var(--muted); font-size: 0.9rem; }
+
+/* Hysteresis Callout */
+.hysteresis-callout { background: var(--ink-card); border: 1px solid var(--border-dim); border-left: 3px solid var(--teal); padding: 1.5rem 1.5rem; margin-bottom: 1.5rem; }
+.hysteresis-callout .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.5rem; }
+.hysteresis-callout .heading { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.hysteresis-callout p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+.hysteresis-callout .threshold { font-family: 'DM Mono', monospace; font-size: 0.66rem; color: var(--teal-light); margin-top: 0.8rem; }
+
+/* Victory Lap Callout */
+.victory-callout { background: var(--ink-card); border: 1px solid var(--border-dim); border-left: 3px solid var(--gold); padding: 1.5rem 1.5rem; }
+.victory-callout .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+.victory-callout .heading { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.victory-callout p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+.victory-callout .threshold { font-family: 'DM Mono', monospace; font-size: 0.66rem; color: var(--gold); margin-top: 0.8rem; }
+
+/* ── TIERS ── */
+.tiers-table { margin-top: 2.5rem; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.data-table th { text-align: left; padding: 0.9rem 1.2rem; border-bottom: 2px solid var(--border); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase; font-weight: 500; }
+.data-table td { padding: 0.85rem 1.2rem; border-bottom: 1px solid var(--border-dim); color: rgba(240,239,240,0.82); vertical-align: top; }
+.data-table tr:hover td { background: rgba(200,168,75,0.03); }
+.tier-name { color: var(--gold); font-weight: 600; }
+.mono { font-family: 'DM Mono', monospace; font-size: 0.82em; }
+.tier-note { margin-top: 2rem; padding: 1.5rem; background: var(--ink-card); border-left: 3px solid var(--gold); font-size: 0.95rem; color: var(--muted); }
+.tier-note strong { color: var(--gold-warm); }
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 1.5rem; max-width: 700px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0; width: 1px; background: var(--border); }
+.tl-item { position: relative; padding: 0 0 2.5rem 2rem; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -0.42rem; top: 0.45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--gold-dim); }
+.tl-item.done .tl-dot { background: var(--gold); border-color: var(--gold); }
+.tl-item.now .tl-dot { background: var(--teal); border-color: var(--teal-light); box-shadow: 0 0 12px rgba(14,155,142,0.5); }
+.tl-phase { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.tl-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.tl-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+.tl-badge { display: inline-block; margin-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.57rem; letter-spacing: 0.1em; padding: 0.15rem 0.5rem; border-radius: 2px; }
+.tl-done { background: var(--gold-ghost); color: var(--gold); }
+.tl-now { background: var(--teal-ghost); color: var(--teal-light); }
+
+/* ── MATHS ── */
+.maths-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+.math-card { background: var(--ink-card); padding: 1.8rem 1.4rem; text-align: center; }
+.math-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--gold); line-height: 1; margin-bottom: 0.5rem; }
+.math-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.math-val { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--paper); margin-bottom: 1rem; }
+.math-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+/* ── FOOTER ── */
+footer { background: #07101a; border-top: 1px solid var(--border-dim); padding: 4rem 0 2rem; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand-name { font-family: 'DM Mono', monospace; font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem; }
+.footer-brand-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; font-style: italic; max-width: 280px; }
+.footer-col h4 { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; font-weight: 400; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 0.5rem; }
+.footer-col a { font-size: 0.9rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom { padding-top: 2rem; border-top: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.footer-legal { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; color: var(--muted); opacity: 0.55; }
+.footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: var(--muted); opacity: 0.45; max-width: 480px; text-align: right; line-height: 1.7; }
+
+/* ── ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--ink);} ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-inner,.sect-grid--mechanics{grid-template-columns:1fr;gap:3rem;}
+  .arch-grid{grid-template-columns:1fr;}
+  .maths-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;} .nav-hamburger{display:flex;}
+}
+@media(max-width:600px){
+  html{font-size:16px;}
+  .container,.container--narrow{padding:0 1.2rem;}
+  .section{padding:4rem 0;}
+  .hero-inner{padding:2.5rem 0;}
+  .const-grid{grid-template-columns:1fr 1fr;}
+  .const-cell{padding:1.1rem 1rem;}
+  .const-sym{font-size:2rem;}
+  .maths-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;}
+  .footer-disclaimer{text-align:left;}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>52F</h1>
-            <p class="subtitle">TRANSCENDENTAL TOKENOMICS ON <span class="math-constant">QF NETWORK</span></p>
-            <span class="network-badge">0.1s BLOCKS</span>
-        </header>
 
-        <section>
-            <h2>🎯 The Victory Lap</h2>
-            <div class="highlight-box victory-lap">
-                <h3>Extreme Prosperity = Extreme Deflation</h3>
-                <p>When the Dampener Vault hits <strong>15%+ liquidity ratio</strong> and can inject <strong>6.25% in one hit</strong>, the excess triggers a <span class="math-constant">VICTORY LAP</span>:</p>
-                <br>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">50%</div>
-                        <div class="stat-label">QF Burned Directly</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">50%</div>
-                        <div class="stat-label">Swap to 52F → Burn</div>
-                    </div>
-                </div>
-                <p style="text-align: center; font-size: 1.2rem; margin-top: 1rem;">
-                    <span class="beer-emoji">🍺</span> Free Beer For Everyone <span class="beer-emoji">🍺</span>
-                </p>
-            </div>
-        </section>
+<canvas id="hero-canvas"></canvas>
 
-        <section>
-            <h2>📊 Tokenomics</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">80.6B</div>
-                    <div class="stat-label">Total Supply</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">2.718%</div>
-                    <div class="stat-label">Buy Tax (e)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">3.141%</div>
-                    <div class="stat-label">Sell Tax (π)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">5.2M</div>
-                    <div class="stat-label">Eligibility Gate ±10%</div>
-                </div>
-            </div>
-            
-            <div class="highlight-box">
-                <h3>All Taxes in QF</h3>
-                <p>Every trade generates <strong>QF buy pressure</strong> for prize refills and liquidity. Team receives QF (no sell pressure). Sustainable circular economy.</p>
-            </div>
-        </section>
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero">Project 52F</a>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#tiers">Tiers</a></li>
+    <li><a href="#maths">Constants</a></li>
+    <li><a href="#build">Build</a></li>
+    <li><a href="https://t.me/Project52F" class="nav-cta">Telegram →</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
 
-        <section>
-            <h2>⚙️ Mechanism Flow</h2>
-            <div class="mechanism-flow">
-                <div class="flow-step">User Buys 52F<br><small>with QF + tax</small></div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">Tax Split<br><small>0.75% / 1% / Prize</small></div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">Dampener Vault<br><small>Accumulates QF</small></div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">Prosperity Mode<br><small>Ratio > 17%</small></div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step" style="border-color: #ffd700; color: #ffd700;">VICTORY LAP<br><small>Dual Burn Event</small></div>
-            </div>
-        </section>
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#architecture">Architecture</a>
+  <a href="#mechanics">Mechanics</a>
+  <a href="#tiers">Tiers</a>
+  <a href="#maths">Constants</a>
+  <a href="#build">Build Progress</a>
+  <a href="https://t.me/Project52F">Join Telegram →</a>
+</div>
 
-        <section>
-            <h2>🔒 Contracts</h2>
-            <p><strong>Token52F:</strong></p>
-            <div class="contract-address">[DEPLOY AFTER LAUNCH]</div>
-            
-            <p><strong>DampenerVault:</strong></p>
-            <div class="contract-address">[DEPLOY AFTER LAUNCH]</div>
-            
-            <p><strong>BirthdayParadox:</strong></p>
-            <div class="contract-address">[DEPLOY AFTER LAUNCH]</div>
-            
-            <p><strong>VictoryLapSatellite:</strong></p>
-            <div class="contract-address">[DEPLOY AFTER LAUNCH]</div>
-        </section>
-
-        <section>
-            <h2>🎮 Birthday Paradox Game</h2>
-            <div class="highlight-box">
-                <h3>King of the Hill + Fibonacci Collisions</h3>
-                <ul style="margin: 1rem 0; padding-left: 1.5rem;">
-                    <li>Hold <strong>5.2M 52F</strong> to enter (±10% hysteresis prevents flicker)</li>
-                    <li>Become <strong>King</strong> by spending 1.1557× previous king</li>
-                    <li>Win <strong>14,140 52F</strong> jackpot (10k × √2) at hash 52</li>
-                    <li>Normal collisions: <strong>10,000 52F</strong> each party</li>
-                </ul>
-                <p>Every collision refills prize pool via QF→52F swap. Persistent buy pressure.</p>
-            </div>
-        </section>
-
-        <footer>
-            <p>Project 52F — Where Mathematics Meets Markets</p>
-            <p style="margin-top: 1rem; font-size: 0.9rem;">
-                <span class="math-constant">e</span> × <span class="math-constant">π</span> × <span class="math-constant">52</span> = Deflationary Glory
-            </p>
-        </footer>
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-kicker">QF Network · PSP22 · 0.1s Blocks</p>
+        <h1 class="hero-title">Where mathematics<br><strong>governs everything.</strong></h1>
+        <p class="hero-subtitle">"A token where every parameter is a constant of nature"</p>
+        <p class="hero-body">Project 52F is a PSP22 token on QF Network. All taxes are paid in native QF, creating persistent buy pressure for 52F. The buy tax is Euler's number. The sell tax is Pi. Eligibility gates use ±10% hysteresis to prevent flicker. No arbitrary decisions. No admin toggles. Pure mathematical logic, permanently encoded on-chain.</p>
+        <div class="hero-actions">
+          <a href="#architecture" class="btn btn-gold">Explore Architecture</a>
+          <a href="#mechanics" class="btn btn-ghost">How It Works</a>
+        </div>
+      </div>
+      <div class="constants-panel">
+        <div class="const-grid">
+          <div class="const-cell">
+            <div class="const-sym">e</div>
+            <div class="const-label">Euler's Number</div>
+            <div class="const-val">2.718281828...</div>
+            <div class="const-use">Buy tax: 2.718% QF → 0.75% team, 0.968% prize, 1% liquidity</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">π</div>
+            <div class="const-label">Pi</div>
+            <div class="const-val">3.141592653...</div>
+            <div class="const-use">Sell tax: 3.141% QF → 0.75% team, 1% liq, 1.391% prize</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">φ</div>
+            <div class="const-label">Golden Ratio</div>
+            <div class="const-val">1.618033988...</div>
+            <div class="const-use">Dethrone margin: 15.6% (π/e)</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym" style="font-size:1.7rem;padding-top:0.3rem;">±10%</div>
+            <div class="const-label">Hysteresis</div>
+            <div class="const-val">4.68M — 5.72M</div>
+            <div class="const-use">Eligibility deadband prevents flicker</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">√2</div>
+            <div class="const-label">Root 2</div>
+            <div class="const-val">1.414213562...</div>
+            <div class="const-use">King prize: 14,140 52F (10k × √2)</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">52!</div>
+            <div class="const-label">Supply</div>
+            <div class="const-val">80,658,175,170</div>
+            <div class="const-use">First 11 digits of 52 factorial</div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="section section--alt">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">System Design</p>
+      <h2 class="section-title">Five Contracts.<br><em>One Mathematical Machine.</em></h2>
+      <div class="rule"></div>
+      <p class="section-lead">Unlike tokens that mix everything into one contract, 52F separates concerns for security and transparency. Each contract has one job, encoded in immutable mathematics. All taxes flow in native QF, creating automatic buy pressure for 52F through prize refills and buybacks.</p>
+    </div>
+
+    <div class="arch-grid reveal">
+      <div class="arch-card">
+        <div class="arch-icon">T</div>
+        <div class="arch-name">Token52F</div>
+        <div class="arch-role">The Core Router</div>
+        <p class="arch-desc">PSP22 token with separate payable buy() and sell() functions. All taxes collected in QF. Routes to TeamTreasury (batched), DampenerVault, and BirthdayParadox. Maintains eligibility with ±10% hysteresis.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Buy 2.718%<span>→ QF: 0.75% team · 0.968% prize · 1% liq</span></div>
+          <div class="flow-item">Sell 3.141%<span>→ QF: 0.75% team · 1.391% prize · 1% liq</span></div>
+        </div>
+        <div class="arch-constant">Eligibility: 5.2M ± 10% (4.68M exit, 5.72M entry)</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">BP</div>
+        <div class="arch-name">BirthdayParadox</div>
+        <div class="arch-role">The Game Engine</div>
+        <p class="arch-desc">Six-gate lottery with 52-slot ring buffer. Daily King throne with √2 boosted prizes (14,140 52F). Fibonacci collision detection. Every prize payout triggers QF→52F swap for refill.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Gate 1<span>Eligibility Flag (hysteresis)</span></div>
+          <div class="flow-item">Gate 2<span>Throne Claim/Dethrone (π/e margin)</span></div>
+          <div class="flow-item">Gate 3<span>Tax Accumulation Check</span></div>
+          <div class="flow-item">Gate 4<span>Fibonacci Hash Match</span></div>
+          <div class="flow-item">Gate 5<span>Collision Detection</span></div>
+          <div class="flow-item">Gate 6<span>Time/Block Locks</span></div>
+        </div>
+        <div class="arch-constant">Prizes: 10,000 52F normal, 14,140 52F king (√2×)</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">DV</div>
+        <div class="arch-name">DampenerVault</div>
+        <div class="arch-role">The Stabilizer</div>
+        <p class="arch-desc">Protocol-owned liquidity management. 15% target ratio. Pulse: 187,200 blocks (5.2 hours). Crisis injection, prosperity burn, or Victory Lap trigger. 5.2% agile reserve.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Crisis (&lt;10%)<span>5% injection to floor</span></div>
+          <div class="flow-item">Normal (10-17%)<span>1% match tracking</span></div>
+          <div class="flow-item">Prosperity (&gt;17%)<span>Victory Lap or 75/25 burn</span></div>
+        </div>
+        <div class="arch-constant">Block time: 0.1s · Pulse: 5.2 hours</div>
+      </div>
+    </div>
+
+    <div class="arch-card victory reveal" style="margin-top: 2rem;">
+      <div class="arch-icon">VL</div>
+      <div class="arch-name">VictoryLapSatellite</div>
+      <div class="arch-role">The Prosperity Burn</div>
+      <p class="arch-desc">Activates when DampenerVault can inject 6.25% in one hit at 15%+ ratio. Splits excess QF 50/50: half burned directly, half swapped to 52F and burned. Dual deflationary event for both QF and 52F ecosystems.</p>
+      <div class="arch-flow">
+        <div class="flow-item">Trigger<span>6.25% injection capacity at 15%+ ratio</span></div>
+        <div class="flow-item">Split 1<span>50% QF → burn</span></div>
+        <div class="flow-item">Split 2<span>50% QF → swap → 52F burn</span></div>
+      </div>
+      <div class="arch-constant">Result: Simultaneous QF and 52F deflation</div>
+    </div>
+  </div>
+</section>
+
+<!-- MECHANICS -->
+<section id="mechanics" class="section">
+  <div class="container">
+    <div class="sect-grid sect-grid--mechanics reveal">
+      <div class="mech-text">
+        <p class="section-kicker">How It Works</p>
+        <h2 class="section-title">QF In. 52F Out.<br><em>Mathematical Recycling.</em></h2>
+        <div class="rule"></div>
+        
+        <p>Every transaction generates QF tax. This QF is used to buy 52F from the market for prize refills and buybacks, creating persistent upward pressure on 52F price. The system is self-sustaining: volume generates QF, QF buys 52F, 52F prizes drive more volume.</p>
+        
+        <h3 style="margin-top: 2rem; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--paper);">The Six Gates</h3>
+        <p>Every buy passes through six mathematical gates. Fail any, and the transaction processes normally—but no prize. Pass all, and the Birthday Paradox triggers automatically.</p>
+        
+        <div class="gate-list">
+          <div class="gate-item">
+            <span class="gate-num">1</span>
+            <div>
+              <strong>Eligibility Flag with Hysteresis</strong>
+              <span>Hold ≥5.72M to enter, drop below 4.68M to exit. ±10% deadband prevents rapid flickering at the threshold.</span>
+            </div>
+          </div>
+          <div class="gate-item">
+            <span class="gate-num">2</span>
+            <div>
+              <strong>Throne Logic</strong>
+              <span>Claim or dethrone the King. 1-hour minimum reign. Dethrone requires π/e (15.6%) margin over previous buy.</span>
+            </div>
+          </div>
+          <div class="gate-item">
+            <span class="gate-num">3</span>
+            <div>
+              <strong>Tax Accumulation</strong>
+              <span>Accumulated QF tax ≥ 50% of prize value? Prevents pool drain at all volumes.</span>
+            </div>
+          </div>
+          <div class="gate-item">
+            <span class="gate-num">4</span>
+            <div>
+              <strong>Fibonacci Hash</strong>
+              <span>VRF suffix (0-999) maps to active Fibonacci slot. 8 slots in Entry tier, reducing to 5 in Mature.</span>
+            </div>
+          </div>
+          <div class="gate-item">
+            <span class="gate-num">5</span>
+            <div>
+              <strong>Collision Detection</strong>
+              <span>Hash matches existing entry in 52-slot ring buffer? Same wallet cannot self-collide.</span>
+            </div>
+          </div>
+          <div class="gate-item">
+            <span class="gate-num">6</span>
+            <div>
+              <strong>Time/Block Locks</strong>
+              <span>1 block between prizes, 5.2-hour warmup for King wins, daily reset at 24 hours.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="tax-pair">
+          <div class="tax-card">
+            <div class="tax-name">Buy Tax (e)</div>
+            <div class="tax-rate">2.718%</div>
+            <div class="tax-rows">
+              <div class="tax-row"><span class="dest">Team Treasury</span><span class="pct">0.75%</span></div>
+              <div class="tax-row"><span class="dest">DampenerVault</span><span class="pct">1.000%</span></div>
+              <div class="tax-row"><span class="dest">BirthdayParadox</span><span class="pct">0.968%</span></div>
+            </div>
+          </div>
+          <div class="tax-card">
+            <div class="tax-name">Sell Tax (π)</div>
+            <div class="tax-rate">3.141%</div>
+            <div class="tax-rows">
+              <div class="tax-row"><span class="dest">Team Treasury</span><span class="pct">0.75%</span></div>
+              <div class="tax-row"><span class="dest">DampenerVault</span><span class="pct">1.000%</span></div>
+              <div class="tax-row"><span class="dest">BirthdayParadox</span><span class="pct">1.391%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hysteresis-callout">
+          <div class="eyebrow">Eligibility Hysteresis</div>
+          <div class="heading">Prevents Flicker Attacks</div>
+          <p>With 0.1-second blocks, a user could rapidly buy and sell to toggle eligibility. The ±10% hysteresis requires a 20% balance swing to change state: enter at 5.72M, exit at 4.68M. No events emitted in the deadband.</p>
+          <div class="threshold">Entry: 5,720,000 52F · Exit: 4,680,000 52F</div>
+        </div>
+
+        <div class="victory-callout" style="margin-top: 1.5rem;">
+          <div class="eyebrow">Victory Lap Satellite</div>
+          <div class="heading">Extreme Prosperity = Dual Burn</div>
+          <p>When DampenerVault holds enough QF to inject 6.25% of LP depth in a single transaction while already at 15%+ ratio, the excess triggers automatic splitting: 50% QF burned, 50% swapped to 52F and burned. Deflationary for both tokens simultaneously.</p>
+          <div class="threshold">Trigger: 6.25% injection capacity · Split: 50/50 QF/52F burn</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIERS -->
+<section id="tiers" class="section section--alt">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">Prize Tiers</p>
+      <h2 class="section-title">Four Tiers.<br><em>52-Themed Progression.</em></h2>
+      <div class="rule"></div>
+      <p class="section-lead">Entry amounts, prize caps, and Fibonacci slots all trace back to 52. Holding gate is 5.2M 52F for all tiers (with ±10% hysteresis). Prize capped at 5.2× entry with 50% QF tax gate.</p>
+    </div>
+
+    <div class="tiers-table reveal">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th>Market Cap</th>
+            <th>Entry (52F)</th>
+            <th>Max Prize (5.2×)</th>
+            <th>Fib Slots</th>
+            <th>Active Positions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tier-name">🌱 Entry</td>
+            <td>0 — £99k</td>
+            <td class="mono">5.2M</td>
+            <td class="mono">27.04M</td>
+            <td>8</td>
+            <td class="mono">1, 2, 3, 5, 8, 13, 21, 34</td>
+          </tr>
+          <tr>
+            <td class="tier-name">🌿 Growth</td>
+            <td>£100k — £499k</td>
+            <td class="mono">52M</td>
+            <td class="mono">270.4M</td>
+            <td>7</td>
+            <td class="mono">1, 2, 3, 5, 8, 13, 34</td>
+          </tr>
+          <tr>
+            <td class="tier-name">🌳 Established</td>
+            <td>£500k — £1.9M</td>
+            <td class="mono">520M</td>
+            <td class="mono">2.704B</td>
+            <td>6</td>
+            <td class="mono">1, 2, 3, 5, 8, 34</td>
+          </tr>
+          <tr>
+            <td class="tier-name">🏆 Mature</td>
+            <td>≥ £2M</td>
+            <td class="mono">5.2B</td>
+            <td class="mono">27.04B</td>
+            <td>5</td>
+            <td class="mono">1, 2, 3, 5, 34</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tier-note reveal">
+      <p><strong>Holding Gate:</strong> 5.2M 52F required for all tiers (eligibility flag set with ±10% hysteresis: enter at 5.72M, exit at 4.68M). <strong>King Slot 52:</strong> Separate 24h throne, √2 boosted prizes (14,140 52F), activates at £84,136 market cap. <strong>Tax Gate:</strong> 50% of prize must be accumulated in QF before payout—ensures sustainability at all volumes through automatic QF→52F swap refill.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MATHS -->
+<section id="maths" class="section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">The Constants</p>
+      <h2 class="section-title">Every Number.<br><em>Mathematically Derived.</em></h2>
+      <div class="rule"></div>
+    </div>
+
+    <div class="maths-grid reveal">
+      <div class="math-card">
+        <div class="math-sym">52!</div>
+        <div class="math-name">Supply</div>
+        <div class="math-val">80,658,175,170</div>
+        <p>First 11 digits of 52 factorial. The brand constant.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">e</div>
+        <div class="math-name">Buy Tax</div>
+        <div class="math-val">2.718281828...</div>
+        <p>Natural growth rate. QF tax: 0.75% team, 1% liq, 0.968% prize.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">π</div>
+        <div class="math-name">Sell Tax</div>
+        <div class="math-val">3.141592653...</div>
+        <p>Circular constant. QF tax: 0.75% team, 1% liq, 1.391% prize.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">±10%</div>
+        <div class="math-name">Hysteresis</div>
+        <div class="math-val">4.68M — 5.72M</div>
+        <p>Prevents eligibility flicker. 20% swing required to toggle.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">√2</div>
+        <div class="math-name">King Boost</div>
+        <div class="math-val">1.414213562...</div>
+        <p>Pythagorean diagonal. King prizes: 10,000 × √2 = 14,140 52F.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">π/e</div>
+        <div class="math-name">Dethrone</div>
+        <div class="math-val">1.155727349...</div>
+        <p>Ratio of constants. Dethrone requires 15.6% margin.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">Fₙ</div>
+        <div class="math-name">Collision</div>
+        <div class="math-val">1, 2, 3, 5, 8, 13, 21, 34</div>
+        <p>Fibonacci sequence. 8 active slots of 52, reducing by tier.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">187,200</div>
+        <div class="math-name">Pulse Blocks</div>
+        <div class="math-val">5.2 hours</div>
+        <p>DampenerVault action interval. 0.1s block time on QF Network.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">6.25%</div>
+        <div class="math-name">Victory Lap</div>
+        <div class="math-val">625 BPS</div>
+        <p>Injection capacity threshold. Excess split 50/50, both burned.</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">520,000</div>
+        <div class="math-name">Team Sweep</div>
+        <div class="math-val">~14.4 hours</div>
+        <p>Automated QF transfer to team. Batched for gas efficiency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section id="build" class="section section--alt">
+  <div class="container">
+    <div class="sect-grid sect-grid--build reveal">
+      <div>
+        <p class="section-kicker">Build Progress</p>
+        <h2 class="section-title">Five Contracts.<br><em>Complete System.</em></h2>
+        <div class="rule"></div>
+        <p style="font-size:1rem;line-height:1.9;color:var(--muted);">Mathematical architecture finalized. All taxes in native QF. Eligibility hysteresis prevents flicker. Victory Lap satellite for extreme prosperity. Ready for QF Network deployment.</p>
+      </div>
+      
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 1</div>
+          <div class="tl-name">Token52F.rs</div>
+          <div class="tl-desc">PSP22 core, payable buy/sell, QF tax routing, ±10% hysteresis eligibility, batched team sweep.</div>
+          <span class="tl-badge tl-done">✓ Complete</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 2</div>
+          <div class="tl-name">BirthdayParadox.rs</div>
+          <div class="tl-desc">Six-gate engine, 52-slot ring buffer, King throne with √2 boost, QF→52F swap refill on payout.</div>
+          <span class="tl-badge tl-done">✓ Complete</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 3</div>
+          <div class="tl-name">DampenerVault.rs</div>
+          <div class="tl-desc">Protocol-owned liquidity. 187,200 block pulse (5.2 hours). Crisis injection, prosperity burn, Victory Lap trigger.</div>
+          <span class="tl-badge tl-done">✓ Complete</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 4</div>
+          <div class="tl-name">VictoryLapSatellite.rs</div>
+          <div class="tl-desc">Prosperity dual-burn. 6.25% injection threshold. 50% QF burn, 50% QF→52F swap→burn. Deflation for both tokens.</div>
+          <span class="tl-badge tl-done">✓ Complete</span>
+        </div>
+        <div class="tl-item now">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Integration</div>
+          <div class="tl-name">SPIN-Swap + QF Testnet</div>
+          <div class="tl-desc">Cross-contract calls, DEX integration, mainnet deployment sequence.</div>
+          <span class="tl-badge tl-now">⟳ In Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">Project 52F</div>
+        <p class="footer-brand-desc">A proof of concept in deterministic finance. Built with mathematical passion for the QF Network community. All taxes in QF. Pure constants. No arbitrary numbers.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#mechanics">Mechanics</a></li>
+          <li><a href="#tiers">Tiers</a></li>
+          <li><a href="#maths">Constants</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="https://t.me/Project52F">Telegram</a></li>
+          <li><a href="https://twitter.com/Project52F">Twitter</a></li>
+          <li><a href="https://github.com/Project52F">GitHub</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Network</h4>
+        <ul>
+          <li><a href="https://qfnetwork.xyz" target="_blank" rel="noopener">QF Network ↗</a></li>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/privacy">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">52F · QF Network · ink! v6 · 0.1s blocks · Specification v5.1 · February 2026</div>
+      <div class="footer-disclaimer">Proof of concept. Not financial advice. Crypto assets carry significant risk. Project 52F is a community project with no guarantees of return. See Terms & Conditions.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Fibonacci Canvas
+(function(){
+  const c=document.getElementById('hero-canvas'),ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#c9a84c';ctx.lineWidth=0.6;
+    const cx=c.width*0.72,cy=c.height*0.5;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    for(let i=0;i<900;i++){const a=i*0.08,r=6*Math.pow(1.618,a/(Math.PI*2));ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));if(r>Math.max(c.width,c.height))break;}
+    ctx.stroke();
+    ctx.lineWidth=0.3;
+    const fibs=[1,1,2,3,5,8,13,21,34,55,89,144];let sx=c.width*0.08,sy=c.height*0.88,u=6,dir=0;
+    for(let i=2;i<fibs.length;i++){const sz=fibs[i]*u;ctx.strokeRect(sx,sy-sz,sz,sz);if(dir===0){sx+=sz;sy-=fibs[i-1]*u;}else if(dir===1){sx-=fibs[i-1]*u;sy-=sz;}else if(dir===2){sx-=sz;sy+=fibs[i-1]*u;}else{sx+=fibs[i-1]*u;sy+=sz;}dir=(dir+1)%4;if(sx<-300||sx>c.width+300)break;}
+  }
+  window.addEventListener('resize',resize);resize();
+})();
+
+// Scroll Reveal
+(function(){
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+// Mobile Nav
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+document.querySelectorAll('#mobile-nav a').forEach(a=>{
+  a.addEventListener('click',()=>document.getElementById('mobile-nav').classList.remove('open'));
+});
+</script>
+
 </body>
 </html>
