@@ -2,46 +2,40 @@
 
 /// PROJECT 52F — Token52F.rs
 /// Phase 1: Core Token & Eligibility Engine
-/// Formal Specification v4.0 (February 2026)
-/// Target: QF Network (PolkaVM / ink! v6)
+/// Formal Specification v5.1 (February 2026)
+/// Target: QF Network (Revive Pallet / PolkaVM / ink! v6)
+
+use ink::prelude::vec::Vec;
+use ink::storage::Mapping;
+
+pub type QFBalance = U256;
+pub type Balance = u128;
 
 pub mod constants {
     pub const SCALING_FACTOR: u128 = 1_000_000_000_000_000_000u128;
     pub const TOTAL_SUPPLY: u128 = 80_658_175_170 * SCALING_FACTOR;
     
-    // Transcendental Taxes (all in QF)
-    pub const E_BUY_TAX_BPS: u128 = 271; // 2.718% = 2718 BPS, but we use QF direct
-    pub const E_BUY_TAX_QF: u128 = 2_718_000_000_000_000_000; // 2.718% with 18 decimals
+    // Tax rates in BPS
+    pub const E_BUY_TAX_BPS: u128 = 2718;
+    pub const PI_SELL_TAX_BPS: u128 = 3141;
+    pub const TEAM_TAX_BPS: u128 = 75;
+    pub const LIQUIDITY_TAX_BPS: u128 = 100;
     
-    pub const PI_SELL_TAX_QF: u128 = 3_141_000_000_000_000_000; // 3.141%
+    // Identity Gates with hysteresis (±10%)
+    pub const GATE_CENTER: Balance = 5_200_000 * SCALING_FACTOR;
+    pub const GATE_HYSTERESIS: Balance = 520_000 * SCALING_FACTOR;
+    pub const GATE_ENTRY: Balance = 5_720_000 * SCALING_FACTOR; // 5.2M + 10%
+    pub const GATE_EXIT: Balance = 4_680_000 * SCALING_FACTOR;  // 5.2M - 10%
     
-    // Team Sustainability (0.75% both ways)
-    pub const TEAM_TAX_BPS: u128 = 75; // 0.75% = 75 BPS
-    pub const TEAM_TAX_QF: u128 = 750_000_000_000_000_000;
-    
-    // Liquidity tax (1% to DampenerVault)
-    pub const LIQUIDITY_TAX_QF: u128 = 1_000_000_000_000_000_000;
-    
-    // Prize pool tax (remainder)
-    pub const PRIZE_TAX_BUY_QF: u128 = 968_000_000_000_000_000; // 2.718% - 0.75% - 1% = 0.968%
-    pub const PRIZE_TAX_SELL_QF: u128 = 1_391_000_000_000_000_000; // 3.141% - 0.75% - 1% = 1.391%
-    
-    // Identity Gates
-    pub const HOLDING_GATE_MIN: u128 = 5_200_000 * SCALING_FACTOR; // 5.2M 52F
-    pub const MAX_WALLET_PERFECT: u128 = 600; // 6% (Smallest Perfect Number)
     pub const BPS: u128 = 10_000;
-    
-    // Team sweep interval: 520,000 blocks (~14.4 hours)
     pub const TEAM_SWEEP_INTERVAL: u32 = 520_000;
 }
 
-use ink::contract_ref;
-use ink::prelude::vec::Vec;
+use crate::constants::*;
 
 #[ink::contract]
 mod token52f {
-    use crate::constants::*;
-    use ink::storage::Mapping;
+    use super::*;
 
     #[ink(storage)]
     pub struct Token52F {
@@ -54,9 +48,8 @@ mod token52f {
         team_address: AccountId,
         birthday_paradox: Option<AccountId>,
         dampener_vault: Option<AccountId>,
-        team_accumulated_qf: Balance,
         last_team_sweep: BlockNumber,
-        prize_pool_balance: Balance, // 5% of supply held by contract
+        prize_pool_balance: Balance,
     }
 
     #[ink(event)]
@@ -77,13 +70,20 @@ mod token52f {
     pub struct EligibilityChanged {
         #[ink(topic)] account: AccountId,
         eligible: bool,
+        balance: Balance,
     }
 
     #[ink(event)]
     pub struct TaxCollected {
         #[ink(topic)] from: AccountId,
-        qf_amount: Balance,
-        tax_type: u8, // 0=buy, 1=sell
+        qf_amount: QFBalance,
+        tax_type: u8,
+    }
+
+    #[ink(event)]
+    pub struct TeamSweep {
+        amount: QFBalance,
+        block: BlockNumber,
     }
 
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -91,30 +91,33 @@ mod token52f {
     pub enum Error {
         InsufficientBalance,
         InsufficientAllowance,
+        InsufficientQF,
         ZeroTransfer,
         NotOwner,
         NotEligible,
         InvalidAddress,
+        MathsError,
+        TransferFailed,
     }
 
     impl Token52F {
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new(team: AccountId) -> Self {
             let caller = Self::env().caller();
             let mut balances = Mapping::default();
             let total = TOTAL_SUPPLY;
             
-            // 5% to prize pool (contract holds it)
             let prize_pool = (total * 5) / 100;
-            // 95% to deployer
             let deployer_amount = total - prize_pool;
             
             balances.insert(caller, &deployer_amount);
             balances.insert(Self::env().account_id(), &prize_pool);
-            
+
             let mut tax_exempt = Mapping::default();
             tax_exempt.insert(caller, &true);
             tax_exempt.insert(team, &true);
+
+            let _initial_qf = Self::env().transferred_value();
 
             Self {
                 balances,
@@ -126,7 +129,6 @@ mod token52f {
                 team_address: team,
                 birthday_paradox: None,
                 dampener_vault: None,
-                team_accumulated_qf: 0,
                 last_team_sweep: Self::env().block_number(),
                 prize_pool_balance: prize_pool,
             }
@@ -175,7 +177,46 @@ mod token52f {
             self.process_transfer(from, to, value)
         }
 
-        // Core transfer logic
+        #[ink(message, payable)]
+        pub fn buy(&mut self, to: AccountId, value: Balance) -> Result<(), Error> {
+            let from = self.env().caller();
+            let qf_received = self.env().transferred_value();
+            
+            let expected_tax = self.calculate_buy_tax_qf(value);
+            if qf_received < expected_tax {
+                return Err(Error::InsufficientQF);
+            }
+            
+            self.distribute_buy_tax(qf_received)?;
+            self.process_transfer(from, to, value)?;
+            self.check_team_sweep();
+            
+            Ok(())
+        }
+
+        #[ink(message, payable)]
+        pub fn sell(&mut self, value: Balance) -> Result<QFBalance, Error> {
+            let from = self.env().caller();
+            
+            let from_bal = self.balances.get(from).unwrap_or(0);
+            if from_bal < value {
+                return Err(Error::InsufficientBalance);
+            }
+            
+            let qf_output = self.calculate_52f_to_qf(value);
+            let tax = (qf_output * QFBalance::from(PI_SELL_TAX_BPS)) / QFBalance::from(BPS);
+            let net_qf = qf_output.checked_sub(tax).ok_or(Error::MathsError)?;
+            
+            self.distribute_sell_tax(tax)?;
+            self.balances.insert(from, &(from_bal - value));
+            self.env().transfer(from, net_qf).map_err(|_| Error::TransferFailed)?;
+            
+            self.update_eligibility(from);
+            self.check_team_sweep();
+            
+            Ok(net_qf)
+        }
+
         fn process_transfer(&mut self, from: AccountId, to: AccountId, value: Balance) -> Result<(), Error> {
             if value == 0 {
                 return Err(Error::ZeroTransfer);
@@ -186,112 +227,122 @@ mod token52f {
                 return Err(Error::InsufficientBalance);
             }
 
-            // Determine if this is buy or sell via router
-            let is_buy = self.birthday_paradox == Some(from) || self.dampener_vault == Some(from);
-            let is_sell = self.birthday_paradox == Some(to) || self.dampener_vault == Some(to);
-            
-            // Check tax exemption
             let tax_exempt = self.tax_exempt.get(from).unwrap_or(false) || self.tax_exempt.get(to).unwrap_or(false);
-            
-            let net_value = if tax_exempt {
-                value
-            } else if is_buy {
-                self.process_buy_tax(from, value)?
-            } else if is_sell {
-                self.process_sell_tax(from, value)?
-            } else {
-                value
-            };
+            let net_value = if tax_exempt { value } else { value };
 
-            // Execute transfer
             self.balances.insert(from, &(from_bal - value));
             let to_bal = self.balances.get(to).unwrap_or(0);
             self.balances.insert(to, &(to_bal + net_value));
 
-            // Update eligibility
-            self.update_flag(from);
-            self.update_flag(to);
-            
-            // Check team sweep
-            self.check_team_sweep();
+            self.update_eligibility(from);
+            self.update_eligibility(to);
 
             self.env().emit_event(Transfer { from: Some(from), to: Some(to), value: net_value });
             Ok(())
         }
 
-        fn process_buy_tax(&mut self, from: AccountId, value: Balance) -> Result<Balance, Error> {
-            // Calculate QF tax (this would be passed as parameter in real integration)
-            // For now, assume tax is deducted from separate QF transfer
-            let qf_value = value; // Placeholder: actual QF amount
+        // HYSTERESIS ELIGIBILITY LOGIC
+        fn update_eligibility(&mut self, account: AccountId) {
+            let bal = self.balances.get(account).unwrap_or(0);
+            let is_currently_eligible = self.eligible_wallets.get(account).unwrap_or(false);
             
-            let team_share = (qf_value * TEAM_TAX_BPS) / BPS;
-            let liquidity_share = (qf_value * 100) / BPS; // 1%
-            let prize_share = qf_value - team_share - liquidity_share - ((qf_value * E_BUY_TAX_BPS) / BPS);
+            let should_be_eligible = if !is_currently_eligible {
+                // Not eligible: must rise to GATE_ENTRY (5.72M)
+                bal >= GATE_ENTRY
+            } else {
+                // Eligible: can fall to GATE_EXIT (4.68M)
+                bal >= GATE_EXIT
+            };
             
-            // Accumulate team QF
-            self.team_accumulated_qf += team_share;
-            
-            // Send to DampenerVault (liquidity)
-            if let Some(vault) = self.dampener_vault {
-                self.env().transfer(vault, liquidity_share).map_err(|_| Error::InvalidAddress)?;
+            if is_currently_eligible != should_be_eligible {
+                self.eligible_wallets.insert(account, &should_be_eligible);
+                self.env().emit_event(EligibilityChanged { 
+                    account, 
+                    eligible: should_be_eligible,
+                    balance: bal,
+                });
             }
-            
-            // Send to BirthdayParadox (prize)
-            if let Some(paradox) = self.birthday_paradox {
-                self.env().transfer(paradox, prize_share).map_err(|_| Error::InvalidAddress)?;
-            }
-            
-            self.env().emit_event(TaxCollected { from, qf_amount: team_share + liquidity_share + prize_share, tax_type: 0 });
-            
-            // Return net 52F to buyer
-            Ok(value - ((value * E_BUY_TAX_BPS) / BPS))
         }
 
-        fn process_sell_tax(&mut self, from: AccountId, value: Balance) -> Result<Balance, Error> {
-            let qf_value = value; // Placeholder
-            
-            let team_share = (qf_value * TEAM_TAX_BPS) / BPS;
-            let liquidity_share = (qf_value * 100) / BPS; // 1%
-            let prize_share = qf_value - team_share - liquidity_share - ((qf_value * 314) / BPS); // 3.14%
-            
-            self.team_accumulated_qf += team_share;
-            
+        fn calculate_buy_tax_qf(&self, value: Balance) -> QFBalance {
+            let value_u256 = QFBalance::from(value);
+            (value_u256 * QFBalance::from(E_BUY_TAX_BPS)) / QFBalance::from(BPS)
+        }
+
+        fn calculate_52f_to_qf(&self, value: Balance) -> QFBalance {
+            QFBalance::from(value)
+        }
+
+        fn distribute_buy_tax(&mut self, total_tax: QFBalance) -> Result<(), Error> {
+            let team_share = (total_tax * QFBalance::from(TEAM_TAX_BPS)) / QFBalance::from(BPS);
+            let liquidity_share = (total_tax * QFBalance::from(LIQUIDITY_TAX_BPS)) / QFBalance::from(BPS);
+            let prize_share = total_tax
+                .checked_sub(team_share)
+                .and_then(|r| r.checked_sub(liquidity_share))
+                .ok_or(Error::MathsError)?;
+
             if let Some(vault) = self.dampener_vault {
-                self.env().transfer(vault, liquidity_share).map_err(|_| Error::InvalidAddress)?;
+                self.env().transfer(vault, liquidity_share).map_err(|_| Error::TransferFailed)?;
             }
-            
+
             if let Some(paradox) = self.birthday_paradox {
-                self.env().transfer(paradox, prize_share).map_err(|_| Error::InvalidAddress)?;
+                self.env().transfer(paradox, prize_share).map_err(|_| Error::TransferFailed)?;
             }
-            
-            self.env().emit_event(TaxCollected { from, qf_amount: team_share + liquidity_share + prize_share, tax_type: 1 });
-            
-            Ok(value - ((value * 314) / BPS))
+
+            self.env().emit_event(TaxCollected { 
+                from: self.env().caller(), 
+                qf_amount: total_tax, 
+                tax_type: 0 
+            });
+
+            Ok(())
+        }
+
+        fn distribute_sell_tax(&mut self, total_tax: QFBalance) -> Result<(), Error> {
+            let team_share = (total_tax * QFBalance::from(TEAM_TAX_BPS)) / QFBalance::from(BPS);
+            let liquidity_share = (total_tax * QFBalance::from(LIQUIDITY_TAX_BPS)) / QFBalance::from(BPS);
+            let prize_share = total_tax
+                .checked_sub(team_share)
+                .and_then(|r| r.checked_sub(liquidity_share))
+                .ok_or(Error::MathsError)?;
+
+            if let Some(vault) = self.dampener_vault {
+                self.env().transfer(vault, liquidity_share).map_err(|_| Error::TransferFailed)?;
+            }
+
+            if let Some(paradox) = self.birthday_paradox {
+                self.env().transfer(paradox, prize_share).map_err(|_| Error::TransferFailed)?;
+            }
+
+            self.env().emit_event(TaxCollected { 
+                from: self.env().caller(), 
+                qf_amount: total_tax, 
+                tax_type: 1 
+            });
+
+            Ok(())
         }
 
         fn check_team_sweep(&mut self) {
             let current_block = self.env().block_number();
-            if current_block - self.last_team_sweep >= TEAM_SWEEP_INTERVAL as u32 {
+            if current_block - self.last_team_sweep >= TEAM_SWEEP_INTERVAL {
                 self.sweep_team_qf();
             }
         }
 
         fn sweep_team_qf(&mut self) {
-            if self.team_accumulated_qf > 0 {
-                let _ = self.env().transfer(self.team_address, self.team_accumulated_qf);
-                self.team_accumulated_qf = 0;
-                self.last_team_sweep = self.env().block_number();
-            }
-        }
-
-        fn update_flag(&mut self, account: AccountId) {
-            let bal = self.balances.get(account).unwrap_or(0);
-            let eligible = bal >= HOLDING_GATE_MIN;
-            let current = self.eligible_wallets.get(account).unwrap_or(false);
+            let contract_balance = self.env().balance();
+            let reserve = QFBalance::from(1_000_000_000_000_000_000u128);
             
-            if current != eligible {
-                self.eligible_wallets.insert(account, &eligible);
-                self.env().emit_event(EligibilityChanged { account, eligible });
+            if contract_balance > reserve {
+                let sweep_amount = contract_balance - reserve;
+                let _ = self.env().transfer(self.team_address, sweep_amount);
+                self.last_team_sweep = self.env().block_number();
+                
+                self.env().emit_event(TeamSweep { 
+                    amount: sweep_amount, 
+                    block: self.env().block_number() 
+                });
             }
         }
 
@@ -331,28 +382,38 @@ mod token52f {
         }
 
         #[ink(message)]
+        pub fn get_eligibility_thresholds(&self) -> (Balance, Balance, Balance) {
+            (GATE_EXIT, GATE_CENTER, GATE_ENTRY)
+        }
+
+        #[ink(message)]
         pub fn get_prize_pool_balance(&self) -> Balance {
             self.prize_pool_balance
         }
 
         #[ink(message)]
         pub fn transfer_from_prize_pool(&mut self, to: AccountId, amount: Balance) -> Result<(), Error> {
-            // Only BirthdayParadox can call
             if Some(self.env().caller()) != self.birthday_paradox {
                 return Err(Error::NotOwner);
             }
             
-            let contract_bal = self.balances.get(self.env().account_id()).unwrap_or(0);
+            let contract_addr = self.env().account_id();
+            let contract_bal = self.balances.get(contract_addr).unwrap_or(0);
             if contract_bal < amount {
                 return Err(Error::InsufficientBalance);
             }
             
-            self.balances.insert(self.env().account_id(), &(contract_bal - amount));
+            self.balances.insert(contract_addr, &(contract_bal - amount));
             let to_bal = self.balances.get(to).unwrap_or(0);
             self.balances.insert(to, &(to_bal + amount));
             self.prize_pool_balance -= amount;
             
             Ok(())
+        }
+
+        #[ink(message)]
+        pub fn get_contract_qf_balance(&self) -> QFBalance {
+            self.env().balance()
         }
     }
 }
