@@ -1,5 +1,4 @@
-
-html_content = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -811,42 +810,162 @@ html_content = '''<!DOCTYPE html>
             }
         }
 
+        /* Mobile Navigation */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: rgba(10, 12, 20, 0.98);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1.5rem;
+                z-index: 999;
+                border-bottom: 1px solid var(--border-gold);
             }
             
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links a {
+                color: var(--text-primary);
+                padding: 0.75rem 0;
+                border-bottom: 1px solid var(--border-subtle);
+            }
+            
+            .nav-toggle {
+                display: block;
+                background: none;
+                border: none;
+                color: var(--gold-primary);
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0.5rem;
+            }
+            
+            .nav-cta {
+                display: none;
+            }
+            
+            /* Hero fixes */
             .hero {
-                padding: 6rem 1.5rem 3rem;
+                padding: 6rem 1rem 3rem;
+                min-height: auto;
+            }
+            
+            .hero h1 {
+                font-size: clamp(2.5rem, 12vw, 4rem);
+            }
+            
+            .hero-subtitle {
+                font-size: clamp(1rem, 5vw, 1.5rem);
+            }
+            
+            .hero-tagline {
+                font-size: 0.95rem;
+                padding: 0;
+            }
+            
+            .hero-cta {
+                width: 100%;
+                max-width: 300px;
+                margin: 1.5rem auto;
+                display: block;
+                text-align: center;
             }
             
             .hero-meta {
                 flex-direction: column;
-                gap: 1rem;
-                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.65rem;
+                margin-top: 2rem;
             }
             
+            /* Section fixes */
             section {
-                padding: 4rem 1.5rem;
+                padding: 3rem 1rem;
             }
             
+            /* Grid fixes */
+            .constants-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .dashboard-grid,
+            .mechanics-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            /* Story section */
+            .story-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .story-visual {
+                order: -1;
+                height: 250px;
+            }
+            
+            .golden-spiral {
+                width: 220px;
+                height: 220px;
+            }
+            
+            /* Timeline */
+            .timeline-item {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            /* Fibonacci */
+            .fibonacci-display {
+                gap: 0.5rem;
+            }
+            
+            .fib-number {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            
+            /* Prevent overflow */
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .mechanic-card,
+            .feature-card,
+            .constant-card {
+                padding: 1.5rem;
+            }
+            
+            .code-block {
+                font-size: 0.75rem;
+                padding: 1rem;
+                overflow-x: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
             .constants-grid {
                 grid-template-columns: 1fr;
             }
             
-            .timeline-item {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .fibonacci-display {
-                gap: 1rem;
+            .section-title {
+                font-size: 1.75rem;
             }
             
             .fib-number {
-                width: 50px;
-                height: 50px;
-                font-size: 1.25rem;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
             }
         }
 
@@ -933,7 +1052,7 @@ html_content = '''<!DOCTYPE html>
                     
                     <p>This project started with a simple question: <em>what if every decision in a token was forced to be mathematical?</em> Not rules set by a committee. Not parameters chosen for marketing reasons. Actual constants from nature—the kind that have been true since before humans existed.</p>
                     
-                    <p>The person behind Project 52F has <strong>no coding background.</strong> Everything here—two production-ready ink! v6 smart contracts, comprehensive unit tests, a full security audit, and this protocol—was built entirely through vibe coding: directing AI with domain knowledge, mathematical passion, and a very clear vision.</p>
+                    <p>The person behind Project 52F has <strong>no coding background.</strong> Everything here—five production-ready ink! v6 smart contract pillars, comprehensive unit tests, a full security audit, and this protocol—was built entirely through vibe coding: directing AI with domain knowledge, mathematical passion, and a very clear vision.</p>
                     
                     <ul class="story-features">
                         <li>No Admin Keys</li>
@@ -1107,7 +1226,7 @@ html_content = '''<!DOCTYPE html>
                 <div class="timeline-item complete">
                     <div class="timeline-phase">Phase 1</div>
                     <div class="timeline-content">
-                        <h3>Token52F.rs</h3>
+                        <h3>token52f.rs</h3>
                         <p>Full PSP22 with e/π tax engine at 18 decimal precision, prize pool accounting, flush valve with hysteresis, admin oracle, and reentrancy protection.</p>
                         <span class="status-badge complete">✓ Complete · 20 unit tests</span>
                     </div>
@@ -1116,7 +1235,7 @@ html_content = '''<!DOCTYPE html>
                 <div class="timeline-item complete">
                     <div class="timeline-phase">Phase 2</div>
                     <div class="timeline-content">
-                        <h3>BirthdayParadox.rs</h3>
+                        <h3>birthdayparadox.rs</h3>
                         <p>Six-gate eligibility sequence, VRF collision detection, 9 Fibonacci winning numbers, Slot 52 Champion's Seat, dual payout logic.</p>
                         <span class="status-badge complete">✓ Complete · 13 unit tests</span>
                     </div>
@@ -1134,8 +1253,8 @@ html_content = '''<!DOCTYPE html>
                 <div class="timeline-item in-progress">
                     <div class="timeline-phase">Phase 3</div>
                     <div class="timeline-content">
-                        <h3>AMM Integration</h3>
-                        <p>SPIN-Swap interface for market buy routing and liquidity management. Awaiting AMM documentation from QF Network team.</p>
+                        <h3>project52pulse.rs</h3>
+                        <p>Combined Victory Lap and Burn functionality. Dual-deflation event triggers, automated market operations, prosperity burn mechanism.</p>
                         <span class="status-badge in-progress">⟳ In Progress</span>
                     </div>
                 </div>
@@ -1250,642 +1369,23 @@ html_content = '''<!DOCTYPE html>
             observer.observe(el);
         });
 
-        // Mobile menu toggle (if needed in future)
+        // Mobile menu toggle
         const navToggle = document.createElement('button');
         navToggle.className = 'nav-toggle';
         navToggle.innerHTML = '☰';
-        navToggle.style.cssText = 'display:none;background:none;border:none;color:#c9a227;font-size:1.5rem;cursor:pointer;';
+        navToggle.setAttribute('aria-label', 'Toggle navigation');
+        document.querySelector('.nav-container').appendChild(navToggle);
         
-        if (window.innerWidth <= 768) {
-            document.querySelector('.nav-container').appendChild(navToggle);
-            navToggle.style.display = 'block';
-            
-            navToggle.addEventListener('click', () => {
-                document.querySelector('.nav-links').classList.toggle('active');
+        navToggle.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+        
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.nav-links').classList.remove('active');
             });
-        }
+        });
     </script>
 </body>
-</html>'''
-
-# Save to file
-with open('/mnt/kimi/output/project52f_updated.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-
-print("✓ Updated HTML file created successfully!")
-print(f"✓ File size: {len(html_content):,} characters")
-print("\nKey changes made:")
-print("1. ✓ Fixed mobile banner text chopping with responsive design")
-print("2. ✓ Applied slide deck elegance: navy background, gold accents, serif fonts")
-print("3. ✓ Added 'The Story' section with Deterministic Thesis content")
-print("4. ✓ Updated mechanics to reflect 9 Fibonacci winning numbers (not 52 slots)")
-print("5. ✓ Added Golden Spiral visual element")
-print("6. ✓ Preserved all accurate content (taxes, phases, QF Network info)")
-print("7. ✓ No tokenomics from slide deck included")            margin: 0 auto 4rem;
-        }
-
-        .constant-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            padding: 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .constant-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--accent-color);
-        }
-
-        .constant-card.e { --accent-color: var(--accent-e); }
-        .constant-card.pi { --accent-color: var(--accent-pi); }
-        .constant-card.phi { --accent-color: var(--accent-gold); }
-        .constant-card.fib { --accent-color: var(--accent-fib); }
-
-        .constant-symbol {
-            font-size: 3rem;
-            font-family: 'Times New Roman', serif;
-            color: var(--accent-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .constant-name {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        .constant-value {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            word-break: break-all;
-        }
-
-        .constant-use {
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            color: var(--accent-color);
-        }
-
-        /* Section Styling */
-        section {
-            padding: 4rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        h2 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        h3 {
-            font-size: 1.5rem;
-            color: var(--accent-gold);
-            margin: 2rem 0 1rem;
-            font-weight: 400;
-        }
-
-        .section-intro {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 3rem;
-            max-width: 800px;
-        }
-
-        /* Pillars Grid */
-        .pillars-container {
-            display: grid;
-            gap: 3rem;
-            margin-top: 3rem;
-        }
-
-        .pillar {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            padding: 2.5rem;
-            position: relative;
-            border-left: 4px solid var(--pillar-color);
-        }
-
-        .pillar:nth-child(1) { --pillar-color: #ff6b6b; }
-        .pillar:nth-child(2) { --pillar-color: #4ecdc4; }
-        .pillar:nth-child(3) { --pillar-color: #45b7d1; }
-        .pillar:nth-child(4) { --pillar-color: #f9ca24; }
-        .pillar:nth-child(5) { --pillar-color: #6c5ce7; }
-
-        .pillar-number {
-            position: absolute;
-            top: -15px;
-            left: 2.5rem;
-            background: var(--pillar-color);
-            color: var(--bg-dark);
-            padding: 0.2rem 1rem;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-
-        .pillar h3 {
-            color: var(--text-primary);
-            margin-top: 0.5rem;
-            font-size: 1.8rem;
-        }
-
-        .pillar-subtitle {
-            color: var(--pillar-color);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 1rem;
-        }
-
-        .specs-list {
-            list-style: none;
-            margin: 1.5rem 0;
-        }
-
-        .specs-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border-subtle);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .specs-list li:last-child {
-            border-bottom: none;
-        }
-
-        .spec-label {
-            color: var(--text-secondary);
-        }
-
-        .spec-value {
-            color: var(--text-primary);
-            font-family: 'Courier New', monospace;
-            text-align: right;
-        }
-
-        /* Mechanics Section - CRITICAL UPDATES */
-        .mechanics-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 4px;
-        }
-
-        .mechanics-box h4 {
-            color: var(--accent-gold);
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .code-block {
-            background: #0f0f1a;
-            border: 1px solid #2a2a3e;
-            padding: 1.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            margin: 1rem 0;
-            color: #a8a8b3;
-        }
-
-        .highlight {
-            color: var(--accent-gold);
-            font-weight: bold;
-        }
-
-        .warning-box {
-            background: rgba(212, 175, 55, 0.1);
-            border-left: 3px solid var(--accent-gold);
-            padding: 1rem;
-            margin: 1.5rem 0;
-            font-size: 0.95rem;
-        }
-
-        /* How It Works - Birthday Paradox Explanation */
-        .process-step {
-            display: flex;
-            gap: 2rem;
-            margin: 2rem 0;
-            align-items: flex-start;
-        }
-
-        .step-number {
-            background: var(--accent-gold);
-            color: var(--bg-dark);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .step-content h4 {
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .fibonacci-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            justify-content: center;
-        }
-
-        .fib-slot {
-            width: 50px;
-            height: 50px;
-            border: 2px solid var(--accent-fib);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            background: rgba(205, 133, 63, 0.1);
-        }
-
-        .fib-slot.king {
-            border-color: var(--accent-gold);
-            background: rgba(212, 175, 55, 0.2);
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 4rem 5%;
-            border-top: 1px solid var(--border-subtle);
-            color: var(--text-secondary);
-            margin-top: 4rem;
-        }
-
-        .status-badge {
-            display: inline-block;
-            background: rgba(139, 195, 143, 0.2);
-            color: var(--accent-e);
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            border: 1px solid var(--accent-e);
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .process-step { flex-direction: column; }
-            .constants-grid { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
-
-<nav>
-    <ul>
-        <li><a href="#story">Story</a></li>
-        <li><a href="#pillars">The 5 Pillars</a></li>
-        <li><a href="#mechanics">Mechanics</a></li>
-        <li><a href="#game">The Paradox</a></li>
-        <li><a href="#architecture">Architecture</a></li>
-        <li><a href="#qf">QF Network</a></li>
-    </ul>
-</nav>
-
-<div class="hero">
-    <h1>Project 52F</h1>
-    <p class="subtitle">Deterministic Finance on QF Network</p>
-    <p class="tagline">"Where mathematics governs everything."</p>
-    <p style="color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
-        A token where every parameter is a constant of nature. No arbitrary decisions. 
-        No admin toggles. Pure mathematical logic, permanently encoded on-chain.
-    </p>
-
-    <div class="constants-grid">
-        <div class="constant-card e">
-            <div class="constant-symbol">e</div>
-            <div class="constant-name">Euler's Number</div>
-            <div class="constant-value">2.718281828...</div>
-            <div class="constant-use">Buy Tax: 2.718%</div>
-        </div>
-        <div class="constant-card pi">
-            <div class="constant-symbol">π</div>
-            <div class="constant-name">Pi</div>
-            <div class="constant-value">3.141592653...</div>
-            <div class="constant-use">Sell Tax: 3.141%</div>
-        </div>
-        <div class="constant-card phi">
-            <div class="constant-symbol">φ</div>
-            <div class="constant-name">Golden Ratio</div>
-            <div class="constant-value">1.618033988...</div>
-            <div class="constant-use">Dethroning Logic</div>
-        </div>
-        <div class="constant-card fib">
-            <div class="constant-symbol">Fib</div>
-            <div class="constant-name">Fibonacci</div>
-            <div class="constant-value">1,1,2,3,5,8,13,21...</div>
-            <div class="constant-use">Collision Slots</div>
-        </div>
-    </div>
-</div>
-
-<section id="pillars">
-    <h2>The Five Pillars</h2>
-    <p class="section-intro">
-        The architecture rests on five immutable contracts. No more, no less. 
-        The Fortress is immutable; the Satellites operate on strict mathematical timers.
-    </p>
-
-    <div class="pillars-container">
-        <!-- Pillar 1 -->
-        <div class="pillar">
-            <div class="pillar-number">Pillar 1</div>
-            <div class="pillar-subtitle">The Immutable Core</div>
-            <h3>The Fortress</h3>
-            <p>Project52F.rs handles the mathematical taxes and throne mechanics. Once deployed, no parameter can change.</p>
-            <ul class="specs-list">
-                <li><span class="spec-label">Buy Tax (e)</span><span class="spec-value">272 BPS (2.72%)</span></li>
-                <li><span class="spec-label">Sell Tax (π)</span><span class="spec-value">314 BPS (3.14%)</span></li>
-                <li><span class="spec-label">Tax Floor</span><span class="spec-value">1 QF minimum per bucket</span></li>
-                <li><span class="spec-label">Throne Shield</span><span class="spec-value">36,000 blocks (1 hour)</span></li>
-                <li><span class="spec-label">Dethroning Multiplier</span><span class="spec-value">π/e = 115.57%</span></li>
-                <li><span class="spec-label">Emergency Brake</span><span class="spec-value">Circuit Breaker (Pull Pause)</span></li>
-            </ul>
-        </div>
-
-        <!-- Pillar 2 -->
-        <div class="pillar">
-            <div class="pillar-number">Pillar 2</div>
-            <div class="pillar-subtitle">The Collision Engine</div>
-            <h3>The Paradox</h3>
-            <p>BirthdayParadox.rs operates a 1,000-slot sparse matrix where probability governs payouts.</p>
-            <ul class="specs-list">
-                <li><span class="spec-label">Matrix Size</span><span class="spec-value">1,000 slots (O(1) complexity)</span></li>
-                <li><span class="spec-label">Hash Function</span><span class="spec-value">TX Hash MOD 1000</span></li>
-                <li><span class="spec-label">Trigger Slots</span><span class="spec-value">Fibonacci: 1,2,3,5,8,13,21,34 + 52</span></li>
-                <li><span class="spec-label">Standard Split</span><span class="spec-value">49% / 49%</span></li>
-                <li><span class="spec-label">King Boost</span><span class="spec-value">× √2 (1.4142) during Golden Window</span></li>
-                <li><span class="spec-label">Cooldown</span><span class="spec-value">36,000 blocks between payouts</span></li>
-            </ul>
-        </div>
-
-        <!-- Pillar 3 -->
-        <div class="pillar">
-            <div class="pillar-number">Pillar 3</div>
-            <div class="pillar-subtitle">Market Stability</div>
-            <h3>The Dampener</h3>
-            <p>DampenerVault.rs maintains the 15% liquidity ratio using accumulated sell tax.</p>
-            <ul class="specs-list">
-                <li><span class="spec-label">Target Ratio</span><span class="spec-value">15% (1500 BPS)</span></li>
-                <li><span class="spec-label">TWAP Period</span><span class="spec-value">60 minutes (anti-manipulation)</span></li>
-                <li><span class="spec-label">Max Drip</span><span class="spec-value">5% of vault per tx (500 BPS)</span></li>
-                <li><span class="spec-label">Block Throttle</span><span class="spec-value">1 injection per block max</span></li>
-                <li><span class="spec-label">Min Slippage</span><span class="spec-value">0.5% (50 BPS) enforced</span></li>
-                <li><span class="spec-label">Cooldown</span><span class="spec-value">36,000 blocks</span></li>
-            </ul>
-        </div>
-
-        <!-- Pillar 4 -->
-        <div class="pillar">
-            <div class="pillar-number">Pillar 4</div>
-            <div class="pillar-subtitle">The Deflationary Pulse</div>
-            <h3>The Pulse</h3>
-            <p>Project52Pulse.rs executes the Victory Lap every 52 million blocks (~60 days).</p>
-            <ul class="specs-list">
-                <li><span class="spec-label">Interval</span><span class="spec-value">52,000,000 blocks</span></li>
-                <li><span class="spec-label">Trigger</span><span class="spec-value">Permissionless (Triple-Check)</span></li>
-                <li><span class="spec-label">Condition A</span><span class="spec-value">Cooldown Complete</span></li>
-                <li><span class="spec-label">Condition B</span><span class="spec-value">Liquidity ≥ 15% (TWAP)</span></li>
-                <li><span class="spec-label">Condition C</span><span class="spec-value">Excess ≥ 6.25% of liquidity</span></li>
-                <li><span class="spec-label">Execution</span><span class="spec-value">Market-buy 52f → Burn to 0x0</span></li>
-            </ul>
-        </div>
-
-        <!-- Pillar 5 -->
-        <div class="pillar">
-            <div class="pillar-number">Pillar 5</div>
-            <div class="pillar-subtitle">Temporal Vesting</div>
-            <h3>The Vault</h3>
-            <p>Project52Vault.rs handles the 52-tranche team allocation (~12.07% = π×e×√2).</p>
-            <ul class="specs-list">
-                <li><span class="spec-label">Allocation</span><span class="spec-value">1,207 BPS (π×e×√2)</span></li>
-                <li><span class="spec-label">Tranches</span><span class="spec-value">52 discrete releases</span></li>
-                <li><span class="spec-label">Interval</span><span class="spec-value">5,200,000 blocks (~6 days)</span></li>
-                <li><span class="spec-label">Mechanism</span><span class="spec-value">Cumulative Pull</span></li>
-                <li><span class="spec-label">52nd Tranche</span><span class="spec-value">Dust-clearing remainder</span></li>
-                <li><span class="spec-label">Authority</span><span class="spec-value">Team wallet only</span></li>
-            </ul>
-        </div>
-    </div>
-</section>
-
-<section id="mechanics">
-    <h2>How It Works</h2>
-    <p class="section-intro">
-        Tax. Pool. Collision. Prize. Burn. All governed by immutable mathematics.
-    </p>
-
-    <div class="mechanics-box">
-        <h4>The Tax Flow (Native $QF Only)</h4>
-        <p><strong>Buy:</strong> User sends $QF → Calculate e-tax (2.72%) pre-swap → Split to Team/Prize → Swap remainder to 52f</p>
-        <p><strong>Sell:</strong> User sends 52f → Swap to $QF → Calculate π-tax (3.14%) post-swap → Split to Team/Dampener/Prize → Send net $QF to user</p>
-        <p style="margin-top: 1rem; color: var(--accent-gold);">
-            <strong>Key:</strong> The contract never holds 52f as tax. All taxation happens in native $QF.
-        </p>
-    </div>
-
-    <h3 style="color: var(--accent-gold); margin-top: 3rem;">The Throne Mechanics</h3>
-    <div class="process-step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-            <h4>Claiming the Throne</h4>
-            <p>On any buy transaction, the buyer's amount in $QF is evaluated against the current King. If the throne is empty, they become King immediately.</p>
-        </div>
-    </div>
-    <div class="process-step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-            <h4>The Shield (1 Hour)</h4>
-            <p>New Kings enjoy 36,000 blocks of immunity. During this time, no dethroning is possible regardless of buy size.</p>
-        </div>
-    </div>
-    <div class="process-step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-            <h4>The Dethroning (π/e)</h4>
-            <p>After the shield expires, a new buyer must exceed the current King's buy by exactly 15.57% (π/e ratio) to take the throne.</p>
-        </div>
-    </div>
-    <div class="process-step">
-        <div class="step-number">4</div>
-        <div class="step-content">
-            <h4>The Golden Window</h4>
-            <p>Hours 20-24 GMT (determined by block timestamp). If a collision occurs on Slot 52 during this window, the King's payout is multiplied by √2 (~1.4142). This can only happen once per 24-hour cycle.</p>
-        </div>
-    </div>
-</section>
-
-<section id="game">
-    <h2>The Birthday Paradox Engine</h2>
-    <p class="section-intro">
-        Unlike traditional lotteries, the Paradox is deterministic probability encoded in a sparse matrix. 
-        You don't "move" through slots. Each transaction is an independent event.
-    </p>
-
-    <div class="warning-box">
-        <strong>Critical:</strong> This is not a progressive game. You do not advance from slot 1 to 2 to 3. 
-        Each transaction hashes to a random slot 0-999. If that slot is a Fibonacci number and occupied, you win. 
-        If not, you simply occupy (or steal) the seat with no payout.
-    </div>
-
-    <h3>The Trigger Mines</h3>
-    <p>Payouts only occur on these specific slots:</p>
-    <div class="fibonacci-grid">
-        <div class="fib-slot">1</div>
-        <div class="fib-slot">2</div>
-        <div class="fib-slot">3</div>
-        <div class="fib-slot">5</div>
-        <div class="fib-slot">8</div>
-        <div class="fib-slot">13</div>
-        <div class="fib-slot">21</div>
-        <div class="fib-slot">34</div>
-        <div class="fib-slot king">52</div>
-    </div>
-    <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem;">
-        Slots 1, 2, 3, 5, 8, 13, 21, 34 (Fibonacci) and 52 (The King)
-    </p>
-
-    <div class="mechanics-box" style="margin-top: 2rem;">
-        <h4>The Algorithm</h4>
-        <div class="code-block">
-<span class="highlight">function</span> enter():
-    hash = TX_HASH → decimal → <span class="highlight">MOD 1000</span>
-    slot = hash % 1000
-    
-    <span class="highlight">if</span> slot is occupied:
-        <span class="highlight">if</span> slot in [1,2,3,5,8,13,21,34,52]:
-            <span class="highlight">execute_payout()</span>  // Collision!
-        else:
-            overwrite_seat()  // No payout, just steal
-    else:
-        occupy_seat()  // Empty slot, no payout
-        </div>
-    </div>
-
-    <h3 style="margin-top: 3rem;">What This Means</h3>
-    <ul style="list-style: none; padding: 0;">
-        <li style="padding: 1rem 0; border-bottom: 1px solid var(--border-subtle);">
-            <strong style="color: var(--accent-fib);">If you land on Slot 7:</strong> 
-            Even if occupied, no payout occurs. You simply steal the seat.
-        </li>
-        <li style="padding: 1rem 0; border-bottom: 1px solid var(--border-subtle);">
-            <strong style="color: var(--accent-fib);">If you land on Slot 13:</strong> 
-            If occupied → Payout triggered (49%/49% split). If empty → You occupy, no payout.
-        </li>
-        <li style="padding: 1rem 0;">
-            <strong style="color: var(--accent-gold);">If you land on Slot 52 (Golden Window):</strong> 
-            If occupied → King gets √2 boost on their share. Only once per day.
-        </li>
-    </ul>
-
-    <div class="mechanics-box" style="margin-top: 2rem; border-color: var(--accent-pi);">
-        <h4 style="color: var(--accent-pi);">Solvency Guards</h4>
-        <ul style="list-style: none; padding: 0;">
-            <li>• 1-hour cooldown between any collision payouts</li>
-            <li>• Max payout: 110% of tax revenue since last win</li>
-            <li>• Hard cap: 50% of total Prize Pot reserve</li>
-            <li>• Pull pattern: Players claim winnings (no auto-send)</li>
-        </ul>
-    </div>
-</section>
-
-<section id="architecture">
-    <h2>Architecture</h2>
-    <p class="section-intro">
-        Five contracts. Strict separation of concerns. Immutable core with timelocked satellite upgrades.
-    </p>
-
-    <div class="mechanics-box">
-        <h4>Satellite Pattern</h4>
-        <p><strong>The Fortress (Project52F.rs):</strong> Immutable. Holds the tax logic and throne state. No upgrades possible.</p>
-        <p><strong>The Satellites:</strong> Paradox, Dampener, Pulse, Vault. Addresses set via 24-hour timelock. Can be upgraded if mathematical flaws discovered, but only by owner with 1-day delay.</p>
-    </div>
-
-    <h3 style="margin-top: 2rem;">Security Eliminated</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
-        <div style="background: rgba(255,107,107,0.1); padding: 1rem; border-left: 3px solid #ff6b6b;">
-            <strong style="color: #ff6b6b;">God Mode</strong><br>
-            No manual reset functions. No "emergency" throne override. No kill switches except Circuit Breaker pause.
-        </div>
-        <div style="background: rgba(78,205,196,0.1); padding: 1rem; border-left: 3px solid #4ecdc4;">
-            <strong style="color: #4ecdc4;">Dusting</strong><br>
-            MIN_TRANSACTION_THRESHOLD ensures every tax bucket receives ≥1 QF. No micro-transactions to game rounding.
-        </div>
-        <div style="background: rgba(249,202,36,0.1); padding: 1rem; border-left: 3px solid #f9ca24;">
-            <strong style="color: #f9ca24;">Flash Loans</strong><br>
-            TWAP oracle (60-min average) resists instant price manipulation. Spot prices never used for decisions.
-        </div>
-        <div style="background: rgba(108,92,231,0.1); padding: 1rem; border-left: 3px solid #6c5ce7;">
-            <strong style="color: #6c5ce7;">Multi-Block Drain</strong><br>
-            One injection per block throttle prevents rapid sequential drains even if cooldown met.
-        </div>
-    </div>
-</section>
-
-<section id="qf">
-    <h2>QF Network</h2>
-    <p class="section-intro">
-        Built on QF Network's PolkaVM infrastructure. The only chain fast enough and deterministic enough for 52F's 0.1s block times.
-    </p>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin: 2rem 0;">
-        <div style="text-align: center; padding: 1.5rem;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚡</div>
-            <h4 style="color: var(--accent-gold); margin-bottom: 0.5rem;">PolkaVM Speed</h4>
-            <p style="font-size: 0.9rem;">Sub-second block times. The collision engine resolves prizes faster than most chains confirm a single transaction.</p>
-        </div>
-        <div style="text-align: center; padding: 1.5rem;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔐</div>
-            <h4 style="color: var(--accent-gold); margin-bottom: 0.5rem;">Tamper-Resistant VRF</h4>
-            <p style="font-size: 0.9rem;">Randomness derived from block entropy two epochs prior. Validators cannot predict or influence prize outcomes.</p>
-        </div>
-        <div style="text-align: center; padding: 1.5rem;">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🦀</div>
-            <h4 style="color: var(--accent-gold); margin-bottom: 0.5rem;">ink! v6 Contracts</h4>
-            <p style="font-size: 0.9rem;">Rust-native smart contracts with dual-ABI output. SCALE for PolkaVM performance, Solidity-compatible for tooling.</p>
-        </div>
-    </div>
-</section>
-
-<footer>
-    <p style="font-size: 1.2rem; margin-bottom: 1rem;">Project 52F</p>
-    <p style="max-width: 600px; margin: 0 auto; line-height: 1.8;">
-        Deterministic Finance on QF Network<br>
-        <span style="color: var(--text-secondary);">No code written by hand. All mathematics.</span>
-    </p>
-    <div class="status-badge">
-        Production Hardened • 5 Pillars Complete • Awaiting Mainnet
-    </div>
-    <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-secondary);">
-        Total Supply: Determined by deployment • Decimals: 18 • Standard: PSP22<br>
-        Block Time: 0.1s • Contracts: 5 • Tests: Passing
-    </p>
-</footer>
-
-</body>
 </html>
-
