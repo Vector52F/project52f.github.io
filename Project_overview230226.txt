@@ -1,0 +1,65 @@
+================================================================================
+PILLAR 1: FOUNDER LIQUIDITY GUARD SPECS
+================================================================================
+
+STATE VARIABLES FOR LP MANAGEMENT
+---------------------------------
+founder_lp_tokens: Mapping<Address, U256>
+    - Tracks LP tokens deposited by Master Wallet
+
+lock_expiry_timestamp: u64
+    - Hard 90-day lock date
+
+release_step_count: u8
+    - Tracks 20% gradual release stages (0 through 5)
+
+last_release_timestamp: u64
+    - Enforces 30-day cooldown between partial unlocks
+
+
+EXIT LOGIC FUNCTIONS
+--------------------
+request_founder_unlock()
+    - Called at 90 days
+    - Triggers cross-contract query to Dampener satellite
+
+evaluate_pool_health()
+    - Satellite logic
+    - Calculates: Current_Liquidity - Founder_Withdrawal_Value > 15%_Market_Cap
+
+execute_partial_release()
+    - Unlocks 20% of founder_lp_tokens if full release fails health check
+    - Resets last_release_timestamp
+
+
+SURVIVAL CODE LOGIC
+-------------------
+pub fn evaluate_release_safety(&self) -> bool {
+    let current_liq = self.get_current_liquidity();
+    let founder_value = self.calculate_lp_value(self.founder_lp_tokens);
+    let dampener_reserve = self.dampener_vault_reserve;
+
+    (current_liq + dampener_reserve) - founder_value > self.calculate_15_percent_mc()
+}
+
+
+MASTER WALLET TAX EXCLUSION
+---------------------------
+State: is_excluded_from_friction: Mapping<Address, bool>
+
+Constructor: is_excluded_from_friction[caller] = true
+
+Transfer Logic:
+    if (is_excluded_from_friction[from] || is_excluded_from_friction[to]) { 
+        apply_tax = false; 
+    }
+
+
+FINAL LAUNCH SEQUENCE
+---------------------
+1. Deploy: Total supply to Master Wallet (tax-free)
+2. Seed: Send $QF and $52f to DEX
+3. Lock: Receive LP tokens, call lock_lp_tokens on contract
+4. Renounce (Optional): Remove admin powers except request_founder_unlock
+
+================================================================================
