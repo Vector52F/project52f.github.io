@@ -1,302 +1,680 @@
-#![cfg_attr(not(feature = "std"), no_std)]
-
-use ink::storage::Mapping;
-
-pub type QFBalance = U256;
-pub type Balance = u128;
-
-pub mod constants {
-    pub const PULSE_BLOCKS: u32 = 187_200; // 5.2 hours
-    pub const CRISIS_CHECKS_REQUIRED: u8 = 3;
-    pub const CRISIS_CHECK_DELAY_BLOCKS: u32 = 52; // 5.2 seconds between checks
-    pub const CRISIS_COOLDOWN_BLOCKS: u32 = 86_400; // 24 hours
-    pub const MAX_CRISIS_INJECTION_BPS: u128 = 200; // 2%
-    pub const RATIO_CRISIS_THRESHOLD: u128 = 30; // 30% drop
-    pub const PRICE_TWAP_THRESHOLD: u128 = 80; // price < 80% twap
-    pub const BPS: u128 = 10_000;
-    pub const U256_100: U256 = U256::from(100u128);
-}
-
-use crate::constants::*;
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
-mod dampener_vault {
-    use super::*;
+mod birthday_paradox {
+    use ink::prelude::vec::Vec;
+    use ink::storage::Mapping;
+    use ink::primitives::AccountId;
+    use ink::env::call::{build_call, ExecutionInput, Selector};
+
+    // =========================================================================
+    // CONSTANTS — MATHEMATICALLY LOCKED
+    // =========================================================================
+    
+    /// Basis Points denominator
+    pub const BPS_DENOMINATOR: u128 = 10_000;
+    
+    /// √2 for King Boost: 1.4142 = 14142 BPS
+    pub const SQRT_2_BPS: u128 = 14_142;
+    
+    /// Standard split: 49% = 4900 BPS
+    pub const PLAYER_SHARE_BPS: u128 = 4_900;
+    
+    /// Dynamic Cap 1: 110% = 11,000 BPS
+    pub const REVENUE_CAP_BPS: u128 = 11_000;
+    
+    /// Dynamic Cap 2: 50% = 5,000 BPS
+    pub const DRAIN_CAP_BPS: u128 = 5_000;
+    
+    /// Fibonacci collision slots: 1, 2, 3, 5, 8, 13, 21, 34
+    pub const FIBONACCI_SLOTS: [u32; 8] = [1, 2, 3, 5, 8, 13, 21, 34];
+    
+    /// The King slot
+    pub const KING_SLOT: u32 = 52;
+    
+    /// 1-hour cooldown in blocks (0.1s block time = 36,000 blocks)
+    pub const COOLDOWN_BLOCKS: u32 = 36_000;
+    
+    /// 24-hour cycle in milliseconds
+    pub const MS_PER_DAY: u64 = 86_400_000;
+    
+    /// Golden Window start: Hour 20 (20 * 3600 * 1000 ms)
+    pub const GOLDEN_WINDOW_START_MS: u64 = 72_000_000;
+    
+    /// Target payout baseline: 10.4M $52f equivalent (represented in $QF)
+    pub const TARGET_PAYOUT_QF: Balance = 10_400_000_000_000_000_000;
+
+    // =========================================================================
+    // STORAGE
+    // =========================================================================
 
     #[ink(storage)]
-    pub struct DampenerVault {
-        launch_block: BlockNumber,
-        last_action_block: BlockNumber,
-        target_ratio: u128,
-        qf_reserve_percent: u128,
-        spin_swap_pair: Option<AccountId>,
-        price_oracle: Option<AccountId>,
-        birthday_paradox: Option<AccountId>,
+    pub struct BirthdayParadox {
+        /// Owner address
+        owner: AccountId,
         
-        // Crisis tracking with delay
-        crisis_count: u8,
-        last_crisis_check_block: BlockNumber,
-        last_crisis_block: BlockNumber,
-        last_ratio: u128,
+        /// Project52F contract address (Immutable Fortress)
+        fortress_address: AccountId,
         
-        qf_balance: QFBalance,
+        /// The Sparse Matrix: slot_index => occupant_address
+        matrix: Mapping<u32, AccountId>,
+        
+        /// Total revenue accumulated since last win (in $QF)
+        total_revenue_since_last_win: Balance,
+        
+        /// Last collision payout timestamp (block number for cooldown)
+        last_collision_block: u32,
+        
+        /// King boost claimed flag (resets 00:00 GMT)
+        king_boost_claimed_today: bool,
+        
+        /// Last GMT midnight timestamp (for daily resets)
+        last_gmt_reset_timestamp: u64,
+        
+        /// Current Prize Pot balance held by this contract
+        prize_pot_balance: Balance,
+        
+        // === NEW: Pull Pattern for Player Winnings ===
+        /// Player winnings ledger: address => claimable amount
+        winnings: Mapping<AccountId, Balance>,
+    }
+
+    // =========================================================================
+    // EVENTS
+    // =========================================================================
+
+    #[ink(event)]
+    pub struct SeatClaimed {
+        #[ink(topic)]
+        slot: u32,
+        #[ink(topic)]
+        new_occupant: AccountId,
+        #[ink(topic)]
+        previous_occupant: Option<AccountId>,
+        is_collision: bool,
     }
 
     #[ink(event)]
-    pub struct LiquidityInjected {
-        amount: QFBalance,
-        ratio_before: u128,
-        ratio_after: u128,
+    pub struct CollisionPayout {
+        #[ink(topic)]
+        slot: u32,
+        #[ink(topic)]
+        player_a: AccountId,
+        #[ink(topic)]
+        player_b: AccountId,
+        amount_a: Balance,
+        amount_b: Balance,
+        is_king_boost: bool,
+        total_payout: Balance,
     }
 
     #[ink(event)]
-    pub struct CrisisActivated {
-        ratio_drop: u128,
-        injection_amount: QFBalance,
+    pub struct WinningsClaimed {
+        #[ink(topic)]
+        player: AccountId,
+        amount: Balance,
     }
 
     #[ink(event)]
-    pub struct BurnExecuted {
-        amount: QFBalance,
-        ratio: u128,
+    pub struct RevenuePulled {
+        amount: Balance,
+        new_total_revenue: Balance,
+        timestamp: u64,
     }
+
+    #[ink(event)]
+    pub struct KingBoostActivated {
+        #[ink(topic)]
+        king: AccountId,
+        boost_multiplier: u128,
+        timestamp: u64,
+    }
+
+    #[ink(event)]
+    pub struct DailyReset {
+        timestamp: u64,
+        previous_king_boost_status: bool,
+    }
+
+    // =========================================================================
+    // ERRORS
+    // =========================================================================
 
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
-        NotAuthorized,
-        InvalidRatio,
-        CrisisCooldown,
-        InsufficientBalance,
-        MathsError,
+        /// Caller is not the owner
+        NotOwner,
+        /// Cooldown period active (1 hour between payouts)
+        CooldownActive,
+        /// Insufficient prize pot balance
+        InsufficientPrizePot,
+        /// Failed to pull revenue from fortress
+        PullFailed,
+        /// Math overflow
+        Overflow,
+        /// Invalid fortress address
+        InvalidFortressAddress,
+        /// Payout calculation error
+        PayoutCalculationError,
+        /// Transfer failed
         TransferFailed,
+        /// No winnings to claim
+        NoWinningsToClaim,
     }
 
-    impl DampenerVault {
-        // ink! v6: Simple constructor, no SpreadAllocate or initialize_contract
-        #[ink(constructor, payable)]
-        pub fn new(target_ratio: u128) -> Self {
-            let launch = Self::env().block_number();
+    // =========================================================================
+    // CROSS-CONTRACT INTERFACE
+    // =========================================================================
+
+    /// Interface to call Project52F.rs
+    #[ink::trait_definition]
+    pub trait Project52FInterface {
+        /// Pull prize tax from the fortress
+        #[ink(message)]
+        fn pull_prize_tax(&mut self) -> Result<Balance, Error>;
+    }
+
+    // =========================================================================
+    // IMPLEMENTATION
+    // =========================================================================
+
+    impl BirthdayParadox {
+        /// Constructor
+        #[ink(constructor)]
+        pub fn new(fortress_address: AccountId) -> Self {
+            let caller = Self::env().caller();
+            let now = Self::env().block_timestamp();
             
             Self {
-                launch_block: launch,
-                last_action_block: launch,
-                target_ratio,
-                qf_reserve_percent: 5,
-                spin_swap_pair: None,
-                price_oracle: None,
-                birthday_paradox: None,
-                crisis_count: 0,
-                last_crisis_check_block: 0,
-                last_crisis_block: 0,
-                last_ratio: target_ratio,
-                qf_balance: Self::env().transferred_value(),
+                owner: caller,
+                fortress_address,
+                matrix: Mapping::new(),
+                total_revenue_since_last_win: 0,
+                last_collision_block: 0,
+                king_boost_claimed_today: false,
+                last_gmt_reset_timestamp: Self::align_to_gmt_midnight(now),
+                prize_pot_balance: 0,
+                winnings: Mapping::new(), // NEW
             }
         }
 
+        // =================================================================
+        // CORE GAME LOGIC: SEAT ENTRY & COLLISION
+        // =================================================================
+
+        /// Main entry point: Claim a seat in the matrix
+        /// Calculates slot from TX hash MOD 1000, handles collisions
+        /// NOTE: Uses current prize_pot_balance, does NOT pull revenue synchronously
         #[ink(message, payable)]
-        pub fn receive_qf(&mut self) {
-            self.qf_balance += self.env().transferred_value();
-        }
-
-        #[ink(message)]
-        pub fn process_trade(&mut self, trade_value: Balance, price: QFBalance, twap: QFBalance) -> Result<(), Error> {
-            if Some(self.env().caller()) != self.birthday_paradox {
-                return Err(Error::NotAuthorized);
-            }
-
-            let current_block = self.env().block_number();
+        pub fn enter(&mut self) -> Result<u32, Error> {
+            let caller = self.env().caller();
+            let block = self.env().block_number();
+            let timestamp = self.env().block_timestamp();
             
-            // Dust guard: < 520 QF
-            let dust_limit = QFBalance::from(520_000_000_000_000_000_000u128);
-            if QFBalance::from(trade_value) < dust_limit {
-                return Ok(());
-            }
-
-            let current_ratio = self.get_liquidity_ratio()?;
-            let age = current_block - self.launch_block;
-
-            // Normal 5.2h pulse
-            if current_block - self.last_action_block >= PULSE_BLOCKS {
-                self.execute_normal_logic(current_ratio, price, twap, age)?;
-                self.last_action_block = current_block;
-            }
-
-            // Crisis check with 5.2s delay between checks
-            if current_block - self.last_crisis_check_block >= CRISIS_CHECK_DELAY_BLOCKS {
-                if self.is_crisis(current_ratio, price, twap) {
-                    self.crisis_count += 1;
+            // Check and handle daily reset (passive)
+            self.check_daily_reset(timestamp)?;
+            
+            // Calculate slot: TX hash MOD 1000
+            let slot = self.calculate_slot(caller, block, timestamp);
+            
+            // Check if seat is occupied
+            let existing = self.matrix.get(slot);
+            
+            match existing {
+                None => {
+                    // Empty seat — simple occupation
+                    self.matrix.insert(slot, &caller);
                     
-                    if self.crisis_count >= CRISIS_CHECKS_REQUIRED 
-                        && current_block - self.last_crisis_block >= CRISIS_COOLDOWN_BLOCKS {
-                        
-                        self.execute_crisis_injection(current_ratio)?;
-                        self.crisis_count = 0;
-                        self.last_crisis_block = current_block;
-                    }
-                } else {
-                    self.crisis_count = 0;
+                    self.env().emit_event(SeatClaimed {
+                        slot,
+                        new_occupant: caller,
+                        previous_occupant: None,
+                        is_collision: false,
+                    });
+                    
+                    Ok(slot)
                 }
-                self.last_crisis_check_block = current_block;
+                Some(previous_occupant) => {
+                    // Seat occupied — check for collision payout
+                    let is_trigger_slot = self.is_fibonacci_or_king(slot);
+                    
+                    if is_trigger_slot {
+                        // This is a collision mine — execute payout logic
+                        self.execute_collision_payout(slot, previous_occupant, caller, block, timestamp)?;
+                    }
+                    
+                    // Overwrite seat (steal)
+                    self.matrix.insert(slot, &caller);
+                    
+                    self.env().emit_event(SeatClaimed {
+                        slot,
+                        new_occupant: caller,
+                        previous_occupant: Some(previous_occupant),
+                        is_collision: is_trigger_slot,
+                    });
+                    
+                    Ok(slot)
+                }
             }
-
-            self.last_ratio = current_ratio;
-            Ok(())
         }
 
-        // U256-safe crisis check (no try_into)
-        fn is_crisis(&self, current_ratio: u128, price: QFBalance, twap: QFBalance) -> bool {
-            // Ratio drop check (u128 is safe for percentages)
-            let ratio_drop = if self.last_ratio > current_ratio {
-                ((self.last_ratio - current_ratio) * 100) / self.last_ratio
+        /// Calculate slot index: TX hash -> decimal -> MOD 1000
+        fn calculate_slot(&self, caller: AccountId, block: u32, timestamp: u64) -> u32 {
+            let mut hash_input = Vec::new();
+            hash_input.extend_from_slice(&caller.as_ref());
+            hash_input.extend_from_slice(&block.to_le_bytes());
+            hash_input.extend_from_slice(&timestamp.to_le_bytes());
+            
+            let mut hash: u64 = 5381;
+            for byte in &hash_input {
+                hash = ((hash << 5).wrapping_add(hash)).wrapping_add(*byte as u64);
+            }
+            
+            (hash % 1000) as u32
+        }
+
+        /// Check if slot is Fibonacci number or King slot (52)
+        fn is_fibonacci_or_king(&self, slot: u32) -> bool {
+            if slot == KING_SLOT {
+                return true;
+            }
+            FIBONACCI_SLOTS.contains(&slot)
+        }
+
+        // =================================================================
+        // COLLISION PAYOUT LOGIC (PULL PATTERN)
+        // =================================================================
+
+        fn execute_collision_payout(
+            &mut self,
+            slot: u32,
+            player_a: AccountId, // Existing occupant
+            player_b: AccountId, // New buyer
+            current_block: u32,
+            timestamp: u64,
+        ) -> Result<(), Error> {
+            // 1. Check cooldown (1 hour)
+            if current_block - self.last_collision_block < COOLDOWN_BLOCKS {
+                return Err(Error::CooldownActive);
+            }
+            
+            // 2. Use CURRENT prize pot balance (revenue pulled asynchronously)
+            // NOTE: Removed synchronous pull_revenue_from_fortress() call
+            let available_pot = self.prize_pot_balance;
+            if available_pot == 0 {
+                return Err(Error::InsufficientPrizePot);
+            }
+            
+            // 3. Calculate base payout (49% + 49% = 98% of available pot)
+            let base_player_share = available_pot
+                .checked_mul(PLAYER_SHARE_BPS)
+                .ok_or(Error::Overflow)?
+                / BPS_DENOMINATOR;
+            
+            let mut player_a_share = base_player_share;
+            let mut player_b_share = base_player_share;
+            let mut is_king_boost = false;
+            
+            // 4. Check Golden Window and King Boost (Slot 52 only)
+            if slot == KING_SLOT && self.is_golden_window(timestamp) {
+                if !self.king_boost_claimed_today {
+                    // Apply √2 boost to Player A (the King)
+                    player_a_share = base_player_share
+                        .checked_mul(SQRT_2_BPS)
+                        .ok_or(Error::Overflow)?
+                        / BPS_DENOMINATOR;
+                    
+                    self.king_boost_claimed_today = true;
+                    is_king_boost = true;
+                    
+                    self.env().emit_event(KingBoostActivated {
+                        king: player_a,
+                        boost_multiplier: SQRT_2_BPS,
+                        timestamp,
+                    });
+                }
+            }
+            
+            // 5. Apply Solvency Guards (Dynamic Caps)
+            let total_payout = player_a_share
+                .checked_add(player_b_share)
+                .ok_or(Error::Overflow)?;
+            
+            // Cap 1: 110% of revenue since last win
+            let revenue_cap = self.total_revenue_since_last_win
+                .checked_mul(REVENUE_CAP_BPS)
+                .ok_or(Error::Overflow)?
+                / BPS_DENOMINATOR;
+            
+            // Cap 2: 50% of total prize pot (drain guard)
+            let drain_cap = available_pot
+                .checked_mul(DRAIN_CAP_BPS)
+                .ok_or(Error::Overflow)?
+                / BPS_DENOMINATOR;
+            
+            // Use the lower of the two caps
+            let max_allowed_payout = if revenue_cap < drain_cap { revenue_cap } else { drain_cap };
+            
+            let (final_a_share, final_b_share, final_total) = if total_payout > max_allowed_payout {
+                // Scale down proportionally if over cap
+                let scale_factor = (max_allowed_payout * BPS_DENOMINATOR) / total_payout;
+                let new_a = (player_a_share * scale_factor) / BPS_DENOMINATOR;
+                let new_b = (player_b_share * scale_factor) / BPS_DENOMINATOR;
+                (new_a, new_b, new_a + new_b)
             } else {
-                0
+                (player_a_share, player_b_share, total_payout)
             };
             
-            // Price vs TWAP check - keep in U256
-            if twap.is_zero() {
-                return false; // Avoid division by zero
-            }
+            // 6. UPDATE PULL PATTERN: Record winnings instead of direct transfer
+            // Deduct from prize pot immediately
+            self.prize_pot_balance = self.prize_pot_balance
+                .checked_sub(final_a_share)
+                .ok_or(Error::Overflow)?
+                .checked_sub(final_b_share)
+                .ok_or(Error::Overflow)?;
             
-            // price_vs_twap = (price * 100) / twap
-            let price_vs_twap = (price.saturating_mul(U256_100)) / twap;
-            let threshold = U256::from(PRICE_TWAP_THRESHOLD);
+            // Record in winnings ledger (players claim separately)
+            let current_a_winnings = self.winnings.get(player_a).unwrap_or(0);
+            self.winnings.insert(player_a, &(current_a_winnings + final_a_share));
             
-            // Convert U256 result to u128 safely (it's a percentage, should be small)
-            let price_vs_twap_u128: u128 = price_vs_twap.try_into().unwrap_or(100);
+            let current_b_winnings = self.winnings.get(player_b).unwrap_or(0);
+            self.winnings.insert(player_b, &(current_b_winnings + final_b_share));
             
-            ratio_drop > RATIO_CRISIS_THRESHOLD && price_vs_twap_u128 < PRICE_TWAP_THRESHOLD
-        }
-
-        fn execute_normal_logic(&mut self, ratio: u128, price: QFBalance, twap: QFBalance, age: u32) -> Result<(), Error> {
-            // U256 comparison for price/twap
-            let price_lte_twap = price <= twap;
-            let price_gt_twap = price > twap;
+            // 7. Update state
+            self.last_collision_block = current_block;
+            self.total_revenue_since_last_win = 0; // Reset revenue counter
             
-            if ratio < 10 {
-                if price_lte_twap {
-                    self.inject_liquidity(500)?; // 5%
-                }
-            } else if ratio >= 10 && ratio <= 17 {
-                if price_lte_twap {
-                    self.inject_liquidity(100)?; // 1%
-                }
-            } else if ratio > 17 && age > PULSE_BLOCKS * 4 {
-                if price_gt_twap {
-                    self.execute_burn()?;
-                }
-            }
-            Ok(())
-        }
-
-        fn execute_crisis_injection(&mut self, ratio: u128) -> Result<(), Error> {
-            let max_injection = (self.qf_balance * QFBalance::from(MAX_CRISIS_INJECTION_BPS)) 
-                / QFBalance::from(BPS);
-            
-            self.env().emit_event(CrisisActivated {
-                ratio_drop: ((self.last_ratio - ratio) * 100) / self.last_ratio,
-                injection_amount: max_injection,
+            // 8. Emit event
+            self.env().emit_event(CollisionPayout {
+                slot,
+                player_a,
+                player_b,
+                amount_a: final_a_share,
+                amount_b: final_b_share,
+                is_king_boost,
+                total_payout: final_total,
             });
             
-            self.inject_liquidity(MAX_CRISIS_INJECTION_BPS)?;
             Ok(())
         }
 
-        fn inject_liquidity(&mut self, bps: u128) -> Result<(), Error> {
-            let amount = (self.qf_balance * QFBalance::from(bps)) / QFBalance::from(BPS);
-            
-            if amount.is_zero() {
-                return Ok(());
-            }
+        // =================================================================
+        // ASYNCHRONOUS REVENUE PULL (Permissionless)
+        // =================================================================
 
-            let half = amount / QFBalance::from(2u128);
+        /// Pull revenue from Project52F Fortress
+        /// Permissionless: Can be called by anyone (keepers, bots, users) at any time
+        /// Does NOT affect enter() transactions if it fails
+        #[ink(message)]
+        pub fn pull_revenue_from_fortress(&mut self) -> Result<Balance, Error> {
+            let call_result: Result<Balance, Error> = build_call::<DefaultEnvironment>()
+                .call(self.fortress_address)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("pull_prize_tax")))
+                )
+                .returns::<Result<Balance, Error>>()
+                .invoke();
             
-            // TODO: Swap half QF to 52F via SPIN-Swap
-            // add_liquidity(half, 52f_received);
+            match call_result {
+                Ok(amount) => {
+                    if amount > 0 {
+                        self.total_revenue_since_last_win = self.total_revenue_since_last_win
+                            .checked_add(amount)
+                            .ok_or(Error::Overflow)?;
+                        
+                        self.prize_pot_balance = self.prize_pot_balance
+                            .checked_add(amount)
+                            .ok_or(Error::Overflow)?;
+                        
+                        self.env().emit_event(RevenuePulled {
+                            amount,
+                            new_total_revenue: self.total_revenue_since_last_win,
+                            timestamp: self.env().block_timestamp(),
+                        });
+                    }
+                    Ok(amount)
+                }
+                Err(_) => Err(Error::PullFailed),
+            }
+        }
+
+        // =================================================================
+        // PLAYER WINNINGS CLAIM (Pull Pattern)
+        // =================================================================
+
+        /// Players claim their accumulated winnings
+        /// Pull pattern: Player initiates withdrawal to avoid transfer failures
+        #[ink(message)]
+        pub fn claim_winnings(&mut self) -> Result<Balance, Error> {
+            let caller = self.env().caller();
+            let amount = self.winnings.get(caller).unwrap_or(0);
             
-            self.qf_balance = self.qf_balance.checked_sub(amount)
-                .ok_or(Error::MathsError)?;
+            if amount == 0 {
+                return Err(Error::NoWinningsToClaim);
+            }
             
-            self.env().emit_event(LiquidityInjected {
+            // Reset before transfer (reentrancy protection)
+            self.winnings.insert(caller, &0);
+            
+            // Execute transfer
+            self.env().transfer(caller, amount)
+                .map_err(|_| Error::TransferFailed)?;
+            
+            self.env().emit_event(WinningsClaimed {
+                player: caller,
                 amount,
-                ratio_before: self.last_ratio,
-                ratio_after: self.get_liquidity_ratio()?,
+            });
+            
+            Ok(amount)
+        }
+
+        // =================================================================
+        // TIME & WINDOW LOGIC
+        // =================================================================
+
+        fn check_daily_reset(&mut self, current_timestamp: u64) -> Result<(), Error> {
+            let current_gmt_day = current_timestamp / MS_PER_DAY;
+            let last_reset_day = self.last_gmt_reset_timestamp / MS_PER_DAY;
+            
+            if current_gmt_day > last_reset_day {
+                let previous_boost_status = self.king_boost_claimed_today;
+                
+                self.king_boost_claimed_today = false;
+                self.last_gmt_reset_timestamp = self.align_to_gmt_midnight(current_timestamp);
+                
+                self.env().emit_event(DailyReset {
+                    timestamp: current_timestamp,
+                    previous_king_boost_status: previous_boost_status,
+                });
+            }
+            
+            Ok(())
+        }
+
+        fn is_golden_window(&self, timestamp: u64) -> bool {
+            let ms_today = timestamp % MS_PER_DAY;
+            ms_today >= GOLDEN_WINDOW_START_MS
+        }
+
+        fn align_to_gmt_midnight(&self, timestamp: u64) -> u64 {
+            (timestamp / MS_PER_DAY) * MS_PER_DAY
+        }
+
+        // =================================================================
+        // ADMIN FUNCTIONS
+        // =================================================================
+
+        #[ink(message)]
+        pub fn set_fortress_address(&mut self, new_address: AccountId) -> Result<(), Error> {
+            self.only_owner()?;
+            self.fortress_address = new_address;
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn manual_daily_reset(&mut self) -> Result<(), Error> {
+            self.only_owner()?;
+            let now = self.env().block_timestamp();
+            self.king_boost_claimed_today = false;
+            self.last_gmt_reset_timestamp = self.align_to_gmt_midnight(now);
+            
+            self.env().emit_event(DailyReset {
+                timestamp: now,
+                previous_king_boost_status: true,
             });
             
             Ok(())
         }
 
-        fn execute_burn(&mut self) -> Result<(), Error> {
-            let excess = self.get_excess_qf_above_ratio(17)?;
-            
-            if excess.is_zero() {
-                return Ok(());
+        /// Emergency withdrawal of excess funds (owner only)
+        #[ink(message)]
+        pub fn emergency_withdraw(&mut self, amount: Balance) -> Result<(), Error> {
+            self.only_owner()?;
+            if amount > self.prize_pot_balance {
+                return Err(Error::InsufficientPrizePot);
             }
             
-            let burn_amount = (excess * QFBalance::from(75u128)) / QFBalance::from(100u128);
-            
-            // TODO: Swap QF for 52F and burn
-            
-            self.qf_balance = self.qf_balance.checked_sub(excess)
-                .ok_or(Error::MathsError)?;
-            
-            self.env().emit_event(BurnExecuted {
-                amount: burn_amount,
-                ratio: self.get_liquidity_ratio()?,
-            });
+            self.prize_pot_balance -= amount;
+            self.env().transfer(self.owner, amount)
+                .map_err(|_| Error::TransferFailed)?;
             
             Ok(())
         }
 
-        fn get_liquidity_ratio(&self) -> Result<u128, Error> {
-            // TODO: Query SPIN-Swap pair for real ratio
-            Ok(15)
+        // =================================================================
+        // VIEW FUNCTIONS
+        // =================================================================
+
+        #[ink(message)]
+        pub fn get_occupant(&self, slot: u32) -> Option<AccountId> {
+            self.matrix.get(slot)
         }
 
-        fn get_excess_qf_above_ratio(&self, target: u128) -> Result<QFBalance, Error> {
-            let current = self.get_liquidity_ratio()?;
-            if current <= target {
-                return Ok(QFBalance::from(0u128));
+        #[ink(message)]
+        pub fn get_total_revenue(&self) -> Balance {
+            self.total_revenue_since_last_win
+        }
+
+        #[ink(message)]
+        pub fn get_prize_pot_balance(&self) -> Balance {
+            self.prize_pot_balance
+        }
+
+        #[ink(message)]
+        pub fn get_last_collision_block(&self) -> u32 {
+            self.last_collision_block
+        }
+
+        #[ink(message)]
+        pub fn is_king_boost_claimed(&self) -> bool {
+            self.king_boost_claimed_today
+        }
+
+        #[ink(message)]
+        pub fn is_slot_trigger(&self, slot: u32) -> bool {
+            self.is_fibonacci_or_king(slot)
+        }
+
+        #[ink(message)]
+        pub fn calculate_max_payout(&self) -> Balance {
+            let revenue_cap = self.total_revenue_since_last_win * REVENUE_CAP_BPS / BPS_DENOMINATOR;
+            let drain_cap = self.prize_pot_balance * DRAIN_CAP_BPS / BPS_DENOMINATOR;
+            
+            if revenue_cap < drain_cap { revenue_cap } else { drain_cap }
+        }
+
+        #[ink(message)]
+        pub fn get_cooldown_remaining(&self) -> u32 {
+            let current_block = self.env().block_number();
+            let elapsed = current_block - self.last_collision_block;
+            
+            if elapsed >= COOLDOWN_BLOCKS {
+                0
+            } else {
+                COOLDOWN_BLOCKS - elapsed
             }
-            Ok(self.qf_balance / QFBalance::from(10u128))
         }
 
-        // Admin functions
+        // === NEW: View pending winnings ===
         #[ink(message)]
-        pub fn set_spin_swap_pair(&mut self, pair: AccountId) -> Result<(), Error> {
-            self.ensure_owner()?;
-            self.spin_swap_pair = Some(pair);
+        pub fn get_pending_winnings(&self, player: AccountId) -> Balance {
+            self.winnings.get(player).unwrap_or(0)
+        }
+
+        // =================================================================
+        // MODIFIERS
+        // =================================================================
+
+        fn only_owner(&self) -> Result<(), Error> {
+            if self.env().caller() != self.owner {
+                return Err(Error::NotOwner);
+            }
             Ok(())
         }
+    }
 
-        #[ink(message)]
-        pub fn set_price_oracle(&mut self, oracle: AccountId) -> Result<(), Error> {
-            self.ensure_owner()?;
-            self.price_oracle = Some(oracle);
-            Ok(())
+    // =========================================================================
+    // UNIT TESTS
+    // =========================================================================
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink::env::{test, DefaultEnvironment};
+
+        fn default_accounts() -> test::DefaultAccounts<DefaultEnvironment> {
+            test::default_accounts::<DefaultEnvironment>()
         }
 
-        #[ink(message)]
-        pub fn set_birthday_paradox(&mut self, paradox: AccountId) -> Result<(), Error> {
-            self.ensure_owner()?;
-            self.birthday_paradox = Some(paradox);
-            Ok(())
+        fn set_caller(account: AccountId) {
+            test::set_caller::<DefaultEnvironment>(account);
         }
 
-        fn ensure_owner(&self) -> Result<(), Error> {
-            // Add owner check if needed
-            Ok(())
+        fn set_block_number(block: u32) {
+            test::set_block_number::<DefaultEnvironment>(block);
         }
 
-        // View functions
-        #[ink(message)]
-        pub fn get_crisis_status(&self) -> (u8, BlockNumber, BlockNumber) {
-            (self.crisis_count, self.last_crisis_check_block, self.last_crisis_block)
+        fn set_timestamp(timestamp: u64) {
+            test::set_block_timestamp::<DefaultEnvironment>(timestamp);
         }
 
-        #[ink(message)]
-        pub fn get_qf_balance(&self) -> QFBalance {
-            self.qf_balance
+        #[ink::test]
+        fn constructor_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.alice);
+            
+            let contract = BirthdayParadox::new(accounts.bob);
+            
+            assert_eq!(contract.get_total_revenue(), 0);
+            assert_eq!(contract.get_prize_pot_balance(), 0);
+            assert_eq!(contract.is_king_boost_claimed(), false);
+        }
+
+        #[ink::test]
+        fn winnings_pull_pattern() {
+            let accounts = default_accounts();
+            set_caller(accounts.alice);
+            
+            let mut contract = BirthdayParadox::new(accounts.bob);
+            
+            // Simulate winnings recorded (would happen in collision)
+            // For test, manually manipulate storage or add test helper
+            // Check claim fails when no winnings
+            let result = contract.claim_winnings();
+            assert_eq!(result, Err(Error::NoWinningsToClaim));
+        }
+
+        #[ink::test]
+        fn fibonacci_detection() {
+            let accounts = default_accounts();
+            set_caller(accounts.alice);
+            
+            let contract = BirthdayParadox::new(accounts.bob);
+            
+            assert!(contract.is_slot_trigger(1));
+            assert!(contract.is_slot_trigger(52));
+            assert!(!contract.is_slot_trigger(4));
         }
     }
 }
