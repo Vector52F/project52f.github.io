@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>52F Protocol — From Seed to Sovereignty</title>
-<meta name="description" content="The 52F Protocol is a decentralized, volume-driven yield engine on QF Network featuring Protocol-Owned Liquidity, Survival-First Seed Guard, and autonomous mathematical governance.">
+<meta name="description" content="The 52F Protocol transforms £500 of seed capital into institutional-grade liquidity depth through autonomous, mathematically-governed smart contracts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -35,7 +35,13 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; overflow-x: hidden; font-size: 18px; }
+html { 
+  scroll-behavior: smooth; 
+  overflow-x: hidden; 
+  font-size: 18px;
+  width: 100%;
+  min-width: 100%;
+}
 
 body {
   background: var(--ink);
@@ -43,9 +49,18 @@ body {
   font-family: 'Libre Baskerville', Georgia, serif;
   line-height: 1.85;
   overflow-x: hidden;
+  width: 100%;
+  min-width: 100%;
+  position: relative;
 }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem; width: 100%; }
+.container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 0 2.5rem; 
+  width: 100%;
+  min-width: 0;
+}
 .container--narrow { max-width: 900px; margin: 0 auto; padding: 0 2.5rem; }
 
 /* ── NAV ── */
@@ -56,17 +71,20 @@ nav {
   border-bottom: 1px solid var(--border-dim);
   padding: 0 2.5rem; height: 70px;
   display: flex; align-items: center; justify-content: space-between;
+  width: 100%;
 }
 .nav-logo {
   font-family: 'DM Mono', monospace; font-size: 0.85rem;
   letter-spacing: 0.25em; color: var(--gold); text-decoration: none;
   text-transform: uppercase; font-weight: 500;
+  white-space: nowrap;
 }
 .nav-links { display: flex; align-items: center; gap: 0.3rem; list-style: none; }
 .nav-links a {
   font-family: 'DM Mono', monospace; font-size: 0.65rem;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
   text-decoration: none; padding: 0.5rem 1rem; border-radius: 2px; transition: all 0.25s;
+  white-space: nowrap;
 }
 .nav-links a:hover { color: var(--gold); background: var(--gold-ghost); }
 .nav-links .nav-cta { 
@@ -82,6 +100,7 @@ nav {
   display: none; position: fixed; top: 70px; left: 0; right: 0; z-index: 99;
   background: rgba(10,15,22,0.98); border-bottom: 1px solid var(--border-dim);
   padding: 2rem 2.5rem 2.5rem; flex-direction: column; gap: 0.5rem;
+  width: 100%;
 }
 .mobile-nav.open { display: flex; }
 .mobile-nav a {
@@ -97,9 +116,11 @@ nav {
   min-height: 100vh; display: flex; align-items: center;
   padding-top: 70px; position: relative; overflow: hidden;
   background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.03) 0%, transparent 50%);
+  width: 100%;
 }
 #hero-canvas { 
-  position: absolute; inset: 0; opacity: 0.04; pointer-events: none; 
+  position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
+  width: 100%; height: 100%;
 }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 0.6rem;
@@ -118,6 +139,7 @@ nav {
 .hero-inner {
   display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 6rem;
   align-items: center; padding: 5rem 0;
+  width: 100%;
 }
 .hero-kicker {
   font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.3em;
@@ -150,14 +172,17 @@ nav {
   display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
   background: var(--border); border: 1px solid var(--border);
   opacity: 0; animation: fadeIn 1s ease 1s forwards;
+  width: 100%;
 }
 .stat-cell { 
   background: var(--ink-card); padding: 2rem 1.8rem; 
   display: flex; flex-direction: column; gap: 0.4rem;
+  min-width: 0;
 }
 .stat-num { 
-  font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; 
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3vw, 2.4rem); 
   font-weight: 700; color: var(--gold); line-height: 1; 
+  word-break: break-word;
 }
 .stat-label { 
   font-family: 'DM Mono', monospace; font-size: 0.6rem; 
@@ -172,6 +197,7 @@ nav {
   text-transform: uppercase; text-decoration: none; padding: 1rem 2.2rem;
   border: none; cursor: pointer; transition: all 0.25s; border-radius: 1px;
   position: relative; overflow: hidden;
+  white-space: nowrap;
 }
 .btn-gold { 
   background: var(--gold); color: var(--ink); font-weight: 500; 
@@ -189,7 +215,7 @@ nav {
 }
 
 /* ── SECTIONS ── */
-.section { padding: 8rem 0; position: relative; }
+.section { padding: 8rem 0; position: relative; width: 100%; }
 .section--alt { background: var(--ink-mid); }
 .section-kicker { 
   font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; 
@@ -213,6 +239,7 @@ nav {
 #diamond {
   background: linear-gradient(180deg, var(--ink-mid) 0%, var(--ink) 100%);
   position: relative;
+  width: 100%;
 }
 #diamond::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
@@ -225,14 +252,56 @@ nav {
 .diamond-subtitle {
   font-size: 1.2rem; color: var(--muted); font-style: italic;
 }
+.seed-split-visual {
+  background: var(--ink-card); border: 1px solid var(--border);
+  padding: 2.5rem; margin: 3rem auto; max-width: 600px;
+}
+.seed-split-title {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.3rem;
+  color: var(--paper); text-align: center; margin-bottom: 2rem;
+}
+.seed-split-bar {
+  display: flex; height: 60px; margin-bottom: 1.5rem;
+}
+.seed-split-segment {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  color: var(--ink); font-weight: 500;
+}
+.seed-split-segment.lp {
+  flex: 4; background: var(--teal); 
+}
+.seed-split-segment.vault {
+  flex: 1; background: var(--gold);
+}
+.seed-split-labels {
+  display: flex; justify-content: space-between;
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  color: var(--muted);
+}
+.seed-split-labels span {
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.seed-split-labels .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.seed-split-labels .dot.teal { background: var(--teal); }
+.seed-split-labels .dot.gold { background: var(--gold); }
+.seed-value {
+  text-align: center; margin-top: 2rem;
+  padding-top: 2rem; border-top: 1px solid var(--border-dim);
+  font-family: 'Cormorant Garamond', serif; font-size: 1.5rem;
+  color: var(--gold); font-style: italic;
+}
 .phase-container {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
   margin-bottom: 5rem;
+  width: 100%;
 }
 .phase-card {
   background: var(--ink-card); border: 1px solid var(--border-dim);
   padding: 2.5rem 2rem; position: relative; overflow: hidden;
-  transition: all 0.3s;
+  transition: all 0.3s; min-width: 0;
 }
 .phase-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -268,14 +337,16 @@ nav {
   border-top: 1px solid var(--border-dim);
   font-family: 'DM Mono', monospace; font-size: 0.65rem;
   color: var(--teal-light); letter-spacing: 0.05em;
+  word-break: break-word;
 }
 .health-gate-visual {
   background: var(--ink-card); border: 1px solid var(--border);
   padding: 3rem; margin-top: 4rem;
+  width: 100%;
 }
 .health-gate-header {
   display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
 }
 .health-gate-title {
   font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: var(--paper);
@@ -313,10 +384,11 @@ nav {
 .pillars-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
   background: var(--border); border: 1px solid var(--border);
+  width: 100%;
 }
 .pillar-card {
   background: var(--ink-card); padding: 3rem 2.5rem;
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; min-width: 0;
 }
 .pillar-card::after {
   content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
@@ -353,6 +425,7 @@ nav {
 .pillar-constant {
   font-family: 'DM Mono', monospace; font-size: 0.62rem;
   color: var(--muted); display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem;
 }
 .pillar-constant span { color: var(--gold-warm); }
 
@@ -360,13 +433,14 @@ nav {
 .mech-tabs {
   display: flex; gap: 1px; background: var(--border);
   border: 1px solid var(--border); margin-bottom: 3rem;
+  overflow-x: auto;
 }
 .mech-tab {
   flex: 1; background: var(--ink-card); padding: 1.5rem;
   font-family: 'DM Mono', monospace; font-size: 0.7rem;
   color: var(--muted); text-transform: uppercase;
   letter-spacing: 0.1em; cursor: pointer; border: none;
-  transition: all 0.2s;
+  transition: all 0.2s; white-space: nowrap; min-width: 120px;
 }
 .mech-tab.active {
   background: var(--ink-light); color: var(--gold);
@@ -547,11 +621,18 @@ nav {
 }
 .comparison-table .traditional { color: var(--red-zone); }
 .comparison-table .fiftytwof { color: var(--green-zone); font-weight: 600; }
+.efficiency-highlight {
+  background: var(--gold-ghost); padding: 0.2rem 0.6rem;
+  border-radius: 2px; font-family: 'DM Mono', monospace;
+  font-size: 0.75rem; color: var(--gold);
+  display: inline-block; margin-top: 0.5rem;
+}
 
 /* ── FOOTER ── */
 footer {
   background: var(--ink); border-top: 1px solid var(--border-dim);
   padding: 5rem 0 3rem;
+  width: 100%;
 }
 .footer-grid {
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -623,6 +704,12 @@ footer {
   .footer-grid{grid-template-columns:1fr;gap:2rem;}
   .footer-bottom{flex-direction:column;}
   .footer-disclaimer{text-align:left;}
+  .seed-split-bar{height:50px;}
+  .seed-split-segment{font-size:0.6rem;}
+}
+@media screen and (orientation: landscape) and (max-height: 500px){
+  .hero-inner{padding:2rem 0;}
+  #hero{min-height:auto;padding-bottom:2rem;}
 }
 </style>
 </head>
@@ -659,14 +746,15 @@ footer {
     <div class="hero-inner">
       <div>
         <div class="hero-badge">Protocol-Owned Liquidity</div>
-        <p class="hero-kicker">QF Network · Survival-First Architecture</p>
-        <h1 class="hero-title">Launch with 52,000 QF.<br><strong>Scale to Sovereignty.</strong></h1>
-        <p class="hero-subtitle">"Founded on Trust, Governed by Math"</p>
+        <p class="hero-kicker">QF Network · Micro-Capital Launch</p>
+        <h1 class="hero-title">£500 Seed.<br><strong>Institutional Depth.</strong></h1>
+        <p class="hero-subtitle">"The Dampener turns micro-capital into mathematical fortresses"</p>
         <p class="hero-body">
-          The 52F Protocol transforms <span class="hero-highlight">minimal seed capital</span> into 
-          <span class="hero-highlight">institutional-grade liquidity depth</span> through autonomous, 
-          mathematically-governed smart contracts. The founder's 52,000 QF seed is locked behind a 
-          15% Health Gate—ensuring the protocol's survival always takes precedence over capital recovery.
+          The 52F Protocol transforms <span class="hero-highlight">£500 of initial liquidity</span> into 
+          <span class="hero-highlight">institutional-grade market depth</span> through autonomous, 
+          mathematically-governed smart contracts. The founder's seed is split 80/20 between initial LP 
+          and the Dampener Vault—creating a self-healing liquidity engine that traditional launches 
+          require £500K-£2M to achieve.
         </p>
         <div class="hero-actions">
           <a href="#diamond" class="btn btn-gold">Explore The Diamond</a>
@@ -675,14 +763,14 @@ footer {
       </div>
       <div class="hero-stats">
         <div class="stat-cell">
-          <div class="stat-num">52,000</div>
-          <div class="stat-label">QF Seed Exposure</div>
-          <div class="stat-desc">Founder-backed, contract-locked</div>
+          <div class="stat-num">£500</div>
+          <div class="stat-label">Total Seed Exposure</div>
+          <div class="stat-desc">41.6K QF LP + 10.4K QF Vault</div>
         </div>
         <div class="stat-cell">
           <div class="stat-num">15%</div>
           <div class="stat-label">Health Gate</div>
-          <div class="stat-desc">Liquidity-to-MC floor</div>
+          <div class="stat-desc">Autonomous floor defense</div>
         </div>
         <div class="stat-cell">
           <div class="stat-num">52</div>
@@ -690,9 +778,9 @@ footer {
           <div class="stat-desc">Linear team vesting</div>
         </div>
         <div class="stat-cell">
-          <div class="stat-num">∞</div>
-          <div class="stat-label">Protocol Life</div>
-          <div class="stat-desc">Autonomous POL engine</div>
+          <div class="stat-num">1000x</div>
+          <div class="stat-label">Capital Efficiency</div>
+          <div class="stat-desc">vs traditional launches</div>
         </div>
       </div>
     </div>
@@ -706,10 +794,31 @@ footer {
       <p class="section-kicker">The Diamond USP</p>
       <h2 class="section-title">Survival-First<br><em>Liquidity Architecture</em></h2>
       <p class="diamond-subtitle">
-        Unlike traditional launches requiring $500K-$2M in locked liquidity, 
-        52F's Dampener enables institutional-grade trust with minimal capital exposure—
-        because liquidity depth is governed by mathematics, not human discretion.
+        While traditional DeFi projects require £500K-£2M in locked liquidity to prevent 
+        instant tanking, 52F achieves superior depth with just £500—because the Dampener 
+        doesn't just provide liquidity, it <strong>defends</strong> it.
       </p>
+    </div>
+
+    <div class="seed-split-visual reveal">
+      <div class="seed-split-title">52,000 QF Seed Allocation</div>
+      <div class="seed-split-bar">
+        <div class="seed-split-segment lp">
+          <span>80%</span>
+          <span style="font-size:0.6rem;opacity:0.8;">Initial LP</span>
+        </div>
+        <div class="seed-split-segment vault">
+          <span>20%</span>
+          <span style="font-size:0.6rem;opacity:0.8;">Dampener</span>
+        </div>
+      </div>
+      <div class="seed-split-labels">
+        <span><span class="dot teal"></span> 41,600 QF → DEX Initial Liquidity (~£416)</span>
+        <span><span class="dot gold"></span> 10,400 QF → Vault Reserve (~£104)</span>
+      </div>
+      <div class="seed-value">
+        Total Founder Exposure: ~£500 @ £0.01/QF
+      </div>
     </div>
 
     <div class="phase-container reveal">
@@ -718,9 +827,10 @@ footer {
         <h3 class="phase-title">The Red Zone</h3>
         <div class="phase-days">Days 0–90 · 77,760,000 Blocks</div>
         <p class="phase-desc">
-          The founder's 52,000 QF seed is <strong>physically impossible</strong> to recover. 
+          The entire 52,000 QF seed is <strong>physically impossible</strong> to recover. 
           The contract captures deploy_block and rejects all reclaim attempts until 
-          blocks_elapsed exceeds the 90-day threshold. A 90-day Stability Floor for early investors.
+          blocks_elapsed exceeds the 90-day threshold. The Dampener vault is sealed—
+          no injections, no withdrawals, pure accumulation.
         </p>
         <div class="phase-lock">
           BLOCK_HEIGHT < 77,760,000 = REVERT
@@ -731,12 +841,12 @@ footer {
         <h3 class="phase-title">The Yellow Zone</h3>
         <div class="phase-days">Days 91–180 · Health Gate Active</div>
         <p class="phase-desc">
-          Recovery is permitted only if the 60-minute TWAP Liquidity-to-Market-Cap Ratio 
+          Recovery permitted only if 60-minute TWAP Liquidity-to-Market-Cap Ratio 
           is ≥15%. If the market is too thin, the contract <strong>rejects the withdrawal</strong> 
-          to prevent price impact. The protocol's health precedes the founder's capital.
+          and activates Buy-on-Weakness injection from the 10.4K QF vault reserve.
         </p>
         <div class="phase-lock">
-          L_RATIO < 15% = REVERT
+          L_RATIO < 15% = INJECTION MODE
         </div>
       </div>
       <div class="phase-card green">
@@ -744,9 +854,9 @@ footer {
         <h3 class="phase-title">The Green Zone</h3>
         <div class="phase-days">Days 181+ · Self-Sustaining</div>
         <p class="phase-desc">
-          Once the seed is recovered via the 15% Health Gate, the protocol enters 
-          <strong>permanent autonomy</strong>. The team retains zero liquidity removal mechanisms—
-          revenue is strictly limited to vested tokens and 0.75% tax share.
+          Seed recovered via 15% Health Gate. The protocol enters 
+          <strong>permanent autonomy</strong>—team retains zero liquidity removal mechanisms. 
+          The Dampener continues operating from accumulated tax yields, not founder capital.
         </p>
         <div class="phase-lock">
           POL ACHIEVED · CONTRACTS SOVEREIGN
@@ -773,8 +883,9 @@ footer {
       </div>
       <p style="margin-top:2rem;font-size:0.95rem;color:var(--muted);line-height:1.9;">
         <strong style="color:var(--paper);">Buy-on-Weakness:</strong> If $\mathcal{L}_{ratio}$ falls below 15%, 
-        the Dampener automatically injects accumulated QF taxes into the DEX pool—buying the floor without 
-        adding to 52F circulating supply. This creates a <em>mathematical put option</em> for token holders.
+        the Dampener deploys the 10.4K QF vault reserve into the DEX pool—buying the floor without 
+        diluting 52F supply. This creates a <em>mathematical put option</em> backed by real QF, 
+        not printed tokens.
       </p>
     </div>
   </div>
@@ -800,12 +911,12 @@ footer {
         <div class="pillar-role">The Fortress · Custodial Governor</div>
         <p class="pillar-desc">
           The Diamond. Holds the 52,000 QF seed in a block-height state machine. 
-          Enforces Phase-Shift Recovery (Red/Yellow/Green zones) and 15% Health Gate. 
-          Injects QF floor support when $\mathcal{L}_{ratio}$ breaches threshold.
+          80% (41.6K) seeds initial LP, 20% (10.4K) reserves for Buy-on-Weakness defense. 
+          Enforces Phase-Shift Recovery and 15% Health Gate.
         </p>
         <div class="pillar-constants">
-          <div class="pillar-constant">Seed Amount <span>52,000 QF</span></div>
-          <div class="pillar-constant">Red Zone Duration <span>77,760,000 blocks</span></div>
+          <div class="pillar-constant">Initial LP Allocation <span>41,600 QF (80%)</span></div>
+          <div class="pillar-constant">Vault Reserve <span>10,400 QF (20%)</span></div>
           <div class="pillar-constant">Health Gate Threshold <span>≥15% L_ratio</span></div>
           <div class="pillar-constant">Max Injection <span>5% per drip</span></div>
         </div>
@@ -998,8 +1109,8 @@ footer {
             <div class="flow-step">
               <div class="flow-icon">QF</div>
               <div class="flow-text">
-                <strong>Tax Accumulation Pull</strong>
-                <span>Dampener withdraws QF from Engine</span>
+                <strong>Vault Reserve Deploy</strong>
+                <span>10.4K QF buffer + accumulated taxes</span>
               </div>
             </div>
             <div class="flow-step">
@@ -1020,9 +1131,9 @@ footer {
             pool, deepening liquidity without diluting holders.
           </p>
           <p>
-            The <strong>Oracle-Agnostic</strong> design uses QF Network's native DEX TWAP 
-            cumulative registers, eliminating flash-loan manipulation vectors while 
-            maintaining sub-minute response latency.
+            The 10,400 QF vault reserve (20% of seed) provides immediate firepower during 
+            the critical Yellow Zone, while accumulated taxes from the Engine provide 
+            sustained defense in the Green Zone.
           </p>
         </div>
       </div>
@@ -1036,31 +1147,28 @@ footer {
     <div class="manifesto-content reveal">
       <p class="section-kicker">From Seed to Sovereignty</p>
       <div class="manifesto-quote">
-        I exposed 52,000 QF so you don't have to trust me.
+        I exposed £500 so you don't have to trust me.
       </div>
       <div class="manifesto-body">
         <p>
-          The 52F Protocol was born from a singular architectural vision: to create a financial 
-          ecosystem where liquidity is not a variable, but a constant. As the founder, I have 
-          committed 52,000 QF as a foundational seed loan—not as a privilege, but as a 
-          <strong>mathematical hostage</strong>.
+          The 52F Protocol was born from a singular architectural vision: to prove that 
+          <strong>capital efficiency beats capital volume</strong>. As the founder, I have 
+          committed just £500—split 80/20 between initial liquidity and the Dampener vault—
+          not because I'm risk-averse, but because I'm <strong>mathematically certain</strong>.
         </p>
         <p>
-          In traditional DeFi, liquidity is often at the mercy of human emotion or manual 
-          management. 52F replaces this fragility with <strong>Hard Logic</strong>. My initial 
-          seed loan is not "liquidity" in the traditional sense—it is the protocol's first 
-          line of defense, governed by the Phase-Shift Recovery schedule.
+          In traditional DeFi, founders lock £1M and pray the market respects their sacrifice. 
+          In 52F, £500 is transformed into an <strong>autonomous fortress</strong> through the 
+          Dampener's Phase-Shift Recovery. The Red Zone locks my seed for 90 days. The Yellow 
+          Zone only releases it if the protocol is healthy enough to survive. The Green Zone 
+          renders me obsolete.
         </p>
         <p>
-          During the <strong>Red Zone</strong>, that 52,000 QF is physically impossible to 
-          withdraw. During the <strong>Yellow Zone</strong>, it can only be reclaimed if the 
-          protocol is healthy enough to survive the extraction. And once the 
-          <strong>Green Zone</strong> is reached, 52F becomes fully sovereign—its liquidity 
-          permanently owned by the contracts themselves, not by me.
-        </p>
-        <p>
-          We didn't just build a token; we built a fortress. By the time the founder exits 
-          the liquidity pool, the protocol has already become its own master.
+          This isn't minimalism—it's <strong>maximalism of mechanism</strong>. Every QF is 
+          deployed with mathematical purpose. The 10.4K vault reserve isn't "leftover" capital; 
+          it's a precision instrument calibrated to defend the 15% Health Gate. By the time 
+          the founder exits, the protocol has already become its own master—fueled by tax 
+          yields, not founder faith.
         </p>
       </div>
       <div class="manifesto-signature">
@@ -1081,24 +1189,24 @@ footer {
         </thead>
         <tbody>
           <tr>
-            <td class="feature">Initial Liquidity Required</td>
-            <td class="traditional">$500K - $2M+</td>
-            <td class="fiftytwof">52,000 QF (~$5K-$15K)</td>
+            <td class="feature">Initial Capital Required</td>
+            <td class="traditional">£500,000 - £2,000,000</td>
+            <td class="fiftytwof">£500 <span class="efficiency-highlight">1000-4000x less</span></td>
           </tr>
           <tr>
-            <td class="feature">Founder Liquidity Control</td>
-            <td class="traditional">Manual removal anytime</td>
-            <td class="fiftytwof">Mathematically impossible (90 days)</td>
+            <td class="feature">Seed Allocation</td>
+            <td class="traditional">100% locked in LP</td>
+            <td class="fiftytwof">80% LP + 20% Defense Vault</td>
           </tr>
           <tr>
-            <td class="feature">Recovery Conditions</td>
-            <td class="traditional">Founder discretion</td>
-            <td class="fiftytwof">15% Health Gate enforced</td>
-          </tr>
-          <tr>
-            <td class="feature">Floor Support Mechanism</td>
+            <td class="feature">Floor Defense Mechanism</td>
             <td class="traditional">None / Manual buybacks</td>
-            <td class="fiftytwof">Autonomous QF injection</td>
+            <td class="fiftytwof">Autonomous QF injection @ 15% gate</td>
+          </tr>
+          <tr>
+            <td class="feature">Founder Recovery</td>
+            <td class="traditional">Manual, discretionary</td>
+            <td class="fiftytwof">Block-height state machine + Health Gate</td>
           </tr>
           <tr>
             <td class="feature">Post-Seed Liquidity Status</td>
@@ -1107,7 +1215,7 @@ footer {
           </tr>
           <tr>
             <td class="feature">Team Vesting</td>
-            <td class="traditional">Cliff + irregular unlocks</td>
+            <td class="traditional">Irregular cliffs & unlocks</td>
             <td class="fiftytwof">52-week linear tranches</td>
           </tr>
         </tbody>
@@ -1221,6 +1329,15 @@ function switchTab(tabName){
   event.target.classList.add('active');
   document.getElementById(tabName).classList.add('active');
 }
+
+// Prevent zoom on orientation change
+window.addEventListener('orientationchange', function() {
+  document.body.style.width = '100%';
+  setTimeout(function() {
+    window.scrollTo(0, 0);
+    document.body.style.width = '100%';
+  }, 100);
+});
 </script>
 
 </body>
