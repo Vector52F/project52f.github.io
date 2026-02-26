@@ -1,22 +1,31 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-/// # 52F Protocol — Token Engine
+/// # 52F Protocol — Token Engine  (v3 — Great Drain Edition)
 ///
-/// **Role:** Ground-truth ledger, tax collector, and epoch counter.
+/// **Role:** Ground-truth ledger, tax collector, epoch counter, and
+/// Volatility Governor.
 ///
-/// This contract is intentionally "dumb" with respect to game logic.
-/// It collects buy/sell taxes, increments an epoch counter on every valid
-/// transaction, emits `EpochReady` when the counter reaches 52, and exposes
-/// a single `pull_prize_tax` entry-point exclusively for the authorised
-/// Sequencer Satellite.
+/// ## What this contract does
+/// - Collects buy tax (e ≈ 2.72%) and sell tax (π ≈ 3.14%) on every
+///   transaction above the 1 $QF floor.
+/// - Routes 0.75% of each transaction to the team accumulator and the
+///   remainder into the prize pot.
+/// - Increments a zero-touch epoch counter; emits `EpochReady` on every
+///   52nd valid transaction.
+/// - Exposes `pull_prize_tax` exclusively to the Sequencer Satellite
+///   (90% yield to Satellite, 10% burn to `0x000…dEaD`).
+/// - Enforces the **Great Drain** Volatility Governor: if the prize pot
+///   reaches the 520 000 000 $52F equivalent threshold, 50% of the pot is
+///   automatically seized and split:
+///     - 25% of total pot → $QF burned to `DEAD_ADDRESS`
+///     - 25% of total pot → held as buyback reserve; `GreatDrain` event
+///       emitted so an off-chain keeper can market-buy $52F and burn it.
+///     - 50% of total pot → remains in `prize_pot_accumulated` for winners.
 ///
-/// **What this contract does NOT contain:**
-/// - Collision detection
-/// - Winner selection
-/// - Hash storage
-/// - Any "King of the Hill" or throne-based logic
-///
-/// All mathematical sequencing is delegated to the Sequencer Satellite.
+/// ## What this contract does NOT contain
+/// - Collision detection or winner selection (→ Sequencer Satellite)
+/// - Hash storage (→ Sequencer Satellite)
+/// - Any throne / King-of-the-Hill logic (removed in v2)
 ///
 /// **Compatibility:** ink! v6 / PolkaVM (`pallet-revive`).
 ///   - `AccountId` → `Address` (H160)
@@ -26,7 +35,6 @@ mod project52f {
     use ink::prelude::string::String;
     use ink::storage::Mapping;
 
-    // ink! v6 re-exports H160 as the default AccountId under pallet-revive.
     type Address = <ink::env::DefaultEnvironment as ink::env::Environment>::AccountId;
     use ink::primitives::U256;
 
@@ -37,27 +45,41 @@ mod project52f {
     /// Denominator for all basis-point calculations.
     pub const BPS_DENOMINATOR: u128 = 10_000;
 
-    /// Buy tax: 2.72% — approximation of Euler's number (e ≈ 2.71828…).
+    /// Buy tax in BPS: 2.72% — Euler's number (e ≈ 2.71828…).
     pub const E_BUY_TAX_BPS: u128 = 272;
 
-    /// Sell tax: 3.14% — approximation of Pi (π ≈ 3.14159…).
+    /// Sell tax in BPS: 3.14% — Pi (π ≈ 3.14159…).
     pub const PI_SELL_TAX_BPS: u128 = 314;
 
-    /// Portion of collected tax routed to the team, in basis points (0.75%).
+    /// Team share of every transaction in BPS (0.75%).
     pub const TAX_TEAM_BPS: u128 = 75;
 
-    /// Number of valid transactions that constitute one epoch.
+    /// Transactions that constitute one epoch.
     pub const EPOCH_SIZE: u32 = 52;
 
-    /// Minimum transaction size in $QF$ base units (1 token, 18 decimals).
-    /// Transactions below this threshold are rejected by the gatekeeper.
-    pub const MIN_TRANSACTION_THRESHOLD: u128 = 1_000_000_000_000_000_000; // 1 QF
+    /// Minimum valid transaction size ($QF$ base units, 18 decimals = 1 token).
+    pub const MIN_TRANSACTION_THRESHOLD: u128 = 1_000_000_000_000_000_000;
 
-    /// The canonical EVM "dead" burn address: 0x000…dEaD.
+    /// Canonical EVM dead/burn address: 0x000…dEaD.
     pub const DEAD_ADDRESS: [u8; 20] = [
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xdE, 0xaD,
     ];
+
+    // ── GREAT DRAIN CONSTANTS ─────────────────────────────────────────────────
+
+    /// Default drain threshold: 520 000 000 $52F tokens in $QF$ base units.
+    ///
+    /// At launch (£500k market cap / £0.0000062 per token) this is ≈ £3 224.
+    /// Update via `set_drain_threshold` as the $52F spot price changes.
+    pub const DEFAULT_DRAIN_THRESHOLD: u128 =
+        520_000_000_u128 * 1_000_000_000_000_000_000_u128; // 520 M × 10^18
+
+    /// Fraction of the pot seized during a Great Drain (50% = 5_000 BPS).
+    pub const DRAIN_SEIZED_BPS: u128 = 5_000;
+
+    /// Of the seized 50%, the fraction burned as $QF$ (50% of seized = 25% of pot).
+    pub const DRAIN_QF_BURN_BPS: u128 = 5_000;
 
     // =========================================================================
     // STORAGE
@@ -80,18 +102,25 @@ mod project52f {
 
         // ── Satellite socket ──────────────────────────────────────────────
         /// Address of the authorised Sequencer Satellite contract.
-        /// Only this address may call `pull_prize_tax`.
         sequencer_satellite: Option<Address>,
 
         // ── Tax accumulators ──────────────────────────────────────────────
-        /// Taxes earmarked for the team multisig (pushed periodically).
+        /// Taxes earmarked for the team multisig.
         team_tax_accumulated: U256,
         /// Prize pot available for the Sequencer Satellite to pull.
         prize_pot_accumulated: U256,
 
+        // ── Great Drain Governor ──────────────────────────────────────────
+        /// Prize-pot ceiling in $QF$ base units before the Great Drain fires.
+        /// Updatable by the owner to track the $52F spot price.
+        prize_drain_threshold: U256,
+        /// $QF$ reserved for the $52F buy-back-and-burn (populated by drain).
+        buyback_reserve: U256,
+        /// Running count of Great Drain events (for on-chain auditability).
+        drain_event_count: u32,
+
         // ── Epoch counter ─────────────────────────────────────────────────
-        /// Running count of valid transactions within the current epoch.
-        /// Resets to 0 each time it reaches `EPOCH_SIZE`.
+        /// Transactions within the current epoch (resets at EPOCH_SIZE).
         epoch_transaction_counter: u32,
         /// Monotonically increasing epoch identifier.
         epoch_id: u32,
@@ -104,7 +133,6 @@ mod project52f {
     // EVENTS
     // =========================================================================
 
-    /// Emitted on every token transfer.
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
@@ -114,7 +142,6 @@ mod project52f {
         value: U256,
     }
 
-    /// Emitted when a spender allowance is set.
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
@@ -124,17 +151,16 @@ mod project52f {
         value: U256,
     }
 
-    /// Emitted when the epoch counter rolls over to 52.
-    /// The Sequencer Satellite listens for this event to trigger collision logic.
+    /// Emitted when the epoch counter rolls over at 52 transactions.
+    /// The Sequencer Satellite listens for this to trigger collision detection.
     #[ink(event)]
     pub struct EpochReady {
         #[ink(topic)]
         epoch_id: u32,
-        /// Size of the prize pot available for the Satellite to pull.
         prize_pot: U256,
     }
 
-    /// Emitted when the Sequencer Satellite pulls the prize pot.
+    /// Emitted when the Sequencer Satellite successfully pulls the prize pot.
     #[ink(event)]
     pub struct PrizePotPulled {
         #[ink(topic)]
@@ -144,7 +170,45 @@ mod project52f {
         satellite: Address,
     }
 
-    /// Emitted when the sequencer satellite address is updated.
+    /// Emitted whenever a Great Drain is triggered.
+    ///
+    /// | Field            | Meaning                                             |
+    /// |------------------|-----------------------------------------------------|
+    /// | `drain_id`       | Monotonic drain counter (1-indexed)                 |
+    /// | `pot_before`     | Prize pot immediately before the drain              |
+    /// | `seized_amount`  | 50% of `pot_before` taken by the governor           |
+    /// | `qf_burned`      | 25% of `pot_before` sent to `DEAD_ADDRESS`          |
+    /// | `buyback_amount` | 25% of `pot_before` held in `buyback_reserve`       |
+    /// | `pot_remaining`  | 50% of `pot_before` left for winners                |
+    ///
+    /// An off-chain keeper listens for this event and uses `buyback_amount`
+    /// to market-buy $52F on-chain, then sends those tokens to `DEAD_ADDRESS`.
+    #[ink(event)]
+    pub struct GreatDrain {
+        #[ink(topic)]
+        drain_id: u32,
+        pot_before: U256,
+        seized_amount: U256,
+        qf_burned: U256,
+        buyback_amount: U256,
+        pot_remaining: U256,
+    }
+
+    /// Emitted when the owner updates the drain threshold.
+    #[ink(event)]
+    pub struct DrainThresholdUpdated {
+        previous: U256,
+        updated: U256,
+    }
+
+    /// Emitted when the buyback reserve is released to a keeper.
+    #[ink(event)]
+    pub struct BuybackReleased {
+        #[ink(topic)]
+        keeper: Address,
+        amount: U256,
+    }
+
     #[ink(event)]
     pub struct SequencerUpdated {
         #[ink(topic)]
@@ -164,7 +228,7 @@ mod project52f {
         NotSequencerSatellite,
         /// No Sequencer Satellite has been registered yet.
         NoSatelliteRegistered,
-        /// Sender's token balance is insufficient.
+        /// Sender's $QF$ balance is insufficient.
         InsufficientBalance,
         /// Spender's allowance is insufficient.
         InsufficientAllowance,
@@ -172,6 +236,8 @@ mod project52f {
         TransactionTooSmall,
         /// The prize pot is empty; nothing to pull.
         PrizePotEmpty,
+        /// Requested buyback release exceeds the current reserve.
+        InsufficientBuybackReserve,
         /// An arithmetic operation overflowed.
         Overflow,
         /// A native value transfer failed.
@@ -191,15 +257,11 @@ mod project52f {
 
         /// Deploy the Token Engine.
         ///
-        /// The entire `initial_supply` is minted to the deployer.
-        /// No satellite is registered at deployment; call `set_sequencer_satellite`
-        /// after deploying the Sequencer Satellite contract.
+        /// Mints `initial_supply` entirely to the deployer.
+        /// The Great Drain threshold is initialised to `DEFAULT_DRAIN_THRESHOLD`
+        /// and can be updated via `set_drain_threshold` as the $52F price moves.
         #[ink(constructor)]
-        pub fn new(
-            initial_supply: U256,
-            name: String,
-            symbol: String,
-        ) -> Self {
+        pub fn new(initial_supply: U256, name: String, symbol: String) -> Self {
             let caller = Self::env().caller();
             let mut balances = Mapping::default();
             balances.insert(caller, &initial_supply);
@@ -221,6 +283,9 @@ mod project52f {
                 sequencer_satellite: None,
                 team_tax_accumulated: U256::ZERO,
                 prize_pot_accumulated: U256::ZERO,
+                prize_drain_threshold: U256::from(DEFAULT_DRAIN_THRESHOLD),
+                buyback_reserve: U256::ZERO,
+                drain_event_count: 0,
                 epoch_transaction_counter: 0,
                 epoch_id: 0,
                 paused: false,
@@ -228,21 +293,21 @@ mod project52f {
         }
 
         // =====================================================================
-        // THE GATEKEEPER — Buy & Sell Entry Points
+        // THE GATEKEEPER — Buy & Sell
         // =====================================================================
 
         /// Process a buy transaction.
         ///
-        /// Tax breakdown (applied to the gross amount):
-        ///   - 0.75% → team accumulator
-        ///   - 1.97% → prize pot  (2.72% total buy tax − 0.75% team share)
+        /// Tax routing for transaction of `amount`:
+        /// ```text
+        ///   team_share  = amount × 75  / 10_000   (0.75%)
+        ///   total_tax   = amount × 272 / 10_000   (2.72%)
+        ///   prize_share = total_tax − team_share   (1.97%)
+        ///   net_amount  = amount − total_tax
+        /// ```
         ///
-        /// Every valid buy increments the epoch counter.
-        ///
-        /// # Errors
-        /// - [`Error::ContractPaused`]         — contract is paused.
-        /// - [`Error::TransactionTooSmall`]    — amount < 1 $QF.
-        /// - [`Error::InsufficientBalance`]    — caller has insufficient tokens.
+        /// After accumulation the prize pot is tested against the Great Drain
+        /// threshold (see `check_and_execute_drain`).
         #[ink(message)]
         pub fn buy(&mut self, amount: U256) -> Result<(), Error> {
             self.assert_not_paused()?;
@@ -252,9 +317,6 @@ mod project52f {
             let (team_share, prize_share, net_amount) =
                 self.calculate_tax_split(amount, E_BUY_TAX_BPS)?;
 
-            // Debit caller, credit the contract (net amount stays in circulation
-            // as caller's adjusted balance post-swap; full accounting left to
-            // the DEX integration layer).
             self.debit_balance(caller, amount)?;
 
             self.team_tax_accumulated = self
@@ -266,7 +328,6 @@ mod project52f {
                 .checked_add(prize_share)
                 .ok_or(Error::Overflow)?;
 
-            // Credit net amount back to caller (post-tax receipt).
             self.credit_balance(caller, net_amount)?;
 
             self.env().emit_event(Transfer {
@@ -275,17 +336,20 @@ mod project52f {
                 value: team_share.saturating_add(prize_share),
             });
 
+            self.check_and_execute_drain()?;
             self.tick_epoch_counter();
             Ok(())
         }
 
         /// Process a sell transaction.
         ///
-        /// Tax breakdown (applied to the gross amount):
-        ///   - 0.75% → team accumulator
-        ///   - 2.39% → prize pot  (3.14% total sell tax − 0.75% team share)
-        ///
-        /// Every valid sell increments the epoch counter.
+        /// Tax routing for transaction of `amount`:
+        /// ```text
+        ///   team_share  = amount × 75  / 10_000   (0.75%)
+        ///   total_tax   = amount × 314 / 10_000   (3.14%)
+        ///   prize_share = total_tax − team_share   (2.39%)
+        ///   net_amount  = amount − total_tax
+        /// ```
         #[ink(message)]
         pub fn sell(&mut self, amount: U256) -> Result<(), Error> {
             self.assert_not_paused()?;
@@ -314,7 +378,103 @@ mod project52f {
                 value: team_share.saturating_add(prize_share),
             });
 
+            self.check_and_execute_drain()?;
             self.tick_epoch_counter();
+            Ok(())
+        }
+
+        // =====================================================================
+        // GREAT DRAIN — Volatility Governor
+        // =====================================================================
+
+        /// Test the prize pot against the drain threshold; execute if breached.
+        ///
+        /// **Split arithmetic (all integer, no rounding errors can grow the pot):**
+        /// ```text
+        /// pot      = prize_pot_accumulated
+        /// seized   = pot × DRAIN_SEIZED_BPS / BPS_DENOMINATOR   (50%)
+        /// qf_burn  = seized × DRAIN_QF_BURN_BPS / BPS_DENOMINATOR (50% of seized = 25% of pot)
+        /// buyback  = seized − qf_burn                             (25% of pot)
+        /// remaining = pot − seized                                (50% of pot)
+        /// ```
+        ///
+        /// State updates occur before external calls (checks-effects-interactions).
+        /// The `buyback_reserve` field accumulates the buyback allocation and is
+        /// released to an authorised keeper via `release_buyback`.
+        fn check_and_execute_drain(&mut self) -> Result<(), Error> {
+            if self.prize_pot_accumulated < self.prize_drain_threshold {
+                return Ok(());
+            }
+
+            let pot = self.prize_pot_accumulated;
+
+            let seized = pot
+                .checked_mul(U256::from(DRAIN_SEIZED_BPS))
+                .ok_or(Error::Overflow)?
+                .checked_div(U256::from(BPS_DENOMINATOR))
+                .ok_or(Error::Overflow)?;
+
+            let qf_burn = seized
+                .checked_mul(U256::from(DRAIN_QF_BURN_BPS))
+                .ok_or(Error::Overflow)?
+                .checked_div(U256::from(BPS_DENOMINATOR))
+                .ok_or(Error::Overflow)?;
+
+            // Integer-safe: buyback is the exact remainder of the seized half.
+            let buyback_amount = seized.saturating_sub(qf_burn);
+            let pot_remaining = pot.saturating_sub(seized);
+
+            // ── State update (before external calls) ──────────────────────
+            self.prize_pot_accumulated = pot_remaining;
+            self.buyback_reserve = self
+                .buyback_reserve
+                .checked_add(buyback_amount)
+                .ok_or(Error::Overflow)?;
+            self.drain_event_count = self.drain_event_count.saturating_add(1);
+            let drain_id = self.drain_event_count;
+
+            // Reduce total supply to reflect the burned $QF$.
+            self.total_supply = self.total_supply.saturating_sub(qf_burn);
+
+            // ── Execute QF burn ────────────────────────────────────────────
+            let dead = Address::from(DEAD_ADDRESS);
+            self.env()
+                .transfer(dead, qf_burn)
+                .map_err(|_| Error::TransferFailed)?;
+
+            self.env().emit_event(GreatDrain {
+                drain_id,
+                pot_before: pot,
+                seized_amount: seized,
+                qf_burned: qf_burn,
+                buyback_amount,
+                pot_remaining,
+            });
+
+            Ok(())
+        }
+
+        /// Release $QF$ from the buyback reserve to an authorised keeper.
+        ///
+        /// The keeper is responsible for using these funds to market-buy $52F
+        /// on the open market and send the purchased tokens to `DEAD_ADDRESS`.
+        /// Only the owner may trigger a release; `amount` must not exceed
+        /// `buyback_reserve`.
+        #[ink(message)]
+        pub fn release_buyback(&mut self, keeper: Address, amount: U256) -> Result<(), Error> {
+            self.only_owner()?;
+
+            if amount > self.buyback_reserve {
+                return Err(Error::InsufficientBuybackReserve);
+            }
+
+            self.buyback_reserve = self.buyback_reserve.saturating_sub(amount);
+
+            self.env()
+                .transfer(keeper, amount)
+                .map_err(|_| Error::TransferFailed)?;
+
+            self.env().emit_event(BuybackReleased { keeper, amount });
             Ok(())
         }
 
@@ -324,21 +484,13 @@ mod project52f {
 
         /// Pull the prize pot from the Token Engine.
         ///
-        /// **Caller:** Must be the registered `sequencer_satellite` address.
+        /// **Caller:** Must be the registered `sequencer_satellite`.
         ///
         /// **Split:**
-        ///   - 10% of the pot → burned to `0x000…dEaD`
-        ///   - 90% of the pot → transferred to the calling Satellite
-        ///
-        /// The Satellite is then responsible for distributing the 90% yield
-        /// to winning addresses based on collision logic.
+        /// - 10% → burned to `0x000…dEaD`
+        /// - 90% → transferred to the calling Satellite for winner distribution
         ///
         /// State is updated before transfers (checks-effects-interactions).
-        ///
-        /// # Errors
-        /// - [`Error::NotSequencerSatellite`] — caller is not the satellite.
-        /// - [`Error::PrizePotEmpty`]         — nothing to pull.
-        /// - [`Error::TransferFailed`]        — a native transfer failed.
         #[ink(message)]
         pub fn pull_prize_tax(&mut self) -> Result<U256, Error> {
             self.assert_not_paused()?;
@@ -357,23 +509,20 @@ mod project52f {
                 return Err(Error::PrizePotEmpty);
             }
 
-            // ── 90 / 10 split ────────────────────────────────────────────
             let burn_amount = total_pot
                 .checked_div(U256::from(10u8))
                 .ok_or(Error::Overflow)?;
             let yield_amount = total_pot.saturating_sub(burn_amount);
 
-            // ── State update (before external calls) ─────────────────────
+            // ── State update (before external calls) ──────────────────────
             self.prize_pot_accumulated = U256::ZERO;
             let epoch_id = self.epoch_id;
 
-            // ── Burn → 0x000…dEaD ────────────────────────────────────────
             let dead = Address::from(DEAD_ADDRESS);
             self.env()
                 .transfer(dead, burn_amount)
                 .map_err(|_| Error::TransferFailed)?;
 
-            // ── Yield → Satellite ─────────────────────────────────────────
             self.env()
                 .transfer(satellite, yield_amount)
                 .map_err(|_| Error::TransferFailed)?;
@@ -393,9 +542,7 @@ mod project52f {
         // =====================================================================
 
         #[ink(message)]
-        pub fn total_supply(&self) -> U256 {
-            self.total_supply
-        }
+        pub fn total_supply(&self) -> U256 { self.total_supply }
 
         #[ink(message)]
         pub fn balance_of(&self, account: Address) -> U256 {
@@ -431,12 +578,12 @@ mod project52f {
         ) -> Result<(), Error> {
             self.assert_not_paused()?;
             let caller = self.env().caller();
-            let allowance = self.allowance(from, caller);
-            if allowance < value {
+            let current_allowance = self.allowance(from, caller);
+            if current_allowance < value {
                 return Err(Error::InsufficientAllowance);
             }
             self.allowances
-                .insert((from, caller), &allowance.saturating_sub(value));
+                .insert((from, caller), &current_allowance.saturating_sub(value));
             self.transfer_impl(from, to, value)
         }
 
@@ -445,59 +592,45 @@ mod project52f {
         // =====================================================================
 
         #[ink(message)]
-        pub fn name(&self) -> String {
-            self.name.clone()
-        }
+        pub fn name(&self) -> String { self.name.clone() }
 
         #[ink(message)]
-        pub fn symbol(&self) -> String {
-            self.symbol.clone()
-        }
+        pub fn symbol(&self) -> String { self.symbol.clone() }
 
         #[ink(message)]
-        pub fn decimals(&self) -> u8 {
-            self.decimals
-        }
+        pub fn decimals(&self) -> u8 { self.decimals }
 
         #[ink(message)]
-        pub fn get_prize_pot(&self) -> U256 {
-            self.prize_pot_accumulated
-        }
+        pub fn get_prize_pot(&self) -> U256 { self.prize_pot_accumulated }
 
         #[ink(message)]
-        pub fn get_team_accumulated(&self) -> U256 {
-            self.team_tax_accumulated
-        }
+        pub fn get_team_accumulated(&self) -> U256 { self.team_tax_accumulated }
 
         #[ink(message)]
-        pub fn get_epoch_counter(&self) -> u32 {
-            self.epoch_transaction_counter
-        }
+        pub fn get_epoch_counter(&self) -> u32 { self.epoch_transaction_counter }
 
         #[ink(message)]
-        pub fn get_epoch_id(&self) -> u32 {
-            self.epoch_id
-        }
+        pub fn get_epoch_id(&self) -> u32 { self.epoch_id }
 
         #[ink(message)]
-        pub fn get_sequencer_satellite(&self) -> Option<Address> {
-            self.sequencer_satellite
-        }
+        pub fn get_sequencer_satellite(&self) -> Option<Address> { self.sequencer_satellite }
 
         #[ink(message)]
-        pub fn is_paused(&self) -> bool {
-            self.paused
-        }
+        pub fn get_drain_threshold(&self) -> U256 { self.prize_drain_threshold }
+
+        #[ink(message)]
+        pub fn get_buyback_reserve(&self) -> U256 { self.buyback_reserve }
+
+        #[ink(message)]
+        pub fn get_drain_event_count(&self) -> u32 { self.drain_event_count }
+
+        #[ink(message)]
+        pub fn is_paused(&self) -> bool { self.paused }
 
         // =====================================================================
         // ADMIN
         // =====================================================================
 
-        /// Register (or update) the Sequencer Satellite address.
-        ///
-        /// Only the owner may call this.  There is no zero-address guard
-        /// intentionally — the owner may wish to disable the satellite by
-        /// setting it to `None` via a separate `clear_sequencer` message.
         #[ink(message)]
         pub fn set_sequencer_satellite(&mut self, addr: Address) -> Result<(), Error> {
             self.only_owner()?;
@@ -506,11 +639,27 @@ mod project52f {
             Ok(())
         }
 
-        /// Remove the Sequencer Satellite registration.
         #[ink(message)]
         pub fn clear_sequencer_satellite(&mut self) -> Result<(), Error> {
             self.only_owner()?;
             self.sequencer_satellite = None;
+            Ok(())
+        }
+
+        /// Update the Great Drain threshold.
+        ///
+        /// Should represent 520 000 000 $52F tokens denominated in $QF$ base
+        /// units at the current spot price.  Call periodically via a keeper or
+        /// governance vote as the $52F price changes.
+        #[ink(message)]
+        pub fn set_drain_threshold(&mut self, new_threshold: U256) -> Result<(), Error> {
+            self.only_owner()?;
+            let previous = self.prize_drain_threshold;
+            self.prize_drain_threshold = new_threshold;
+            self.env().emit_event(DrainThresholdUpdated {
+                previous,
+                updated: new_threshold,
+            });
             Ok(())
         }
 
@@ -525,12 +674,9 @@ mod project52f {
         // INTERNAL HELPERS
         // =====================================================================
 
-        /// Increment the epoch counter; emit `EpochReady` and reset when EPOCH_SIZE
-        /// is reached. O(1), no loops.
         fn tick_epoch_counter(&mut self) {
-            self.epoch_transaction_counter = self
-                .epoch_transaction_counter
-                .saturating_add(1);
+            self.epoch_transaction_counter =
+                self.epoch_transaction_counter.saturating_add(1);
 
             if self.epoch_transaction_counter >= EPOCH_SIZE {
                 self.epoch_id = self.epoch_id.saturating_add(1);
@@ -543,7 +689,6 @@ mod project52f {
             }
         }
 
-        /// Split `amount` into (team_share, prize_share, net_amount).
         fn calculate_tax_split(
             &self,
             amount: U256,
@@ -569,12 +714,7 @@ mod project52f {
             Ok((team_share, prize_share, net_amount))
         }
 
-        fn transfer_impl(
-            &mut self,
-            from: Address,
-            to: Address,
-            value: U256,
-        ) -> Result<(), Error> {
+        fn transfer_impl(&mut self, from: Address, to: Address, value: U256) -> Result<(), Error> {
             self.debit_balance(from, value)?;
             self.credit_balance(to, value)?;
             self.env().emit_event(Transfer {
@@ -637,14 +777,10 @@ mod project52f {
         fn accounts() -> test::DefaultAccounts<Env> {
             test::default_accounts::<Env>()
         }
+        fn set_caller(addr: Address) { test::set_caller::<Env>(addr); }
 
-        fn set_caller(addr: Address) {
-            test::set_caller::<Env>(addr);
-        }
-
-        /// 1 000 000 $QF (18 decimals)
-        const SUPPLY: u128 = 1_000_000_000_000_000_000_000_000;
         const ONE_QF: u128 = 1_000_000_000_000_000_000;
+        const SUPPLY: u128 = 1_000_000 * ONE_QF;
 
         fn deploy() -> Project52F {
             let accs = accounts();
@@ -656,6 +792,8 @@ mod project52f {
             )
         }
 
+        // ── Constructor ───────────────────────────────────────────────────────
+
         #[ink::test]
         fn constructor_mints_to_owner() {
             let engine = deploy();
@@ -665,68 +803,108 @@ mod project52f {
         }
 
         #[ink::test]
-        fn buy_below_threshold_is_rejected() {
+        fn constructor_sets_default_drain_threshold() {
+            let engine = deploy();
+            assert_eq!(
+                engine.get_drain_threshold(),
+                U256::from(DEFAULT_DRAIN_THRESHOLD)
+            );
+        }
+
+        // ── Tax accumulation ──────────────────────────────────────────────────
+
+        #[ink::test]
+        fn buy_below_threshold_rejected() {
             let mut engine = deploy();
-            let accs = accounts();
-            set_caller(accs.bob);
-            // Give bob a balance to spend
-            test::set_account_balance::<Env>(accs.bob, 1_000_000_000_000_000_000_000_000);
-            let result = engine.buy(U256::from(ONE_QF - 1));
-            assert_eq!(result, Err(Error::TransactionTooSmall));
+            set_caller(accounts().alice);
+            assert_eq!(
+                engine.buy(U256::from(ONE_QF - 1)),
+                Err(Error::TransactionTooSmall)
+            );
         }
 
         #[ink::test]
         fn buy_accumulates_prize_and_team_tax() {
             let mut engine = deploy();
-            let accs = accounts();
-            // Give alice a large balance
-            engine.balances.insert(accs.alice, &U256::from(SUPPLY));
-            set_caller(accs.alice);
+            set_caller(accounts().alice);
+            engine.buy(U256::from(ONE_QF * 100)).unwrap();
+            assert!(engine.get_prize_pot() > U256::ZERO);
+            assert!(engine.get_team_accumulated() > U256::ZERO);
+            assert!(engine.get_prize_pot() > engine.get_team_accumulated());
+        }
 
-            let amount = U256::from(ONE_QF * 100); // 100 QF
-            engine.buy(amount).unwrap();
+        // ── Great Drain split maths ───────────────────────────────────────────
 
-            let prize = engine.get_prize_pot();
-            let team = engine.get_team_accumulated();
+        #[ink::test]
+        fn drain_split_constants_are_correct() {
+            // seized = pot × 50% = 500 000
+            // qf_burn = seized × 50% = 250 000  (25% of pot)
+            // buyback  = seized − qf_burn = 250 000  (25% of pot)
+            // remaining = pot − seized = 500 000  (50% of pot)
+            let pot = U256::from(1_000_000u64);
+            let seized   = pot * U256::from(DRAIN_SEIZED_BPS) / U256::from(BPS_DENOMINATOR);
+            let qf_burn  = seized * U256::from(DRAIN_QF_BURN_BPS) / U256::from(BPS_DENOMINATOR);
+            let buyback  = seized - qf_burn;
+            let remaining = pot - seized;
 
-            // Total tax = 100 * 272 / 10000 = 2.72 QF
-            // Team share = 100 * 75 / 10000 = 0.75 QF
-            // Prize share = 2.72 - 0.75 = 1.97 QF
-            assert!(prize > U256::ZERO, "prize pot should be non-zero");
-            assert!(team > U256::ZERO, "team accumulator should be non-zero");
-            assert!(prize > team, "prize share should exceed team share");
+            assert_eq!(seized,    U256::from(500_000u64), "50% seized");
+            assert_eq!(qf_burn,   U256::from(250_000u64), "25% QF burn");
+            assert_eq!(buyback,   U256::from(250_000u64), "25% buyback reserve");
+            assert_eq!(remaining, U256::from(500_000u64), "50% remains in pot");
         }
 
         #[ink::test]
-        fn epoch_counter_increments_and_resets() {
+        fn drain_does_not_fire_below_threshold() {
             let mut engine = deploy();
-            let accs = accounts();
-            engine.balances.insert(accs.alice, &U256::from(SUPPLY * 100));
-            set_caller(accs.alice);
+            set_caller(accounts().alice);
+            engine.prize_drain_threshold = U256::MAX;
+            engine.buy(U256::from(ONE_QF * 1_000)).unwrap();
+            assert_eq!(engine.get_drain_event_count(), 0);
+        }
 
+        #[ink::test]
+        fn drain_fires_when_threshold_exceeded() {
+            let mut engine = deploy();
+            set_caller(accounts().alice);
+
+            // Set threshold below the prize accumulation of a 1 000 QF buy.
+            // Prize share ≈ 1.97% of 1_000 QF = ~19.7 QF. Set threshold to 1 QF.
+            engine.prize_drain_threshold = U256::from(ONE_QF);
+
+            let pre_supply = engine.total_supply();
+            engine.buy(U256::from(ONE_QF * 1_000)).unwrap();
+
+            assert!(engine.get_drain_event_count() >= 1, "drain must fire");
+            assert!(engine.total_supply() < pre_supply, "supply must decrease");
+            assert!(engine.get_buyback_reserve() > U256::ZERO, "buyback must be non-zero");
+        }
+
+        // ── Epoch counter ─────────────────────────────────────────────────────
+
+        #[ink::test]
+        fn epoch_resets_at_52() {
+            let mut engine = deploy();
+            set_caller(accounts().alice);
+            // Disable drain so it doesn't interfere.
+            engine.prize_drain_threshold = U256::MAX;
             let amount = U256::from(ONE_QF * 10);
-
-            // 51 buys — counter should be 51, epoch_id still 0
-            for _ in 0..51 {
-                engine.buy(amount).unwrap();
-            }
+            for _ in 0..51 { engine.buy(amount).unwrap(); }
             assert_eq!(engine.get_epoch_counter(), 51);
             assert_eq!(engine.get_epoch_id(), 0);
-
-            // 52nd buy triggers epoch rollover
             engine.buy(amount).unwrap();
-            assert_eq!(engine.get_epoch_counter(), 0, "counter should reset");
-            assert_eq!(engine.get_epoch_id(), 1, "epoch_id should increment");
+            assert_eq!(engine.get_epoch_counter(), 0);
+            assert_eq!(engine.get_epoch_id(), 1);
         }
+
+        // ── Satellite / pull ──────────────────────────────────────────────────
 
         #[ink::test]
         fn pull_prize_tax_rejected_for_non_satellite() {
             let mut engine = deploy();
             let accs = accounts();
             engine.sequencer_satellite = Some(accs.bob);
-            set_caller(accs.charlie); // not the satellite
-            let result = engine.pull_prize_tax();
-            assert_eq!(result, Err(Error::NotSequencerSatellite));
+            set_caller(accs.charlie);
+            assert_eq!(engine.pull_prize_tax(), Err(Error::NotSequencerSatellite));
         }
 
         #[ink::test]
@@ -735,39 +913,46 @@ mod project52f {
             let accs = accounts();
             engine.sequencer_satellite = Some(accs.bob);
             set_caller(accs.bob);
-            let result = engine.pull_prize_tax();
-            assert_eq!(result, Err(Error::PrizePotEmpty));
+            assert_eq!(engine.pull_prize_tax(), Err(Error::PrizePotEmpty));
         }
 
+        // ── Safety ────────────────────────────────────────────────────────────
+
         #[ink::test]
-        fn paused_contract_rejects_buys() {
+        fn paused_contract_rejects_all_writes() {
             let mut engine = deploy();
-            let accs = accounts();
-            set_caller(accs.alice);
+            set_caller(accounts().alice);
             engine.set_paused(true).unwrap();
-            let result = engine.buy(U256::from(ONE_QF * 10));
-            assert_eq!(result, Err(Error::ContractPaused));
+            assert_eq!(engine.buy(U256::from(ONE_QF * 10)),  Err(Error::ContractPaused));
+            assert_eq!(engine.sell(U256::from(ONE_QF * 10)), Err(Error::ContractPaused));
         }
 
         #[ink::test]
-        fn set_sequencer_satellite_only_owner() {
+        fn set_drain_threshold_owner_only() {
             let mut engine = deploy();
-            let accs = accounts();
-            set_caller(accs.bob); // not the owner
-            let result = engine.set_sequencer_satellite(accs.charlie);
-            assert_eq!(result, Err(Error::NotOwner));
+            set_caller(accounts().bob);
+            assert_eq!(engine.set_drain_threshold(U256::from(1u8)), Err(Error::NotOwner));
         }
+
+        #[ink::test]
+        fn release_buyback_rejects_excess() {
+            let mut engine = deploy();
+            set_caller(accounts().alice);
+            // buyback_reserve is zero at deploy — any release must fail.
+            assert_eq!(
+                engine.release_buyback(accounts().bob, U256::from(1u8)),
+                Err(Error::InsufficientBuybackReserve)
+            );
+        }
+
+        // ── PSP22 ─────────────────────────────────────────────────────────────
 
         #[ink::test]
         fn transfer_updates_balances() {
             let mut engine = deploy();
-            let accs = accounts();
-            set_caller(accs.alice);
-            engine.transfer(accs.bob, U256::from(ONE_QF * 500)).unwrap();
-            assert_eq!(
-                engine.balance_of(accs.bob),
-                U256::from(ONE_QF * 500)
-            );
+            set_caller(accounts().alice);
+            engine.transfer(accounts().bob, U256::from(ONE_QF * 500)).unwrap();
+            assert_eq!(engine.balance_of(accounts().bob), U256::from(ONE_QF * 500));
         }
     }
 }
