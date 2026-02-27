@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Project 52F — Sovereign Architecture for Autonomous Liquidity</title>
-<meta name="description" content="A deterministic liquidity engine on QF Network. 1.33x solvency guarantee. 60-day hardening phase. Mathematical floor, not a hope.">
+<meta name="description" content="A deterministic liquidity engine on QF Network. Mathematical constants govern every parameter. No admin keys. No arbitrary decisions.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -102,6 +102,1177 @@ nav {
   opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
 }
 .hero-title {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 4.5vw, 4.6rem);
+  font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: var(--paper);
+  margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
+}
+.hero-title strong { font-weight: 700; color: var(--gold); display: block; font-style: italic; }
+.hero-subtitle {
+  font-size: 1.05rem; font-style: italic; color: var(--gold-warm); margin-bottom: 2rem;
+  font-weight: 300; opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.hero-body {
+  font-size: 1.02rem; line-height: 1.9; color: var(--muted); max-width: 500px;
+  margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+}
+.constants-panel { opacity: 0; animation: fadeIn 1s ease 1s forwards; }
+.const-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+}
+.const-cell { background: var(--ink-card); padding: 1.6rem 1.4rem; transition: background 0.2s; }
+.const-cell:hover { background: var(--ink-light); }
+.const-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+.const-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.const-val { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--muted); margin-bottom: 0.3rem; }
+.const-use { font-size: 0.92rem; font-style: italic; color: var(--body-text); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; text-decoration: none; padding: 0.8rem 1.8rem;
+  border: none; cursor: pointer; transition: all 0.2s; border-radius: 1px;
+}
+.btn-gold { background: var(--gold); color: var(--ink); font-weight: 500; }
+.btn-gold:hover { background: var(--gold-warm); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
+.btn-ghost:hover { border-color: var(--gold); background: var(--gold-ghost); }
+
+/* ── SECTIONS ── */
+.section { padding: 7rem 0; position: relative; }
+.section--alt { background: var(--ink-mid); }
+.section-kicker { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 1rem; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 300; line-height: 1.15; color: var(--paper); margin-bottom: 1.4rem; }
+.section-title em { font-style: italic; color: var(--gold); }
+.section-title strong { font-weight: 700; }
+.section-lead { font-size: 1.05rem; line-height: 1.9; color: var(--muted); max-width: 640px; margin-bottom: 3rem; }
+.rule { width: 48px; height: 1px; background: var(--gold); opacity: 0.5; margin: 1.4rem 0; }
+
+/* ── PHASE TOGGLE ── */
+.phase-indicator {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.phase-current {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+}
+.phase-current span {
+  color: var(--gold);
+  font-weight: 600;
+}
+.phase-blocks {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.phase-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--ink-light);
+  margin-bottom: 1rem;
+  position: relative;
+}
+.phase-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--teal-light) 100%);
+  width: 35%;
+  transition: width 0.3s ease;
+}
+.phase-markers {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.phase-marker {
+  text-align: center;
+}
+.phase-marker.active {
+  color: var(--gold);
+}
+
+/* ── ARCHITECTURE ── */
+.arch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border); margin-top: 3rem;
+}
+.arch-card { background: var(--ink-card); padding: 2.2rem 1.8rem; position: relative; }
+.arch-card.dampener { max-width: 400px; margin-left: auto; margin-right: auto; margin-top: 2rem; }
+.arch-icon {
+  font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--gold);
+  margin-bottom: 1rem; width: 40px; height: 40px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.arch-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--paper); margin-bottom: 0.3rem; }
+.arch-role { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.arch-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+.arch-flow { border-top: 1px solid var(--border-dim); padding-top: 1rem; }
+.flow-item { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border-dim); color: var(--muted); }
+.flow-item span { color: var(--gold-warm); }
+.arch-constant { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); letter-spacing: 0.05em; }
+
+/* ── MECHANICS ── */
+.sect-grid { display: grid; gap: 4rem; align-items: start; }
+.sect-grid--mechanics { grid-template-columns: 1fr 1fr; }
+.tax-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.8rem; }
+.tax-card { background: var(--ink-card); padding: 1.8rem 1.5rem; }
+.tax-rate { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.tax-rate span { font-size: 1rem; font-weight: 300; color: var(--gold-dim); font-style: italic; }
+.tax-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.8rem; }
+.tax-rows { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.tax-row { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); padding: 0.2rem 0; border-bottom: 1px solid var(--border-dim); }
+.tax-row:last-child { border-bottom: none; }
+.tax-row .pct { color: var(--gold-warm); }
+.mech-text p { font-size: 1.02rem; line-height: 1.9; color: var(--body-text); margin-bottom: 1.2rem; }
+
+/* ── EPOCH SYSTEM ── */
+.epoch-visual {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+.epoch-pulse {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+  position: relative;
+}
+.epoch-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  animation: pulse 2s ease-out infinite;
+}
+.epoch-pulse::after {
+  content: '52';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.epoch-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.5rem;
+}
+.epoch-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ── LAUNCH FORTRESS ── */
+.fortress-callout {
+  background: linear-gradient(135deg, var(--ink-card) 0%, var(--ink-light) 100%);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.fortress-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.fortress-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--gold-ghost);
+  border: 1px solid var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+.fortress-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  color: var(--paper);
+}
+.fortress-body {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.fortress-math {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--gold);
+  padding: 1rem;
+  background: var(--ink);
+  border: 1px solid var(--border-dim);
+}
+
+/* ── SOLVENCY PROOF ── */
+.solvency-card {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+.solvency-equation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.solvency-proof {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--teal-light);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+.solvency-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1;
+}
+.solvency-value span {
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 1.5rem; max-width: 700px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0; width: 1px; background: var(--border); }
+.tl-item { position: relative; padding: 0 0 2.5rem 2rem; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -0.42rem; top: 0.45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--gold-dim); }
+.tl-item.done .tl-dot { background: var(--gold); border-color: var(--gold); }
+.tl-item.now .tl-dot { background: var(--teal); border-color: var(--teal-light); box-shadow: 0 0 12px rgba(14,155,142,0.5); }
+.tl-phase { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.tl-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.tl-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+.tl-badge { display: inline-block; margin-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.57rem; letter-spacing: 0.1em; padding: 0.15rem 0.5rem; border-radius: 2px; }
+.tl-done { background: var(--gold-ghost); color: var(--gold); }
+.tl-now { background: var(--teal-ghost); color: var(--teal-light); }
+
+/* ── MATHS ── */
+.maths-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+.math-card { background: var(--ink-card); padding: 1.8rem 1.4rem; text-align: center; }
+.math-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--gold); line-height: 1; margin-bottom: 0.5rem; }
+.math-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.math-val { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--paper); margin-bottom: 1rem; }
+.math-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+/* ── HEALTH GATE ── */
+.health-gate {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.gauge-container {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+}
+.gauge-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px 100px 0 0;
+  background: conic-gradient(from 180deg at 50% 100%, var(--gold) 0deg, var(--teal-light) 54deg, var(--ink-light) 54deg, var(--ink-light) 180deg);
+}
+.gauge-center {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 80px;
+  background: var(--ink);
+  border-radius: 80px 80px 0 0;
+}
+.gauge-value {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.gauge-label {
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--teal-light);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── TAX TABLE ── */
+.tax-table-container {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+.tax-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+}
+.tax-table th {
+  background: var(--ink-light);
+  color: var(--gold);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+.tax-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border-dim);
+  color: var(--body-text);
+}
+.tax-table tr:last-child td {
+  border-bottom: none;
+}
+.tax-table .phase-name {
+  color: var(--teal-light);
+  font-weight: 500;
+}
+
+/* ── FIBONACCI SPLIT ── */
+.fib-split {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.fib-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.fib-equation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+.fib-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--teal-light);
+  letter-spacing: 0.1em;
+}
+.fib-bars {
+  display: flex;
+  height: 40px;
+  margin-bottom: 1rem;
+}
+.fib-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--ink);
+  font-weight: 500;
+}
+.fib-bar-34 { background: var(--gold); width: 65.38%; }
+.fib-bar-13 { background: var(--teal); width: 25%; }
+.fib-bar-5 { background: var(--gold-dim); width: 9.62%; }
+.fib-legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+}
+.fib-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+.fib-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.fib-dot-34 { background: var(--gold); }
+.fib-dot-13 { background: var(--teal); }
+.fib-dot-5 { background: var(--gold-dim); }
+
+/* ── RECOVERY ZONES ── */
+.recovery-zones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.zone-card {
+  background: var(--ink-card);
+  padding: 1.5rem;
+  text-align: center;
+}
+.zone-red { border-top: 3px solid #d95f4b; }
+.zone-yellow { border-top: 3px solid var(--gold); }
+.zone-green { border-top: 3px solid var(--teal); }
+.zone-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+.zone-red .zone-name { color: #d95f4b; }
+.zone-yellow .zone-name { color: var(--gold); }
+.zone-green .zone-name { color: var(--teal); }
+.zone-blocks {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.zone-days {
+  font-size: 0.9rem;
+  color: var(--body-text);
+  margin-bottom: 1rem;
+}
+.zone-condition {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── FOOTER ── */
+footer { background: #07101a; border-top: 1px solid var(--border-dim); padding: 4rem 0 2rem; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand-name { font-family: 'DM Mono', monospace; font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem; }
+.footer-brand-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; font-style: italic; max-width: 280px; }
+.footer-col h4 { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; font-weight: 400; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 0.5rem; }
+.footer-col a { font-size: 0.9rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom { padding-top: 2rem; border-top: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.footer-legal { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; color: var(--muted); opacity: 0.55; }
+.footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: var(--muted); opacity: 0.45; max-width: 480px; text-align: right; line-height: 1.7; }
+
+/* ── ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--ink);} ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-inner,.sect-grid--mechanics{grid-template-columns:1fr;gap:3rem;}
+  .arch-grid{grid-template-columns:1fr;}
+  .maths-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;} .nav-hamburger{display:flex;}
+  .recovery-zones{grid-template-columns:1fr;}
+  .fib-legend{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  html{font-size:16px;}
+  .container,.container--narrow{padding:0 1.2rem;}
+  .section{padding:4rem 0;}
+  .hero-inner{padding:2.5rem 0;}
+  .const-grid{grid-template-columns:1fr 1fr;}
+  .const-cell{padding:1.1rem 1rem;}
+  .const-sym{font-size:2rem;}
+  .maths-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;}
+  .footer-disclaimer{text-align:left;}
+  .tax-table{font-size:0.6rem;}
+  .tax-table th,.tax-table td{padding:0.5rem;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="hero-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero">Project 52F</a>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#phases">Phases</a></li>
+    <li><a href="#maths">Constants</a></li>
+    <li><a href="#build">Build</a></li>
+    <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0" class="nav-cta">Telegram →</a></li>
+  </ul>
+  <div class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#architecture">Architecture</a>
+  <a href="#mechanics">Mechanics</a>
+  <a href="#phases">Phases</a>
+  <a href="#maths">Constants</a>
+  <a href="#build">Build Progress</a>
+  <a href="https://t.me/+c-FlYTpZrhU4ZTI0">Join Telegram →</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-kicker">QF Network · Mathematical Constants · Deterministic Logic</p>
+        <h1 class="hero-title">The floor is not a hope.<br><strong>It is a mathematical certainty.</strong></h1>
+        <p class="hero-subtitle">"Every parameter is a constant of nature."</p>
+        <p class="hero-body">Project 52F is a token on the QF Network. Every transaction tax is split between three destinations: a prize pot, a liquidity vault (the Dampener), and the team. When enough tax builds up, a Big Burn fires automatically — destroying tokens and adding permanent liquidity. Every 52 transactions, a collision game pays out prizes to qualifying holders. No admin intervention ever needed after launch.</p>
+        <div class="hero-actions">
+          <a href="#architecture" class="btn btn-gold">Explore Architecture</a>
+          <a href="#mechanics" class="btn btn-ghost">The Collision Engine</a>
+        </div>
+      </div>
+      <div class="constants-panel">
+        <div class="const-grid">
+          <div class="const-cell">
+            <div class="const-sym">e</div>
+            <div class="const-label">Euler's Number</div>
+            <div class="const-val">2.718281828...</div>
+            <div class="const-use">Buy tax: 2.72%</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">π</div>
+            <div class="const-label">Pi</div>
+            <div class="const-val">3.141592653...</div>
+            <div class="const-use">Sell tax: 3.14%</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">52</div>
+            <div class="const-label">The Epoch</div>
+            <div class="const-val">52 Participants</div>
+            <div class="const-use">Collision game size</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">52M</div>
+            <div class="const-label">Entry Gate</div>
+            <div class="const-val">52,000,000 tokens</div>
+            <div class="const-use">Hold + buy to qualify</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">520M</div>
+            <div class="const-label">Great Drain</div>
+            <div class="const-val">520,000,000 tokens</div>
+            <div class="const-use">Auto-burn threshold</div>
+          </div>
+          <div class="const-cell">
+            <div class="const-sym">52!</div>
+            <div class="const-label">Supply</div>
+            <div class="const-val">80,658,175,170</div>
+            <div class="const-use">First 11 digits of 52!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHASE INDICATOR -->
+<section id="phases" class="section section--alt">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">Lifecycle Protocol</p>
+      <h2 class="section-title">The Three Phases of Life.<br><em>From Launch to Eternity.</em></h2>
+      <div class="rule"></div>
+      <p class="section-lead">Zone A and B exist only for the first 17 minutes. After block 10,400, Hardening begins. At block 52,000,000, the protocol enters Scarcity forever.</p>
+    </div>
+
+    <div class="phase-indicator reveal">
+      <div class="phase-header">
+        <div class="phase-current">Current Phase: <span>Phase 1 — Hardening</span></div>
+        <div class="phase-blocks">Block 18,245,000 / 52,000,000</div>
+      </div>
+      <div class="phase-progress">
+        <div class="phase-progress-bar"></div>
+      </div>
+      <div class="phase-markers">
+        <div class="phase-marker active">Zone A<br>Block 0</div>
+        <div class="phase-marker">Zone B<br>Block 5,200</div>
+        <div class="phase-marker">Hardening<br>Block 10,400</div>
+        <div class="phase-marker">Scarcity<br>Block 52M</div>
+      </div>
+    </div>
+
+    <div class="arch-grid reveal">
+      <div class="arch-card">
+        <div class="arch-icon">ZA</div>
+        <div class="arch-name">Zone A — Sniper Harvest</div>
+        <div class="arch-role">Blocks 0–5,199 (~8.6 min)</div>
+        <p class="arch-desc">95% flat tax. Any bot pays 95% to enter. All tax goes to the Dampener Vault to build the liquidity floor. Minimum buy: 1,000 QF to prevent dust spam.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Tax Rate<span>95% Fixed</span></div>
+          <div class="flow-item">Destination<span>100% Dampener</span></div>
+          <div class="flow-item">Purpose<span>Build Liquidity Floor</span></div>
+        </div>
+        <div class="arch-constant">Economic Infeasibility for Snipers</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">ZB</div>
+        <div class="arch-name">Zone B — Community Countdown</div>
+        <div class="arch-role">Blocks 5,200–10,399 (~8.6 min)</div>
+        <p class="arch-desc">Linear decay from 52% to 3%. Natural price discovery as the community enters. Tax still 100% to Dampener. Prize pot and team receive zero.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Tax Rate<span>52% → 3%</span></div>
+          <div class="flow-item">Curve<span>Linear Decay</span></div>
+          <div class="flow-item">Minimum Buy<span>1 (reverted)</span></div>
+        </div>
+        <div class="arch-constant">Decaying Barrier to Entry</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">SW</div>
+        <div class="arch-name">The Sovereign Switch</div>
+        <div class="arch-role">Automated Governance</div>
+        <p class="arch-desc">Hard-coded lifecycle transition. No admin keys. No manual intervention. The protocol self-governs its evolution from hardening to scarcity at block 52M.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Hardening<span>Block 10,400</span></div>
+          <div class="flow-item">Scarcity<span>Block 52,000,000</span></div>
+          <div class="flow-item">Result<span>Immutable Transition</span></div>
+        </div>
+        <div class="arch-constant">Transition: Automatic & Irreversible</div>
+      </div>
+    </div>
+
+    <div class="arch-grid reveal" style="margin-top: 2rem;">
+      <div class="arch-card">
+        <div class="arch-icon">H1</div>
+        <div class="arch-name">Era of Hardening</div>
+        <div class="arch-role">Blocks 10,400–51,999,999 (~60 days)</div>
+        <p class="arch-desc">The team gets nothing. Their 0.75% is redirected to the Dampener, giving it 1.25% per transaction — 2.5× stronger. The Great Drain pairs 25% with QF to create permanent liquidity.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Buy Tax (e)<span>2.72% → 1.25% / 1.47%</span></div>
+          <div class="flow-item">Sell Tax (π)<span>3.14% → 1.25% / 1.89%</span></div>
+          <div class="flow-item">Team Cut<span>0% (Redirected)</span></div>
+          <div class="flow-item">Great Drain<span>25% Burn + 25% LP</span></div>
+        </div>
+        <div class="arch-constant">Goal: Build the Bank</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">S2</div>
+        <div class="arch-name">Era of Scarcity</div>
+        <div class="arch-role">Block 52,000,000+ (Forever)</div>
+        <p class="arch-desc">The team's 0.75% resumes. The Dampener reverts to 0.50%. The Great Drain becomes the Double Burn — 50% burn, no LP pairing. Maximum deflationary pressure.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Buy Tax (e)<span>2.72% → 0.50% / 1.47% / 0.75%</span></div>
+          <div class="flow-item">Sell Tax (π)<span>3.14% → 0.50% / 1.89% / 0.75%</span></div>
+          <div class="flow-item">Team Cut<span>0.75% Restored</span></div>
+          <div class="flow-item">Great Drain<span>50% Double Burn</span></div>
+        </div>
+        <div class="arch-constant">Goal: Burn the Supply</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">System Design</p>
+      <h2 class="section-title">Modular Topology.<br><em>Three Contracts. One Truth.</em></h2>
+      <div class="rule"></div>
+      <p class="section-lead">Separation of concerns ensures security integrity. The Token, The Dampener, and The Sequencer form a deterministic liquidity engine governed by mathematical constants.</p>
+    </div>
+
+    <div class="arch-grid reveal">
+      <div class="arch-card">
+        <div class="arch-icon">T</div>
+        <div class="arch-name">Token52F.rs</div>
+        <div class="arch-role">The Ledger / Core Engine</div>
+        <p class="arch-desc">Core token contract implementing PSP22. Routes every transaction through tax logic derived from e and π. Maintains the Great Drain threshold and phase-aware distribution.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Supply<span>80.6B 52F</span></div>
+          <div class="flow-item">Buy Tax<span>e = 2.72%</span></div>
+          <div class="flow-item">Sell Tax<span>π = 3.14%</span></div>
+        </div>
+        <div class="arch-constant">Euler & Pi to 18 Decimal Places</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">D</div>
+        <div class="arch-name">Dampener.rs</div>
+        <div class="arch-role">The Liquidity Vault</div>
+        <p class="arch-desc">Holds QF and defends the price floor. Monitors L/MC ratio via 36,000-block TWAP. Injects 5% of vault when ratio drops below 15%. Protects the 10,400 QF seed loan with time-locked recovery.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Target Ratio<span>≥15% L/MC</span></div>
+          <div class="flow-item">Emergency<span>&lt;7.5% = Crisis Mode</span></div>
+          <div class="flow-item">Injection<span>5% Max Per Call</span></div>
+        </div>
+        <div class="arch-constant">Seed Loan: 10,400 QF (Protected)</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">S</div>
+        <div class="arch-name">Sequencer.rs</div>
+        <div class="arch-role">The Collision Engine</div>
+        <p class="arch-desc">Manages the 52-participant collision game. Maps addresses to 1,000 buckets via hash. Distributes prizes via Fibonacci split (34/13/5). Enforces must-still-hold gate before payout.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Epoch Size<span>52 Qualifying Buys</span></div>
+          <div class="flow-item">Buckets<span>0–999 (Mod 1000)</span></div>
+          <div class="flow-item">Collision Probability<span>~73%</span></div>
+        </div>
+        <div class="arch-constant">First Collision Wins</div>
+      </div>
+    </div>
+
+    <div class="arch-card dampener reveal">
+      <div class="arch-icon">GD</div>
+      <div class="arch-name">The Great Drain — The Big Burn</div>
+      <div class="arch-role">Deflationary Engine</div>
+      <p class="arch-desc">Fires automatically when prize pot accumulates 520,000,000 tokens worth of QF. No manual trigger. Checks on every transaction. Hardening: 25% burn + 25% LP pairing. Scarcity: 50% Double Burn.</p>
+      <div class="arch-flow">
+        <div class="flow-item">Threshold<span>520M Tokens</span></div>
+        <div class="flow-item">Seized<span>50% of Prize Pot</span></div>
+        <div class="flow-item">Hardening<span>25% Burn + 25% LP</span></div>
+        <div class="flow-item">Scarcity<span>50% Double Burn</span></div>
+      </div>
+      <div class="arch-constant">Repeats Indefinitely as Pot Refills</div>
+    </div>
+  </div>
+</section>
+
+<!-- MECHANICS -->
+<section id="mechanics" class="section section--alt">
+  <div class="container">
+    <div class="sect-grid sect-grid--mechanics reveal">
+      <div class="mech-text">
+        <p class="section-kicker">The Collision Engine</p>
+        <h2 class="section-title">Probability.<br><em>Not Luck.</em></h2>
+        <div class="rule"></div>
+        
+        <h3>Qualifying To Enter</h3>
+        <p>Not every buy earns a collision slot. Two gates must pass on the same transaction: you must hold ≥52,000,000 tokens after your buy is credited, and your buy must be ≥52,000,000 tokens in a single transaction.</p>
+        
+        <h3>The Epoch (52 Participants)</h3>
+        <p>An epoch fills when 52 qualifying buyers register. Each wallet is mapped to a bucket number (0–999) by hashing the first 8 bytes of the address and taking modulo 1000. The first bucket where two or more addresses collide is the winner.</p>
+
+        <h3>The Must-Still-Hold Gate</h3>
+        <p>Before prizes transfer, each winner is checked again. If a winner sold tokens between entering and the flush, they fail. Their share rolls into the rollover pot, rewarding those who held. Selling before payout actively rewards everyone who didn't.</p>
+
+        <div class="epoch-visual">
+          <div class="epoch-pulse"></div>
+          <div class="epoch-label">Collision Probability</div>
+          <div class="epoch-desc">52 participants across 1,000 buckets = ~73% chance of collision per epoch.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="tax-pair">
+          <div class="tax-card">
+            <div class="tax-name">Euler's Number — Buy Tax</div>
+            <div class="tax-rate">2.72<span>%</span></div>
+            <div class="tax-rows">
+              <div class="tax-row"><span>Hardening</span><span class="pct">1.25% D / 1.47% P</span></div>
+              <div class="tax-row"><span>Scarcity</span><span class="pct">0.50% D / 1.47% P / 0.75% T</span></div>
+            </div>
+          </div>
+          <div class="tax-card">
+            <div class="tax-name">Pi — Sell Tax</div>
+            <div class="tax-rate">3.14<span>%</span></div>
+            <div class="tax-rows">
+              <div class="tax-row"><span>Hardening</span><span class="pct">1.25% D / 1.89% P</span></div>
+              <div class="tax-row"><span>Scarcity</span><span class="pct">0.50% D / 1.89% P / 0.75% T</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fib-split">
+          <div class="fib-header">
+            <div class="fib-equation">5 + 13 + 34 = 52</div>
+            <div class="fib-sub">FIBONACCI DISTRIBUTION</div>
+          </div>
+          <div class="fib-bars">
+            <div class="fib-bar fib-bar-34">34</div>
+            <div class="fib-bar fib-bar-13">13</div>
+            <div class="fib-bar fib-bar-5">5</div>
+          </div>
+          <div class="fib-legend">
+            <div class="fib-legend-item"><div class="fib-dot fib-dot-34"></div><span>34/52 (65.38%) Winners split equally</span></div>
+            <div class="fib-legend-item"><div class="fib-dot fib-dot-13"></div><span>13/52 (25%) Stays in pot → Great Drain</span></div>
+            <div class="fib-legend-item"><div class="fib-dot fib-dot-5"></div><span>5/52 (9.62%) To Dampener</span></div>
+          </div>
+        </div>
+
+        <div class="fortress-callout" style="margin-top: 2rem;">
+          <div class="fortress-header">
+            <div class="fortress-icon">⚡</div>
+            <div class="fortress-title">The Launch Fortress</div>
+          </div>
+          <p class="fortress-body">Zone A imposes 95% tax for 5,200 blocks. Snipers become involuntary contributors to the community vault. Economic infeasibility, not blacklists.</p>
+          <div class="fortress-math">
+            Zone A (0–5,199): 95% Tax → 100% Dampener<br>
+            Zone B (5,200–10,399): 52% → 3% Linear Decay<br>
+            Result: Dust spam blocked (1,000 QF min in Zone A)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MATHS & CONSTANTS -->
+<section id="maths" class="section">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-kicker">Clinical Architecture</p>
+      <h2 class="section-title">Every Parameter.<br><em>Mathematically Derived.</em></h2>
+      <div class="rule"></div>
+    </div>
+
+    <div class="tax-table-container reveal">
+      <table class="tax-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Blocks</th>
+            <th>Direction</th>
+            <th>Total Tax</th>
+            <th>Dampener</th>
+            <th>Prize Pot</th>
+            <th>Team</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="phase-name">Zone A</td>
+            <td>0–5,199</td>
+            <td>Buy & Sell</td>
+            <td>95%</td>
+            <td>95%</td>
+            <td>0%</td>
+            <td>0%</td>
+          </tr>
+          <tr>
+            <td class="phase-name">Zone B</td>
+            <td>5,200–10,399</td>
+            <td>Buy & Sell</td>
+            <td>52%→3%</td>
+            <td>100% of tax</td>
+            <td>0%</td>
+            <td>0%</td>
+          </tr>
+          <tr>
+            <td class="phase-name">Hardening</td>
+            <td>10,400–51,999,999</td>
+            <td>Buy (e)</td>
+            <td>2.72%</td>
+            <td>1.25%</td>
+            <td>1.47%</td>
+            <td>0%*</td>
+          </tr>
+          <tr>
+            <td class="phase-name">Hardening</td>
+            <td>10,400–51,999,999</td>
+            <td>Sell (π)</td>
+            <td>3.14%</td>
+            <td>1.25%</td>
+            <td>1.89%</td>
+            <td>0%*</td>
+          </tr>
+          <tr>
+            <td class="phase-name">Scarcity</td>
+            <td>52,000,000+</td>
+            <td>Buy (e)</td>
+            <td>2.72%</td>
+            <td>0.50%</td>
+            <td>1.47%</td>
+            <td>0.75%</td>
+          </tr>
+          <tr>
+            <td class="phase-name">Scarcity</td>
+            <td>52,000,000+</td>
+            <td>Sell (π)</td>
+            <td>3.14%</td>
+            <td>0.50%</td>
+            <td>1.89%</td>
+            <td>0.75%</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); padding: 1rem; border-top: 1px solid var(--border-dim);">* Team's 0.75% redirected to Dampener during Hardening, making it 1.25% total</p>
+    </div>
+
+    <div class="health-gate reveal">
+      <div class="gauge-container">
+        <div class="gauge-bg"></div>
+        <div class="gauge-center"></div>
+        <div class="gauge-value">15%</div>
+      </div>
+      <div class="gauge-label">Liquidity-to-Market-Cap Health Gate</div>
+      <p style="text-align: center; font-size: 0.9rem; color: var(--muted); margin-top: 1rem; max-width: 500px; margin-left: auto; margin-right: auto;">The Dampener monitors via 36,000-block TWAP. If L/MC falls below 15%, it executes 5% injection. Emergency mode below 7.5% with 3,600-block cooldown.</p>
+    </div>
+
+    <div class="recovery-zones reveal">
+      <div class="zone-card zone-red">
+        <div class="zone-name">RED ZONE</div>
+        <div class="zone-blocks">Blocks 0–77,759,999</div>
+        <div class="zone-days">Days 0–90</div>
+        <div class="zone-condition">No recovery permitted. Seed loan locked.</div>
+      </div>
+      <div class="zone-card zone-yellow">
+        <div class="zone-name">YELLOW ZONE</div>
+        <div class="zone-blocks">Blocks 77,760,000–155,519,999</div>
+        <div class="zone-days">Days 91–180</div>
+        <div class="zone-condition">Recovery only if pool ratio ≥15%</div>
+      </div>
+      <div class="zone-card zone-green">
+        <div class="zone-name">GREEN ZONE</div>
+        <div class="zone-blocks">Blocks 155,520,000+</div>
+        <div class="zone-days">Days 181+</div>
+        <div class="zone-condition">Unconditional recovery permitted</div>
+      </div>
+    </div>
+
+    <div class="maths-grid reveal">
+      <div class="math-card">
+        <div class="math-sym">e</div>
+        <div class="math-name">Buy Tax</div>
+        <div class="math-val">2.72%</div>
+        <p>Euler's number to 3 significant figures</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">π</div>
+        <div class="math-name">Sell Tax</div>
+        <div class="math-val">3.14%</div>
+        <p>Pi to 3 significant figures</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">52</div>
+        <div class="math-name">Epoch Size</div>
+        <div class="math-val">Participants</div>
+        <p>Collision game threshold</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">52M</div>
+        <div class="math-name">Hold Gate</div>
+        <div class="math-val">52,000,000</div>
+        <p>Tokens required to qualify</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">520M</div>
+        <div class="math-name">Drain Threshold</div>
+        <div class="math-val">520,000,000</div>
+        <p>Auto-burn trigger amount</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">52!</div>
+        <div class="math-name">Total Supply</div>
+        <div class="math-val">80,658,175,170</div>
+        <p>First 11 digits of 52 factorial</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">34</div>
+        <div class="math-name">Winners Share</div>
+        <div class="math-val">65.38%</div>
+        <p>Split equally on collision</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">13</div>
+        <div class="math-name">Pot Reserve</div>
+        <div class="math-val">25.00%</div>
+        <p>Never leaves → Great Drain</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">5</div>
+        <div class="math-name">Liquidity Cut</div>
+        <div class="math-val">9.62%</div>
+        <p>To Dampener each epoch</p>
+      </div>
+      <div class="math-card">
+        <div class="math-sym">10.4K</div>
+        <div class="math-name">Seed Loan</div>
+        <div class="math-val">10,400 QF</div>
+        <p>Protected founder capital</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section id="build" class="section section--alt">
+  <div class="container">
+    <div class="sect-grid sect-grid--build reveal">
+      <div>
+        <p class="section-kicker">Build Progress</p>
+        <h2 class="section-title">Three Contracts.<br><em>Sovereign System.</em></h2>
+        <div class="rule"></div>
+        <p style="font-size:1rem;line-height:1.9;color:var(--muted);">Mathematical architecture finalized. Security audited. Ready for QF Network deployment. Every parameter hardcoded. No admin keys.</p>
+      </div>
+      
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 1</div>
+          <div class="tl-name">Token52F.rs</div>
+          <div class="tl-desc">The Ledger. Core PSP22 token, e/π tax engine, Great Drain routing, phase-aware logic.</div>
+          <span class="tl-badge tl-done">✓ Complete · 20 tests</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 2</div>
+          <div class="tl-name">Dampener.rs</div>
+          <div class="tl-desc">The Vault. 15% health gate, 36K block TWAP, 5% injection, seed loan recovery zones.</div>
+          <span class="tl-badge tl-done">✓ Complete · 13 tests</span>
+        </div>
+        <div class="tl-item done">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Contract 3</div>
+          <div class="tl-name">Sequencer.rs</div>
+          <div class="tl-desc">The Engine. 52-participant epochs, 1000-bucket collision, Fibonacci split (34/13/5), must-still-hold gate.</div>
+          <span class="tl-badge tl-done">✓ Complete · 8 tests</span>
+        </div>
+        <div class="tl-item now">
+          <div class="tl-dot"></div>
+          <div class="tl-phase">Integration</div>
+          <div class="tl-name">QF Network Mainnet</div>
+          <div class="tl-desc">Cross-contract wiring, 0.1s finality optimization, mainnet deployment sequence.</div>
+          <span class="tl-badge tl-now">⟳ In Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">Project 52F</div>
+        <p class="footer-brand-desc">A deterministic token where every parameter is a mathematical constant. No arbitrary decisions. No admin intervention. Built for the QF Network community.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#mechanics">Mechanics</a></li>
+          <li><a href="#phases">Phases</a></li>
+          <li><a href="#maths">Constants</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0">Telegram</a></li>
+          <li><a href="https://twitter.com/project52f">Twitter</a></li>
+          <li><a href="https://github.com/Project52F">GitHub</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="https://qfnetwork.xyz" target="_blank" rel="noopener">QF Network ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">52F · QF Network · ink! v6 · Specification v2.0 — Mathematical Constants · February 2026</div>
+      <div class="footer-disclaimer">Proof of concept. Not financial advice. Crypto assets carry significant risk. Project 52F is a deterministic experiment with no guarantees of return. See Terms & Conditions.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Fibonacci Canvas
+(function(){
+  const c=document.getElementById('hero-canvas'),ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#c9a84c';ctx.lineWidth=0.6;
+    const cx=c.width*0.72,cy=c.height*0.5;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    for(let i=0;i<900;i++){const a=i*0.08,r=6*Math.pow(1.618,a/(Math.PI*2));ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));if(r>Math.max(c.width,c.height))break;}
+    ctx.stroke();
+    ctx.lineWidth=0.3;
+    const fibs=[1,1,2,3,5,8,13,21,34,55,89,144];let sx=c.width*0.08,sy=c.height*0.88,u=6,dir=0;
+    for(let i=2;i<fibs.length;i++){const sz=fibs[i]*u;ctx.strokeRect(sx,sy-sz,sz,sz);if(dir===0){sx+=sz;sy-=fibs[i-1]*u;}else if(dir===1){sx-=fibs[i-1]*u;sy-=sz;}else if(dir===2){sx-=sz;sy+=fibs[i-1]*u;}else{sx+=fibs[i-1]*u;sy+=sz;}dir=(dir+1)%4;if(sx<-300||sx>c.width+300)break;}
+  }
+  window.addEventListener('resize',resize);resize();
+})();
+
+// Scroll Reveal
+(function(){
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}}),{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+// Mobile Nav
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+document.querySelectorAll('#mobile-nav a').forEach(a=>{
+  a.addEventListener('click',()=>document.getElementById('mobile-nav').classList.remove('open'));
+});
+
+// Phase Progress Animation
+(function(){
+  const progressBar = document.querySelector('.phase-progress-bar');
+  if(progressBar){
+    setTimeout(()=>{
+      progressBar.style.width = '35%';
+    }, 1000);
+  }
+})();
+</script>
+
+</body>
+</html>
   font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 4.5vw, 4.6rem);
   font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: var(--paper);
   margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
