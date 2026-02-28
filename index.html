@@ -232,6 +232,413 @@ nav {
 /* ── MECHANICS ── */
 .sect-grid { display: grid; gap: 4rem; align-items: start; }
 .sect-grid--mechanics { grid-template-columns: 1fr 1fr; }
+.mech-text p { font-size: 1.02rem; line-height: 1.9; color: var(--body-text); margin-bottom: 1.2rem; }
+
+/* ── EPOCH SYSTEM ── */
+.epoch-visual {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+.epoch-pulse {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+  position: relative;
+}
+.epoch-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  animation: pulse 2s ease-out infinite;
+}
+.epoch-pulse::after {
+  content: '52';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.epoch-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.5rem;
+}
+.epoch-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ── LAUNCH FORTRESS ── */
+.fortress-callout {
+  background: linear-gradient(135deg, var(--ink-card) 0%, var(--ink-light) 100%);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.fortress-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.fortress-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--gold-ghost);
+  border: 1px solid var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+.fortress-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  color: var(--paper);
+}
+.fortress-body {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.fortress-math {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--gold);
+  padding: 1rem;
+  background: var(--ink);
+  border: 1px solid var(--border-dim);
+}
+
+/* ── SOLVENCY PROOF ── */
+.solvency-card {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+.solvency-equation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.solvency-proof {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--teal-light);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+.solvency-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1;
+}
+.solvency-value span {
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 1.5rem; max-width: 700px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0; width: 1px; background: var(--border); }
+.tl-item { position: relative; padding: 0 0 2.5rem 2rem; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -0.42rem; top: 0.45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--gold-dim); }
+.tl-item.done .tl-dot { background: var(--gold); border-color: var(--gold); }
+.tl-item.now .tl-dot { background: var(--teal); border-color: var(--teal-light); box-shadow: 0 0 12px rgba(14,155,142,0.5); }
+.tl-phase { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.tl-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.tl-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+.tl-badge { display: inline-block; margin-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.57rem; letter-spacing: 0.1em; padding: 0.15rem 0.5rem; border-radius: 2px; }
+.tl-done { background: var(--gold-ghost); color: var(--gold); }
+.tl-now { background: var(--teal-ghost); color: var(--teal-light); }
+
+/* ── MATHS ── */
+.maths-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+.math-card { background: var(--ink-card); padding: 1.8rem 1.4rem; text-align: center; }
+.math-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--gold); line-height: 1; margin-bottom: 0.5rem; }
+.math-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.math-val { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--paper); margin-bottom: 1rem; }
+.math-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+/* ── HEALTH GATE ── */
+.health-gate {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.gauge-container {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+}
+.gauge-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px 100px 0 0;
+  background: conic-gradient(from 180deg at 50% 100%, var(--gold) 0deg, var(--teal-light) 54deg, var(--ink-light) 54deg, var(--ink-light) 180deg);
+}
+.gauge-center {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 80px;
+  background: var(--ink);
+  border-radius: 80px 80px 0 0;
+}
+.gauge-value {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.gauge-label {
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--teal-light);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ── */
+footer { background: #07101a; border-top: 1px solid var(--border-dim); padding: 4rem 0 2rem; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand-name { font-family: 'DM Mono', monospace; font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem; }
+.footer-brand-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; font-style: italic; max-width: 280px; }
+.footer-col h4 { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 1rem; font-weight: 400; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 0.5rem; }
+.footer-col a { font-size: 0.9rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom { padding-top: 2rem; border-top: 1px solid var(--border-dim); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.footer-legal { font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; color: var(--muted); opacity: 0.55; }
+.footer-disclaimer { font-family: 'DM Mono', monospace; font-size: 0.56rem; color: var(--muted); opacity: 0.45; max-width: 480px; text-align: right; line-height: 1.7; }
+
+/* ── ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+@keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--ink);} ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-inner,.sect-grid--mechanics{grid-template-columns:1fr;gap:3rem;}
+  .arch-grid{grid-template-columns:1fr;}
+  .maths-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;} 
+  .nav-hamburger{display:flex;}
+}
+@media(max-width:600px){
+  html{font-size:16px;}
+  .container,.container--narrow{padding:0 1.2rem;}
+  .section{padding:4rem 0;}
+  .hero-inner{padding:2.5rem 0;}
+  .const-grid{grid-template-columns:1fr 1fr;}
+  .const-cell{padding:1.1rem 1rem;}
+  .const-sym{font-size:2rem;}
+  .maths-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .footer-bottom{flex-direction:column;}
+  .footer-disclaimer{text-align:left;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="hero-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero">Project 52F</a>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#phases">Phases</a></li>
+    <li><a href="#maths">Constants</a></li>
+    <li><a href="#build">Build</a></li>
+    <li><a href="https://raw.githubusercontent.com/Vector52F/project52f.github.io/main/52F_whitepaper_v3.pdf" target="_blank">Whitepaper</a></li>
+    <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0" class="nav-cta">Telegram →</a></li>
+  </ul>
+  <div class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#architecture" onclick="toggleMenu()">Architecture</a>
+  <a href="#mechanics" onclick="toggleMenu()">Mechanics</a>
+  <a href="#phases" onclick="toggleMenu()">Phases</a>
+  <a href="  font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 4.5vw, 4.6rem);
+  font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: var(--paper);
+  margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
+}
+.hero-title strong { font-weight: 700; color: var(--gold); display: block; font-style: italic; }
+.hero-subtitle {
+  font-size: 1.05rem; font-style: italic; color: var(--gold-warm); margin-bottom: 2rem;
+  font-weight: 300; opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.hero-body {
+  font-size: 1.02rem; line-height: 1.9; color: var(--muted); max-width: 500px;
+  margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+}
+.constants-panel { opacity: 0; animation: fadeIn 1s ease 1s forwards; }
+.const-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+}
+.const-cell { background: var(--ink-card); padding: 1.6rem 1.4rem; transition: background 0.2s; }
+.const-cell:hover { background: var(--ink-light); }
+.const-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+.const-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.const-val { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--muted); margin-bottom: 0.3rem; }
+.const-use { font-size: 0.92rem; font-style: italic; color: var(--body-text); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; text-decoration: none; padding: 0.8rem 1.8rem;
+  border: none; cursor: pointer; transition: all 0.2s; border-radius: 1px;
+}
+.btn-gold { background: var(--gold); color: var(--ink); font-weight: 500; }
+.btn-gold:hover { background: var(--gold-warm); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
+.btn-ghost:hover { border-color: var(--gold); background: var(--gold-ghost); }
+
+/* ── SECTIONS ── */
+.section { padding: 7rem 0; position: relative; }
+.section--alt { background: var(--ink-mid); }
+.section-kicker { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 1rem; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 300; line-height: 1.15; color: var(--paper); margin-bottom: 1.4rem; }
+.section-title em { font-style: italic; color: var(--gold); }
+.section-title strong { font-weight: 700; }
+.section-lead { font-size: 1.05rem; line-height: 1.9; color: var(--muted); max-width: 640px; margin-bottom: 3rem; }
+.rule { width: 48px; height: 1px; background: var(--gold); opacity: 0.5; margin: 1.4rem 0; }
+
+/* ── PHASE TOGGLE ── */
+.phase-indicator {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.phase-current {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+}
+.phase-current span {
+  color: var(--gold);
+  font-weight: 600;
+}
+.phase-blocks {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.phase-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--ink-light);
+  margin-bottom: 1rem;
+  position: relative;
+}
+.phase-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--teal-light) 100%);
+  width: 35%;
+  transition: width 0.3s ease;
+}
+.phase-markers {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.phase-marker {
+  text-align: center;
+}
+.phase-marker.active {
+  color: var(--gold);
+}
+
+/* ── ARCHITECTURE ── */
+.arch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border); margin-top: 3rem;
+}
+.arch-card { background: var(--ink-card); padding: 2.2rem 1.8rem; position: relative; }
+.arch-card.dampener { max-width: 400px; margin-left: auto; margin-right: auto; margin-top: 2rem; }
+.arch-icon {
+  font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--gold);
+  margin-bottom: 1rem; width: 40px; height: 40px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.arch-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--paper); margin-bottom: 0.3rem; }
+.arch-role { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.arch-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+.arch-flow { border-top: 1px solid var(--border-dim); padding-top: 1rem; }
+.flow-item { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border-dim); color: var(--muted); }
+.flow-item span { color: var(--gold-warm); }
+.arch-constant { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); letter-spacing: 0.05em; }
+
+/* ── MECHANICS ── */
+.sect-grid { display: grid; gap: 4rem; align-items: start; }
+.sect-grid--mechanics { grid-template-columns: 1fr 1fr; }
 .tax-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.8rem; }
 .tax-card { background: var(--ink-card); padding: 1.8rem 1.5rem; }
 .tax-rate { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; }
