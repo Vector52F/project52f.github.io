@@ -1,0 +1,17 @@
+{
+  "name": "project52f-bot",
+  "version": "1.0.0",
+  "description": "Project 52F Protocol Event Bot — Telegram announcer for QF Network contract events",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev":   "BOT_TOKEN=${BOT_TOKEN} CHANNEL_ID=${CHANNEL_ID} node bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "@polkadot/api": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
