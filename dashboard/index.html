@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 52F — Protocol Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #080a0e;
+    --surface:   #0d1117;
+    --border:    #1e2530;
+    --gold:      #d4a843;
+    --gold-dim:  #8a6a20;
+    --gold-glow: rgba(212,168,67,0.15);
+    --green:     #3ddc84;
+    --red:       #ff5a5f;
+    --blue:      #4fa3e0;
+    --text:      #c9d1d9;
+    --muted:     #505a68;
+    --mono:      'Space Mono', monospace;
+    --sans:      'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID NOISE BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(212,168,67,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,168,67,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,10,14,0.9);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: -1px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .live-dot.mock { background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .mode-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .mode-btn {
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: var(--gold);
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    gap: 20px;
+  }
+
+  /* Top row: phase banner full width */
+  /* Middle row: epoch | prize pot */
+  /* Bottom row: dampener full width */
+
+  .phase-banner {
+    grid-column: 1 / -1;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    header { padding: 16px; }
+    main { padding: 16px; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.4;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  .badge-hardening { background: rgba(212,168,67,0.15); color: var(--gold); border: 1px solid var(--gold-dim); }
+  .badge-scarcity  { background: rgba(255,90,95,0.15);  color: var(--red);  border: 1px solid #7a2020; }
+  .badge-live      { background: rgba(61,220,132,0.15); color: var(--green); border: 1px solid #1a6a3a; }
+
+  /* ── PHASE BANNER ── */
+  .phase-banner .card {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+    padding: 20px 32px;
+  }
+
+  .phase-info { }
+
+  .phase-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .phase-name {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .phase-countdown {
+    text-align: right;
+  }
+
+  .countdown-val {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+
+  .countdown-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .phase-progress-wrap {
+    flex: 1;
+  }
+
+  .phase-bar-container {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .phase-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  .phase-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── EPOCH TRACKER ── */
+  .epoch-number {
+    font-family: var(--mono);
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -4px;
+    margin-bottom: 4px;
+  }
+
+  .epoch-denom {
+    font-family: var(--mono);
+    font-size: 24px;
+    color: var(--muted);
+  }
+
+  .epoch-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .epoch-bar-wrap {
+    margin-bottom: 20px;
+  }
+
+  .epoch-slots {
+    display: grid;
+    grid-template-columns: repeat(52, 1fr);
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+
+  .epoch-slot {
+    height: 10px;
+    border-radius: 1px;
+    background: var(--border);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .epoch-slot.filled {
+    background: var(--gold);
+  }
+
+  .epoch-slot.filled.collision {
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: slot-flash 0.6s ease;
+  }
+
+  @keyframes slot-flash {
+    0% { transform: scaleY(2); }
+    100% { transform: scaleY(1); }
+  }
+
+  .epoch-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-val.green { color: var(--green); }
+  .stat-val.gold  { color: var(--gold);  }
+  .stat-val.red   { color: var(--red);   }
+
+  /* Collision event feed */
+  .collision-feed {
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .feed-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .feed-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    animation: feed-in 0.4s ease;
+  }
+
+  @keyframes feed-in {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .feed-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .feed-icon.collision { background: rgba(61,220,132,0.15); color: var(--green); }
+  .feed-icon.rollover  { background: rgba(212,168,67,0.10); color: var(--gold); }
+  .feed-icon.drain     { background: rgba(255,90,95,0.15);  color: var(--red); }
+
+  .feed-text { color: var(--text); flex: 1; }
+  .feed-time { color: var(--muted); font-size: 10px; }
+
+  /* ── PRIZE POT ── */
+  .pot-amount {
+    font-family: var(--mono);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pot-unit {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* Drain threshold progress */
+  .drain-section {
+    margin-bottom: 20px;
+  }
+
+  .drain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .drain-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .drain-pct {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  .drain-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: visible;
+    position: relative;
+    margin-bottom: 6px;
+  }
+
+  .drain-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 4px;
+    transition: width 1s ease;
+    position: relative;
+  }
+
+  .drain-bar-fill::after {
+    content: '⚡';
+    position: absolute;
+    right: -8px;
+    top: -4px;
+    font-size: 14px;
+    filter: drop-shadow(0 0 6px var(--gold));
+  }
+
+  .drain-threshold-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* Great Drain history */
+  .drain-history {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .drain-stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .drain-stat-val {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--red);
+    display: block;
+  }
+
+  .drain-stat-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* Fibonacci retention indicator */
+  .fibonacci-split {
+    margin-top: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .fib-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .fib-bars {
+    display: flex;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    gap: 2px;
+  }
+
+  .fib-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .fib-retain { background: var(--gold-dim); color: #000; flex: 13; }
+  .fib-send   { background: var(--gold);     color: #000; flex: 39; }
+
+  .fib-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ── DAMPENER ── */
+  .dampener-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .dampener-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .health-gauge {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .gauge-val {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .gauge-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .gauge-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .gauge-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease, background 0.5s;
+  }
+
+  /* Health status threshold line */
+  .health-status-bar {
+    margin: 16px 0;
+  }
+
+  .hsb-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .hsb-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .hsb-val   { font-family: var(--mono); font-size: 13px; }
+
+  .hsb-track {
+    width: 100%;
+    height: 12px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hsb-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1s ease, background 0.5s;
+  }
+
+  .hsb-threshold {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: var(--gold);
+    opacity: 0.7;
+  }
+
+  .hsb-threshold::after {
+    content: '15%';
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .emergency-threshold {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: var(--red);
+    opacity: 0.7;
+  }
+
+  /* Injection history */
+  .injection-list {
+    margin-top: 16px;
+  }
+
+  .injection-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .injection-item:last-child { border-bottom: none; }
+
+  .inj-amount { color: var(--green); }
+  .inj-block  { color: var(--muted); font-size: 10px; }
+  .inj-ratio  { color: var(--text); }
+
+  /* Loan repayment zones */
+  .zone-indicator {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .zone-block {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: 1px solid transparent;
+  }
+
+  .zone-block.red     { background: rgba(255,90,95,0.1);   color: var(--red);   border-color: #7a2020; }
+  .zone-block.yellow  { background: rgba(212,168,67,0.1);  color: var(--gold);  border-color: var(--gold-dim); }
+  .zone-block.green   { background: rgba(61,220,132,0.1);  color: var(--green); border-color: #1a6a3a; }
+  .zone-block.active  { border-width: 2px; }
+
+  .zone-sub {
+    font-size: 9px;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+
+  /* ── STATUS CHIPS ── */
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .chip-green { background: rgba(61,220,132,0.15); color: var(--green); }
+  .chip-gold  { background: rgba(212,168,67,0.15); color: var(--gold); }
+  .chip-red   { background: rgba(255,90,95,0.15);  color: var(--red); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  footer span { color: var(--gold); }
+
+  /* ── FLASH ANIMATION ── */
+  .flash {
+    animation: card-flash 1s ease;
+  }
+
+  @keyframes card-flash {
+    0% { border-color: var(--gold); box-shadow: 0 0 30px var(--gold-glow); }
+    100% { border-color: var(--border); box-shadow: none; }
+  }
+
+  /* ── CONSTANTS RIBBON ── */
+  .constants-ribbon {
+    background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 32px;
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 9;
+  }
+
+  .constants-ribbon::-webkit-scrollbar { display: none; }
+
+  .const-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .const-name  { color: var(--muted); }
+  .const-val   { color: var(--gold); font-weight: 700; }
+  .const-sep   { color: var(--border); }
+
+  /* ── LOADING STATE ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--border) 25%, #252d39 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-load 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  @keyframes skeleton-load {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-mark">52F</span>
+    <span class="logo-sub">Protocol Dashboard</span>
+  </div>
+  <div class="header-right">
+    <div class="live-indicator">
+      <div class="live-dot" id="liveDot"></div>
+      <span id="liveLabel">MOCK DATA</span>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnMock" onclick="setMode('mock')">MOCK</button>
+      <button class="mode-btn" id="btnLive" onclick="setMode('live')">LIVE</button>
+    </div>
+  </div>
+</header>
+
+<!-- Constants ribbon -->
+<div class="constants-ribbon">
+  <div class="const-item"><span class="const-name">e BUY TAX</span><span class="const-val">2.72%</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">π SELL TAX</span><span class="const-val">3.14%</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">EPOCH SIZE</span><span class="const-val">52 TXS</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">DRAIN THRESHOLD</span><span class="const-val">520M 52F</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">HEALTH GATE</span><span class="const-val">15% L/MC</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">SUPPLY</span><span class="const-val">80,658,175,170</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">√2×π×e VESTING</span><span class="const-val">12.077%</span></div>
+</div>
+
+<main>
+
+  <!-- PHASE BANNER -->
+  <div class="phase-banner">
+    <div class="card">
+      <div class="phase-info">
+        <div class="phase-label">Current Phase</div>
+        <div class="phase-name" id="phaseName">HARDENING</div>
+        <div style="margin-top:6px">
+          <span class="status-chip chip-gold" id="phaseChip">⚙ SHIELD ACTIVE</span>
+        </div>
+      </div>
+      <div style="flex:1; padding: 0 24px;">
+        <div class="phase-bar-container">
+          <div class="phase-bar-fill" id="phaseBar" style="width:12%"></div>
+        </div>
+        <div class="phase-bar-labels">
+          <span>DEPLOY</span>
+          <span id="phaseBarPct">12% elapsed</span>
+          <span>SCARCITY</span>
+        </div>
+      </div>
+      <div class="phase-countdown" style="text-align:right">
+        <div class="countdown-val" id="countdownVal">23,096,821</div>
+        <div class="countdown-label">BLOCKS REMAINING</div>
+        <div style="margin-top:4px; font-family:var(--mono); font-size:11px; color:var(--muted)" id="countdownDays">≈ 26.7 days</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIDDLE ROW -->
+  <div class="grid-2">
+
+    <!-- EPOCH TRACKER -->
+    <div class="card" id="epochCard">
+      <div class="card-header">
+        <div class="card-title">Epoch Tracker</div>
+        <span class="status-chip chip-green" id="epochStatusChip">● ACTIVE</span>
+      </div>
+
+      <div>
+        <span class="epoch-number" id="epochCounter">34</span><span class="epoch-denom">/52</span>
+      </div>
+      <div class="epoch-label">TRANSACTIONS THIS EPOCH</div>
+
+      <div class="epoch-bar-wrap">
+        <div class="epoch-slots" id="epochSlots"></div>
+      </div>
+
+      <div class="epoch-stats">
+        <div class="stat-box">
+          <div class="stat-label">Epoch ID</div>
+          <div class="stat-val gold" id="epochId">#147</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Collisions All-Time</div>
+          <div class="stat-val green" id="collisionCount">23</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Last Collision</div>
+          <div class="stat-val" id="lastCollision">Epoch #144</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Rollover Pot</div>
+          <div class="stat-val gold" id="rolloverPot">0.52 QF</div>
+        </div>
+      </div>
+
+      <div class="collision-feed">
+        <div class="feed-title">Recent Events</div>
+        <div id="eventFeed"></div>
+      </div>
+    </div>
+
+    <!-- PRIZE POT & GREAT DRAIN -->
+    <div class="card" id="potCard">
+      <div class="card-header">
+        <div class="card-title">Prize Pot & Great Drain</div>
+        <span class="card-badge badge-live" id="drainBadge">ACCUMULATING</span>
+      </div>
+
+      <div class="pot-amount" id="potAmount">247,831,204</div>
+      <div class="pot-unit">52F TOKENS IN PRIZE POT</div>
+
+      <div class="drain-section">
+        <div class="drain-header">
+          <span class="drain-label">Great Drain Progress</span>
+          <span class="drain-pct" id="drainPct">47.7%</span>
+        </div>
+        <div class="drain-bar-container">
+          <div class="drain-bar-fill" id="drainBar" style="width:47.7%"></div>
+        </div>
+        <div class="drain-threshold-label">Threshold: 520,000,000 52F</div>
+      </div>
+
+      <div class="drain-history">
+        <div class="drain-stat">
+          <span class="drain-stat-val" id="drainCount">3</span>
+          <span class="drain-stat-label">Drains Fired</span>
+        </div>
+        <div class="drain-stat">
+          <span class="drain-stat-val" style="color:var(--red)" id="totalBurned">390M</span>
+          <span class="drain-stat-label">52F Burned</span>
+        </div>
+        <div class="drain-stat">
+          <span class="drain-stat-val" style="color:var(--blue)" id="totalPaired">390M</span>
+          <span class="drain-stat-label">POL Created</span>
+        </div>
+      </div>
+
+      <div class="fibonacci-split">
+        <div class="fib-title">Epoch Yield Split (Fibonacci 13/52)</div>
+        <div class="fib-bars">
+          <div class="fib-segment fib-retain">13</div>
+          <div class="fib-segment fib-send">39</div>
+        </div>
+        <div class="fib-labels">
+          <span>13/52 retained → Great Drain fuel</span>
+          <span>39/52 → winners</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px">
+        <div class="stat-box">
+          <div class="stat-label">Last Drain Block</div>
+          <div class="stat-val" id="lastDrainBlock">18,421,300</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Pot Remaining</div>
+          <div class="stat-val gold" id="potRemaining">272M 52F</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end grid-2 -->
+
+  <!-- DAMPENER VAULT HEALTH -->
+  <div class="card" id="dampenerCard">
+    <div class="card-header">
+      <div class="card-title">Dampener Vault — Liquidity Governor</div>
+      <span class="status-chip chip-green" id="dampenerStatusChip">✓ HEALTHY</span>
+    </div>
+
+    <div class="dampener-grid">
+      <div class="health-gauge">
+        <div class="gauge-val" id="lmcRatio" style="color:var(--green)">18.4%</div>
+        <div class="gauge-label">L/MC Ratio</div>
+        <div class="gauge-bar">
+          <div class="gauge-bar-fill" id="lmcBar" style="width:18.4%; background:var(--green)"></div>
+        </div>
+      </div>
+      <div class="health-gauge">
+        <div class="gauge-val gold" id="vaultQF">8,240</div>
+        <div class="gauge-label">Vault QF Balance</div>
+        <div class="gauge-bar">
+          <div class="gauge-bar-fill" id="vaultBar" style="width:79%; background:var(--gold)"></div>
+        </div>
+      </div>
+      <div class="health-gauge">
+        <div class="gauge-val" id="loanRemaining" style="color:var(--blue)">41,200</div>
+        <div class="gauge-label">Loan Remaining (QF)</div>
+        <div class="gauge-bar">
+          <div class="gauge-bar-fill" id="loanBar" style="width:79%; background:var(--blue)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- L/MC Ratio bar with 15% and 7.5% markers -->
+    <div class="health-status-bar">
+      <div class="hsb-header">
+        <span class="hsb-label">Liquidity / Market Cap Ratio</span>
+        <span class="hsb-val" id="lmcRatioFull" style="color:var(--green)">18.4% — HEALTHY</span>
+      </div>
+      <div class="hsb-track">
+        <div class="hsb-fill" id="lmcTrackFill" style="width:36.8%; background:var(--green)"></div>
+        <!-- 15% gate = 30% of bar (max shown is 50%) -->
+        <div class="hsb-threshold" style="left:30%"></div>
+        <!-- 7.5% emergency = 15% of bar -->
+        <div class="emergency-threshold" style="left:15%">
+          <span style="position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-family:var(--mono); font-size:9px; color:var(--red); white-space:nowrap">7.5%</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:4px">
+
+      <!-- Injection history -->
+      <div>
+        <div class="feed-title" style="margin-bottom:10px">Recent Injections</div>
+        <div class="injection-list" id="injectionList"></div>
+      </div>
+
+      <!-- Founder loan zones -->
+      <div>
+        <div class="feed-title" style="margin-bottom:10px">Seed Loan Recovery Zones</div>
+        <div class="zone-indicator" id="zoneIndicator">
+          <div class="zone-block red active" id="zoneRed">
+            RED
+            <div class="zone-sub">0–90 days</div>
+          </div>
+          <div class="zone-block yellow" id="zoneYellow">
+            YELLOW
+            <div class="zone-sub">91–180 days</div>
+          </div>
+          <div class="zone-block green" id="zoneGreen">
+            GREEN
+            <div class="zone-sub">181+ days</div>
+          </div>
+        </div>
+        <div style="margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px">
+          <div class="stat-box">
+            <div class="stat-label">Total Repaid</div>
+            <div class="stat-val" id="totalRepaid">0 QF</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Lifetime Injected</div>
+            <div class="stat-val green" id="lifetimeInjected">1,840 QF</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Last Injection</div>
+            <div class="stat-val" id="lastInjectionBlock">Block 14,832,100</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Cooldown Status</div>
+            <div class="stat-val green" id="cooldownStatus">READY</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>52F</span> Protocol Dashboard · QF Network ·
+  Built on ink! v6 / PolkaVM ·
+  <span>e</span>=2.71828… <span>π</span>=3.14159… <span>√2×π×e</span>=12.077%
+</footer>
+
+<script>
+// ============================================================================
+// CONFIG
+// ============================================================================
+
+// !! REPLACE THESE WITH REAL CONTRACT ADDRESSES AND RPC !!
+const CONFIG = {
+  rpcUrl: 'wss://rpc.qfnetwork.xyz',       // QF Network WebSocket RPC
+  tokenEngine:  '0x0000000000000000000000000000000000000001', // project52f
+  dampener:     '0x0000000000000000000000000000000000000002', // project52Dampener
+  sequencer:    '0x0000000000000000000000000000000000000003', // sequencer
+  pollIntervalMs: 5000,
+};
+
+// ============================================================================
+// MOCK DATA
+// ============================================================================
+
+let MODE = 'mock';
+let pollTimer = null;
+
+const MOCK = {
+  // Phase
+  deployBlock: 3_000_000,
+  currentBlock: 6_030_000,
+  shieldEndBlock: 26_000_000,
+
+  // Epoch
+  epochCounter: 34,
+  epochId: 147,
+  collisionCount: 23,
+  lastCollisionEpoch: 144,
+  rolloverPot: '0.52',
+
+  // Prize pot
+  prizePot: 247_831_204,
+  drainThreshold: 520_000_000,
+  drainCount: 3,
+  totalBurned52F: '390M',
+  totalPaired52F: '390M',
+  lastDrainBlock: 18_421_300,
+
+  // Dampener
+  lmcRatioPct: 18.4,
+  vaultQF: 8240,
+  founderLoanTotal: 52_000,
+  founderLoanRemaining: 41_200,
+  totalRepaid: 0,
+  lifetimeInjected: 1840,
+  lastInjectionBlock: 14_832_100,
+  cooldownReady: true,
+  injections: [
+    { block: 14_832_100, amount: '420 QF', ratioBefore: '12.1%' },
+    { block: 11_200_050, amount: '380 QF', ratioBefore: '13.8%' },
+    { block: 8_940_200,  amount: '210 QF', ratioBefore: '14.2%' },
+  ],
+
+  // Events feed
+  events: [
+    { type: 'collision', text: 'Epoch #144 — 3 winners · 0.87 QF each', time: '2h ago' },
+    { type: 'rollover',  text: 'Epoch #145 rolled over · +0.52 QF pot',  time: '1h ago' },
+    { type: 'rollover',  text: 'Epoch #146 rolled over · +0.63 QF pot',  time: '30m ago' },
+  ],
+};
+
+// ============================================================================
+// RENDER
+// ============================================================================
+
+function renderAll(data) {
+  renderPhase(data);
+  renderEpoch(data);
+  renderPot(data);
+  renderDampener(data);
+}
+
+function renderPhase(d) {
+  const elapsed = d.currentBlock - d.deployBlock;
+  const total = d.shieldEndBlock;
+  const pct = Math.min(100, (elapsed / total) * 100);
+  const remaining = Math.max(0, total - elapsed);
+  const days = (remaining * 0.1 / 86400).toFixed(1);
+  const hardening = elapsed < total;
+
+  document.getElementById('phaseName').textContent = hardening ? 'HARDENING' : 'SCARCITY';
+  document.getElementById('phaseChip').textContent = hardening ? '⚙ SHIELD ACTIVE' : '🔥 DOUBLE BURN';
+  document.getElementById('phaseChip').className = 'status-chip ' + (hardening ? 'chip-gold' : 'chip-red');
+  document.getElementById('phaseBar').style.width = pct.toFixed(1) + '%';
+  document.getElementById('phaseBarPct').textContent = pct.toFixed(1) + '% elapsed';
+  document.getElementById('countdownVal').textContent = remaining.toLocaleString();
+  document.getElementById('countdownDays').textContent = hardening ? `≈ ${days} days` : 'SCARCITY PHASE ACTIVE';
+}
+
+function renderEpoch(d) {
+  document.getElementById('epochCounter').textContent = d.epochCounter;
+  document.getElementById('epochId').textContent = '#' + d.epochId;
+  document.getElementById('collisionCount').textContent = d.collisionCount;
+  document.getElementById('lastCollision').textContent = 'Epoch #' + d.lastCollisionEpoch;
+  document.getElementById('rolloverPot').textContent = d.rolloverPot + ' QF';
+
+  // Slot visualisation
+  const container = document.getElementById('epochSlots');
+  container.innerHTML = '';
+  for (let i = 0; i < 52; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'epoch-slot' + (i < d.epochCounter ? ' filled' : '');
+    container.appendChild(slot);
+  }
+
+  // Event feed
+  const feed = document.getElementById('eventFeed');
+  feed.innerHTML = '';
+  d.events.forEach(ev => {
+    const item = document.createElement('div');
+    item.className = 'feed-item';
+    const iconMap = { collision: '💥', rollover: '🔄', drain: '🔥' };
+    item.innerHTML = `
+      <div class="feed-icon ${ev.type}">${iconMap[ev.type]||'•'}</div>
+      <span class="feed-text">${ev.text}</span>
+      <span class="feed-time">${ev.time}</span>
+    `;
+    feed.appendChild(item);
+  });
+}
+
+function renderPot(d) {
+  const pct = (d.prizePot / d.drainThreshold * 100).toFixed(1);
+  document.getElementById('potAmount').textContent = d.prizePot.toLocaleString();
+  document.getElementById('drainPct').textContent = pct + '%';
+  document.getElementById('drainBar').style.width = Math.min(100, parseFloat(pct)) + '%';
+  document.getElementById('drainCount').textContent = d.drainCount;
+  document.getElementById('totalBurned').textContent = d.totalBurned52F;
+  document.getElementById('totalPaired').textContent = d.totalPaired52F;
+  document.getElementById('lastDrainBlock').textContent = d.lastDrainBlock.toLocaleString();
+  const potRemaining = Math.floor(d.drainThreshold - d.prizePot);
+  document.getElementById('potRemaining').textContent =
+    potRemaining > 0 ? Math.floor(potRemaining/1_000_000) + 'M 52F needed' : 'THRESHOLD MET!';
+
+  // flash if near threshold
+  if (parseFloat(pct) > 85) {
+    document.getElementById('potCard').style.borderColor = 'var(--gold)';
+  }
+}
+
+function renderDampener(d) {
+  const ratio = d.lmcRatioPct;
+  const ratioColor = ratio < 7.5 ? 'var(--red)' : ratio < 15 ? 'var(--gold)' : 'var(--green)';
+  const statusText = ratio < 7.5 ? 'EMERGENCY' : ratio < 15 ? 'BELOW GATE' : 'HEALTHY';
+  const statusChip = ratio < 7.5 ? 'chip-red' : ratio < 15 ? 'chip-gold' : 'chip-green';
+
+  document.getElementById('lmcRatio').textContent = ratio + '%';
+  document.getElementById('lmcRatio').style.color = ratioColor;
+  document.getElementById('lmcBar').style.width = Math.min(100, ratio * 3) + '%';
+  document.getElementById('lmcBar').style.background = ratioColor;
+  document.getElementById('lmcRatioFull').textContent = `${ratio}% — ${statusText}`;
+  document.getElementById('lmcRatioFull').style.color = ratioColor;
+  document.getElementById('lmcTrackFill').style.width = Math.min(100, ratio * 2) + '%';
+  document.getElementById('lmcTrackFill').style.background = ratioColor;
+  document.getElementById('dampenerStatusChip').textContent = statusText;
+  document.getElementById('dampenerStatusChip').className = 'status-chip ' + statusChip;
+
+  document.getElementById('vaultQF').textContent = d.vaultQF.toLocaleString();
+  document.getElementById('vaultBar').style.width = Math.min(100, (d.vaultQF / d.founderLoanTotal) * 100) + '%';
+
+  const loanPct = (d.founderLoanRemaining / d.founderLoanTotal * 100).toFixed(0);
+  document.getElementById('loanRemaining').textContent = d.founderLoanRemaining.toLocaleString();
+  document.getElementById('loanBar').style.width = loanPct + '%';
+
+  document.getElementById('totalRepaid').textContent = d.totalRepaid + ' QF';
+  document.getElementById('lifetimeInjected').textContent = d.lifetimeInjected.toLocaleString() + ' QF';
+  document.getElementById('lastInjectionBlock').textContent = 'Block ' + d.lastInjectionBlock.toLocaleString();
+  document.getElementById('cooldownStatus').textContent = d.cooldownReady ? 'READY' : 'COOLING';
+  document.getElementById('cooldownStatus').style.color = d.cooldownReady ? 'var(--green)' : 'var(--gold)';
+
+  // Zone indicator
+  const elapsed = d.currentBlock - d.deployBlock;
+  const days = elapsed * 0.1 / 86400;
+  const zone = days < 90 ? 'red' : days < 180 ? 'yellow' : 'green';
+  ['red', 'yellow', 'green'].forEach(z => {
+    const el = document.getElementById('zone' + z.charAt(0).toUpperCase() + z.slice(1));
+    el.className = 'zone-block ' + z + (z === zone ? ' active' : '');
+  });
+
+  // Injection list
+  const list = document.getElementById('injectionList');
+  list.innerHTML = '';
+  (d.injections || []).forEach(inj => {
+    const item = document.createElement('div');
+    item.className = 'injection-item';
+    item.innerHTML = `
+      <span class="inj-amount">+${inj.amount}</span>
+      <span class="inj-ratio">@ ${inj.ratioBefore}</span>
+      <span class="inj-block">${inj.block.toLocaleString()}</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ============================================================================
+// MODE SWITCHING
+// ============================================================================
+
+function setMode(mode) {
+  MODE = mode;
+  document.getElementById('btnMock').className = 'mode-btn' + (mode === 'mock' ? ' active' : '');
+  document.getElementById('btnLive').className = 'mode-btn' + (mode === 'live' ? ' active' : '');
+
+  const dot = document.getElementById('liveDot');
+  const label = document.getElementById('liveLabel');
+  if (mode === 'live') {
+    dot.className = 'live-dot';
+    label.textContent = 'LIVE';
+    startLivePolling();
+  } else {
+    dot.className = 'live-dot mock';
+    label.textContent = 'MOCK DATA';
+    stopPolling();
+    renderAll(MOCK);
+  }
+}
+
+function stopPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = null;
+}
+
+// ============================================================================
+// LIVE DATA — RPC POLLING
+// ============================================================================
+// Replace the stub functions below with real ink! contract reads via
+// polkadot.js or a QF Network-compatible JSON-RPC client.
+
+async function fetchLiveData() {
+  try {
+    // TODO: Replace with real contract state reads
+    // Example using polkadot.js:
+    //   const { api } = await getApi();
+    //   const epochCounter = await api.query.contracts.getStorage(CONFIG.tokenEngine, '...');
+    //
+    // For now we return slightly mutated mock data to show the polling is working
+    const live = { ...MOCK };
+    live.currentBlock = MOCK.currentBlock + Math.floor(Math.random() * 50);
+    live.epochCounter = Math.floor(Math.random() * 52);
+    live.lmcRatioPct = (15 + Math.random() * 10).toFixed(1) * 1;
+    return live;
+  } catch (err) {
+    console.error('RPC fetch failed:', err);
+    return null;
+  }
+}
+
+function startLivePolling() {
+  stopPolling();
+  fetchLiveData().then(d => { if (d) renderAll(d); });
+  pollTimer = setInterval(async () => {
+    const d = await fetchLiveData();
+    if (d) renderAll(d);
+  }, CONFIG.pollIntervalMs);
+}
+
+// ============================================================================
+// MOCK SIMULATION (makes mock mode feel alive)
+// ============================================================================
+
+function simulateMockTick() {
+  // Increment block count
+  MOCK.currentBlock += Math.floor(Math.random() * 15) + 5;
+
+  // Randomly add a transaction to the epoch
+  if (MOCK.epochCounter < 52 && Math.random() > 0.6) {
+    MOCK.epochCounter++;
+
+    // Check for epoch completion
+    if (MOCK.epochCounter >= 52) {
+      const isCollision = Math.random() > 0.5;
+      MOCK.epochId++;
+      MOCK.epochCounter = 0;
+
+      if (isCollision) {
+        MOCK.collisionCount++;
+        MOCK.lastCollisionEpoch = MOCK.epochId - 1;
+        const winners = Math.floor(Math.random() * 3) + 2;
+        const yield_per = (Math.random() * 0.5 + 0.2).toFixed(2);
+        MOCK.events.unshift({ type: 'collision', text: `Epoch #${MOCK.epochId-1} — ${winners} winners · ${yield_per} QF each`, time: 'just now' });
+        document.getElementById('epochCard').classList.add('flash');
+        setTimeout(() => document.getElementById('epochCard').classList.remove('flash'), 1000);
+      } else {
+        const rolled = (Math.random() * 0.4 + 0.1).toFixed(2);
+        MOCK.rolloverPot = (parseFloat(MOCK.rolloverPot) + parseFloat(rolled)).toFixed(2);
+        MOCK.events.unshift({ type: 'rollover', text: `Epoch #${MOCK.epochId-1} rolled over · +${rolled} QF pot`, time: 'just now' });
+      }
+
+      // Trim feed to last 5 events
+      if (MOCK.events.length > 5) MOCK.events.pop();
+    }
+  }
+
+  // Accumulate prize pot
+  const txContrib = 50_000 + Math.floor(Math.random() * 200_000);
+  MOCK.prizePot = Math.min(MOCK.drainThreshold, MOCK.prizePot + txContrib);
+
+  // Great Drain fires?
+  if (MOCK.prizePot >= MOCK.drainThreshold) {
+    MOCK.drainCount++;
+    const isHardening = MOCK.currentBlock < MOCK.deployBlock + MOCK.shieldEndBlock;
+    MOCK.prizePot = Math.floor(MOCK.drainThreshold * 0.5); // 50% remains
+    MOCK.totalBurned52F = (MOCK.drainCount * 130) + 'M';
+    MOCK.totalPaired52F = isHardening ? (MOCK.drainCount * 130) + 'M' : MOCK.totalPaired52F;
+    MOCK.lastDrainBlock = MOCK.currentBlock;
+    MOCK.events.unshift({ type: 'drain', text: `Great Drain #${MOCK.drainCount} — 260M 52F seized · 130M burned`, time: 'just now' });
+    document.getElementById('potCard').classList.add('flash');
+    setTimeout(() => document.getElementById('potCard').classList.remove('flash'), 1000);
+  }
+
+  // L/MC drift
+  MOCK.lmcRatioPct = Math.max(5, Math.min(30,
+    MOCK.lmcRatioPct + (Math.random() - 0.5) * 1.5
+  ));
+  MOCK.lmcRatioPct = parseFloat(MOCK.lmcRatioPct.toFixed(1));
+
+  renderAll(MOCK);
+}
+
+// ============================================================================
+// INIT
+// ============================================================================
+
+renderAll(MOCK);
+setInterval(simulateMockTick, 3000); // mock ticks every 3s
+</script>
+</body>
+</html>
