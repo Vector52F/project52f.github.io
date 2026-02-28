@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 52F — Sovereign Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e1520;--ink-mid:#111c2d;--ink-card:#142030;--gold:#c9a84c;--gold-warm:#dfc078;--teal:#0e9b8e;--teal-light:#15c4b4;--paper:#edeae2;--body-text:#b8c4d0;--muted:#6e8299;--border:rgba(201,168,76,0.18)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:18px}
+body{background:var(--ink);color:var(--body-text);font-family:'Libre Baskerville',Georgia,serif;line-height:1.85;overflow-x:hidden}
+.container{max-width:1100px;margin:0 auto;padding:0 2.5rem}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(14,21,32,0.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:0 2.5rem;height:62px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'DM Mono',monospace;font-size:0.78rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;font-weight:500;text-decoration:none}
+.nav-links{display:flex;gap:0.2rem;list-style:none}
+.nav-links a{font-family:'DM Mono',monospace;font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:0.38rem 0.72rem;transition:all 0.2s}
+.nav-links a:hover{color:var(--gold)}
+.nav-links .nav-cta{color:var(--ink);background:var(--gold);font-weight:500;margin-left:0.5rem}
+.section{padding:7rem 0;position:relative}
+.section--alt{background:var(--ink-mid)}
+.section-kicker{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--teal-light);margin-bottom:1rem}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,3.5vw,3.2rem);font-weight:300;line-height:1.15;color:var(--paper);margin-bottom:1.4rem}
+.section-title em{font-style:italic;color:var(--gold)}
+.section-lead{font-size:1.05rem;line-height:1.9;color:var(--muted);max-width:640px;margin-bottom:3rem}
+.rule{width:48px;height:1px;background:var(--gold);opacity:0.5;margin:1.4rem 0}
+.hero-inner{display:grid;grid-template-columns:1.05fr 0.95fr;gap:5rem;align-items:center;padding:8rem 0 5rem}
+.hero-kicker{font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--teal-light);margin-bottom:1.4rem}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,4.5vw,4.6rem);font-weight:300;line-height:1.08;color:var(--paper);margin-bottom:0.4rem}
+.hero-title strong{font-weight:700;color:var(--gold);display:block;font-style:italic}
+.hero-subtitle{font-size:1.05rem;font-style:italic;color:var(--gold-warm);margin-bottom:2rem;font-weight:300}
+.hero-body{font-size:1.02rem;line-height:1.9;color:var(--muted);max-width:500px;margin-bottom:2.5rem}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;text-decoration:none;padding:0.8rem 1.8rem;border:none;cursor:pointer;transition:all 0.2s}
+.btn-gold{background:var(--gold);color:var(--ink);font-weight:500}
+.btn-ghost{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+.const-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
+.const-cell{background:var(--ink-card);padding:1.6rem 1.4rem}
+.const-sym{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:700;color:var(--gold);line-height:1;margin-bottom:0.3rem}
+.const-label{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.2rem}
+.const-val{font-family:'DM Mono',monospace;font-size:0.64rem;color:var(--muted);margin-bottom:0.3rem}
+.const-use{font-size:0.92rem;font-style:italic;color:var(--body-text)}
+.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem}
+.arch-card{background:var(--ink-card);padding:2.2rem 1.8rem}
+.arch-icon{font-family:'DM Mono',monospace;font-size:1.2rem;color:var(--gold);margin-bottom:1rem;width:40px;height:40px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.arch-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--paper);margin-bottom:0.3rem}
+.arch-role{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--teal-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem}
+.arch-desc{font-size:0.95rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem}
+.arch-flow{border-top:1px solid rgba(201,168,76,0.08);padding-top:1rem}
+.flow-item{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.7rem;padding:0.4rem 0;border-bottom:1px solid rgba(201,168,76,0.08);color:var(--muted)}
+.flow-item span{color:var(--gold-warm)}
+.arch-constant{margin-top:1rem;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--teal-light)}
+.timeline{position:relative;padding-left:1.5rem;max-width:700px}
+.timeline::before{content:'';position:absolute;left:0;top:0.6rem;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;padding:0 0 2.5rem 2rem}
+.tl-dot{position:absolute;left:-0.42rem;top:0.45rem;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid rgba(201,168,76,0.4)}
+.tl-item.done .tl-dot{background:var(--gold);border-color:var(--gold)}
+.tl-item.now .tl-dot{background:var(--teal);border-color:var(--teal-light)}
+.tl-phase{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.2rem}
+.tl-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--paper);margin-bottom:0.4rem}
+.tl-desc{font-size:0.95rem;color:var(--muted);line-height:1.7}
+.tl-badge{display:inline-block;margin-top:0.5rem;font-family:'DM Mono',monospace;font-size:0.57rem;letter-spacing:0.1em;padding:0.15rem 0.5rem;background:rgba(201,168,76,0.1);color:var(--gold)}
+.maths-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem}
+.math-card{background:var(--ink-card);padding:1.8rem 1.4rem;text-align:center}
+.math-sym{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--gold);line-height:1;margin-bottom:0.5rem}
+.math-name{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--teal-light);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:0.5rem}
+.math-val{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--paper);margin-bottom:1rem}
+.math-card p{font-size:0.8rem;color:var(--muted);line-height:1.6}
+.solvency-card{background:var(--ink-card);border:1px solid var(--border);padding:2.5rem;text-align:center;margin:2rem 0}
+.solvency-equation{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);margin-bottom:1rem}
+.solvency-proof{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--teal-light);letter-spacing:0.1em;margin-bottom:1.5rem}
+.solvency-value{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:700;color:var(--paper);line-height:1}
+.solvency-value span{font-size:1.5rem;color:var(--gold)}
+.founder-message{background:var(--ink-card);border:1px solid var(--border);border-left:4px solid var(--gold);padding:3rem;margin-top:3rem;position:relative}
+.founder-message::before{content:'"';font-family:'Cormorant Garamond',serif;font-size:8rem;color:var(--gold);opacity:0.08;position:absolute;top:-0.5rem;left:1.5rem;line-height:1}
+.founder-text{font-size:1.05rem;line-height:2;color:var(--body-text);position:relative;z-index:1}
+.founder-text p{margin-bottom:1.5rem}
+.founder-text p:last-child{margin-bottom:0}
+.founder-text em{color:var(--gold-warm);font-style:italic}
+.founder-attrib{margin-top:2rem;padding-top:1.5rem;border-top:1px solid rgba(201,168,76,0.08);font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase}
+footer{background:#07101a;border-top:1px solid rgba(201,168,76,0.08);padding:4rem 0 2rem}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+.footer-brand-name{font-family:'DM Mono',monospace;font-size:0.82rem;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:0.8rem}
+.footer-brand-desc{font-size:0.9rem;color:var(--muted);line-height:1.7;font-style:italic;max-width:280px}
+.footer-col h4{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,168,76,0.5);margin-bottom:1rem;font-weight:400}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:0.5rem}
+.footer-col a{font-size:0.9rem;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{padding-top:2rem;border-top:1px solid rgba(201,168,76,0.08);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem}
+.footer-legal{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;color:var(--muted);opacity:0.55}
+.footer-disclaimer{font-family:'DM Mono',monospace;font-size:0.56rem;color:var(--muted);opacity:0.45;max-width:480px;text-align:right;line-height:1.7}
+@media(max-width:960px){.hero-inner,.arch-grid,.maths-grid{grid-template-columns:1fr}.nav-links{display:none}.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){html{font-size:16px}.container{padding:0 1.2rem}.section{padding:4rem 0}.hero-inner{padding-top:6rem}.const-grid{grid-template-columns:1fr}.founder-message{padding:2rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">Project 52F</a>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#maths">Constants</a></li>
+    <li><a href="#build">Build</a></li>
+    <li><a href="#origin">Origin</a></li>
+    <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0" class="nav-cta">Telegram</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-kicker">QF Network · Sovereign Architecture · Deterministic Liquidity</p>
+        <h1 class="hero-title">The floor is not a hope.<br><strong>It is a mathematical certainty.</strong></h1>
+        <p class="hero-subtitle">"We didn't build a coin. We solved an equation."</p>
+        <p class="hero-body">Project 52F is a deterministic liquidity engine on QF Network. By utilizing 0.1s finality, we have built a system that self-hardens for 30 days before entering hyper-deflationary scarcity. No luck. No arbitrary numbers. Just a 1.33x solvency guarantee and a floor that grows with every heartbeat.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-gold">Read Whitepaper</a>
+          <a href="#architecture" class="btn btn-ghost">Explore Architecture</a>
+        </div>
+      </div>
+      <div class="constants-panel">
+        <div class="const-grid">
+          <div class="const-cell"><div class="const-sym">R</div><div class="const-label">Solvency Ratio</div><div class="const-val">1.33x Guaranteed</div><div class="const-use">Accumulated Tax / Pairing Cost</div></div>
+          <div class="const-cell"><div class="const-sym">52</div><div class="const-label">The Epoch</div><div class="const-val">52 Transactions</div><div class="const-use">Sequencer trigger rhythm</div></div>
+          <div class="const-cell"><div class="const-sym">0.1s</div><div class="const-label">Finality</div><div class="const-val">Architectural</div><div class="const-use">High-velocity network clock</div></div>
+          <div class="const-cell"><div class="const-sym">15%</div><div class="const-label">Health Gate</div><div class="const-val">L/MC Ratio</div><div class="const-use">Dampener activation threshold</div></div>
+          <div class="const-cell"><div class="const-sym">26M</div><div class="const-label">Phase Shift</div><div class="const-val">Block 26,000,000</div><div class="const-use">Hardening → Scarcity</div></div>
+          <div class="const-cell"><div class="const-sym">52!</div><div class="const-label">Supply</div><div class="const-val">80,658,175,170</div><div class="const-use">First 11 digits of 52 factorial</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" class="section section--alt">
+  <div class="container">
+    <p class="section-kicker">System Design</p>
+    <h2 class="section-title">Modular Topology.<br><em>Three Contracts. One Truth.</em></h2>
+    <div class="rule"></div>
+    <p class="section-lead">Separation of concerns ensures security integrity. The Ledger, The Watchdog, and The Sequencer form a deterministic liquidity engine.</p>
+    
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">L</div>
+        <div class="arch-name">project52f.rs</div>
+        <div class="arch-role">The Ledger / Immutable Truth</div>
+        <p class="arch-desc">Core token contract. Routes every transaction through the Great Drain mechanism. Maintains the 52-epoch heartbeat and phase-aware logic.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Supply<span>80.6B 52F</span></div>
+          <div class="flow-item">Clock<span>0.1s Finality</span></div>
+          <div class="flow-item">Pulse<span>52 Transaction Epoch</span></div>
+        </div>
+        <div class="arch-constant">The Universal Constant: Fractal 52</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">W</div>
+        <div class="arch-name">project52Dampener.rs</div>
+        <div class="arch-role">The Watchdog</div>
+        <p class="arch-desc">Monitors 36,000-block TWAP. If L/MC &lt; 15%, executes 5% drip-feed injection. Automated thickening of the floor prevents slippage traps.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Monitor<span>36K Blocks TWAP</span></div>
+          <div class="flow-item">Gate<span>L/MC &lt; 15%?</span></div>
+          <div class="flow-item">Action<span>5% Vault Injection</span></div>
+        </div>
+        <div class="arch-constant">Health Gate: 15% Liquidity Ratio</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">S</div>
+        <div class="arch-name">project52Sequencer.rs</div>
+        <div class="arch-role">The Prize Pot</div>
+        <p class="arch-desc">Distributes accumulated value every 52 transactions. No probability. No luck. Pure velocity-based distribution to network participants.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Trigger<span>52 Transaction Epoch</span></div>
+          <div class="flow-item">Logic<span>Velocity-Based</span></div>
+          <div class="flow-item">LP Share<span>5/52 Yield</span></div>
+        </div>
+        <div class="arch-constant">Rewarding Volume, Not Chance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="maths" class="section">
+  <div class="container">
+    <p class="section-kicker">Clinical Architecture</p>
+    <h2 class="section-title">Every Parameter.<br><em>Mathematically Derived.</em></h2>
+    <div class="rule"></div>
+    
+    <div class="maths-grid">
+      <div class="math-card"><div class="math-sym">√2πe</div><div class="math-name">Team Allocation</div><div class="math-val">12.077%</div><p>(√2 × π × e / 100) × Supply. 52 tranches over 313 days.</p></div>
+      <div class="math-card"><div class="math-sym">52</div><div class="math-name">The Constant</div><div class="math-val">Universal Fractal</div><p>Supply, clock, pulse, and shift all derive from 52.</p></div>
+      <div class="math-card"><div class="math-sym">0.1s</div><div class="math-name">Finality</div><div class="math-val">Architectural</div><p>High-velocity network enables precise execution.</p></div>
+      <div class="math-card"><div class="math-sym">R</div><div class="math-name">Solvency</div><div class="math-val">1.33x</div><p>Guaranteed ratio ensures net liquidity production.</p></div>
+      <div class="math-card"><div class="math-sym">26M</div><div class="math-name">Phase Shift</div><div class="math-val">Block Count</div><p>Immutable transition to scarcity era.</p></div>
+    </div>
+
+    <div class="solvency-card">
+      <div class="solvency-equation">Team = (√2 × π × e / 100) × Supply</div>
+      <div class="solvency-proof">MATHEMATICAL ALLOCATION · IMMUTABLE VESTING</div>
+      <div class="solvency-value">12.077<span>%</span></div>
+      <p style="font-size:0.9rem;color:var(--muted);margin-top:1rem">9,741,094,233 tokens released in 52 equal installments. No admin keys can alter this schedule.</p>
+    </div>
+  </div>
+</section>
+
+<section id="build" class="section section--alt">
+  <div class="container">
+    <p class="section-kicker">Build Progress</p>
+    <h2 class="section-title">Three Contracts.<br><em>Sovereign System.</em></h2>
+    <div class="rule"></div>
+    <p class="section-lead">Mathematical architecture finalized. Security audited. Ready for QF Network deployment.</p>
+    
+    <div class="timeline">
+      <div class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Contract 1</div>
+        <div class="tl-name">project52f.rs — The Ledger</div>
+        <div class="tl-desc">Core token, 52-epoch heartbeat, phase-aware logic. <span class="tl-badge">Complete</span></div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Contract 2</div>
+        <div class="tl-name">project52Dampener.rs — The Watchdog</div>
+        <div class="tl-desc">36K block TWAP monitoring, 15% health gate. <span class="tl-badge">Complete</span></div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Contract 3</div>
+        <div class="tl-name">project52Sequencer.rs — The Prize Pot</div>
+        <div class="tl-desc">52-transaction epoch trigger, velocity-based distribution. <span class="tl-badge">Complete</span></div>
+      </div>
+      <div class="tl-item now">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Integration</div>
+        <div class="tl-name">QF Network Mainnet</div>
+        <div class="tl-desc">Cross-contract calls, 0.1s finality optimization. <span class="tl-badge" style="background:rgba(14,155,142,0.1);color:var(--teal-light)">In Progress</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="origin" class="section">
+  <div class="container">
+    <p class="section-kicker">Protocol Genesis</p>
+    <h2 class="section-title">The Proof.<br><em>Origin Story.</em></h2>
+    <div class="rule"></div>
+    <p class="section-lead">Mathematics requires no credentials. Only proof.</p>
+    
+    <div class="founder-message">
+      <div class="founder-text">
+        <p>I am a British mathematician and educator who returned to university in my late 30s — <em>three years into sobriety</em> — to master the mathematics I now teach. With no formal software development background, I built this protocol using AI-assisted development and a deep understanding of the underlying mathematics.</p>
+        <p>I currently teach mathematics and engineering at higher education level, and Project 52F is a live exploration of whether a protocol can be made structurally resistant to snipers, rug pulls, and founder trust risk from first principles, with minimal funding and no team.</p>
+        <p><em>The constants do the rest.</em></p>
+      </div>
+      <div class="founder-attrib">Founder & Architect</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-name">Project 52F</div>
+         <li><a href="#origin">Origin</a></li>
+    <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0" class="nav-cta">Telegram →</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <p class="hero-kicker">QF Network · Sovereign Architecture · Deterministic Liquidity</p>
+        <h1 class="hero-title">The floor is not a hope.<br><strong>It is a mathematical certainty.</strong></h1>
+        <p class="hero-subtitle">"We didn't build a coin. We solved an equation."</p>
+        <p class="hero-body">Project 52F is a deterministic liquidity engine on QF Network. By utilizing 0.1s finality, we have built a system that self-hardens for 30 days before entering hyper-deflationary scarcity. No luck. No arbitrary numbers. Just a 1.33x solvency guarantee and a floor that grows with every heartbeat.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-gold">Read Whitepaper</a>
+          <a href="#architecture" class="btn btn-ghost">Explore Architecture</a>
+        </div>
+      </div>
+      <div class="constants-panel">
+        <div class="const-grid">
+          <div class="const-cell"><div class="const-sym">R</div><div class="const-label">Solvency Ratio</div><div class="const-val">1.33x Guaranteed</div><div class="const-use">Accumulated Tax / Pairing Cost</div></div>
+          <div class="const-cell"><div class="const-sym">52</div><div class="const-label">The Epoch</div><div class="const-val">52 Transactions</div><div class="const-use">Sequencer trigger rhythm</div></div>
+          <div class="const-cell"><div class="const-sym">0.1s</div><div class="const-label">Finality</div><div class="const-val">Architectural</div><div class="const-use">High-velocity network clock</div></div>
+          <div class="const-cell"><div class="const-sym">15%</div><div class="const-label">Health Gate</div><div class="const-val">L/MC Ratio</div><div class="const-use">Dampener activation threshold</div></div>
+          <div class="const-cell"><div class="const-sym">26M</div><div class="const-label">Phase Shift</div><div class="const-val">Block 26,000,000</div><div class="const-use">Hardening → Scarcity</div></div>
+          <div class="const-cell"><div class="const-sym">52!</div><div class="const-label">Supply</div><div class="const-val">80,658,175,170</div><div class="const-use">First 11 digits of 52 factorial</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" class="section section--alt">
+  <div class="container">
+    <p class="section-kicker">System Design</p>
+    <h2 class="section-title">Modular Topology.<br><em>Three Contracts. One Truth.</em></h2>
+    <div class="rule"></div>
+    <p class="section-lead">Separation of concerns ensures security integrity. The Ledger, The Watchdog, and The Sequencer form a deterministic liquidity engine.</p>
+    
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">L</div>
+        <div class="arch-name">project52f.rs</div>
+        <div class="arch-role">The Ledger / Immutable Truth</div>
+        <p class="arch-desc">Core token contract. Routes every transaction through the Great Drain mechanism. Maintains the 52-epoch heartbeat and phase-aware logic.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Supply<span>80.6B 52F</span></div>
+          <div class="flow-item">Clock<span>0.1s Finality</span></div>
+          <div class="flow-item">Pulse<span>52 Transaction Epoch</span></div>
+        </div>
+        <div class="arch-constant">The Universal Constant: Fractal 52</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">W</div>
+        <div class="arch-name">project52Dampener.rs</div>
+        <div class="arch-role">The Watchdog</div>
+        <p class="arch-desc">Monitors 36,000-block TWAP. If L/MC < 15%, executes 5% drip-feed injection. Automated thickening of the floor prevents slippage traps.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Monitor<span>36K Blocks TWAP</span></div>
+          <div class="flow-item">Gate<span>L/MC < 15%?</span></div>
+          <div class="flow-item">Action<span>5% Vault Injection</span></div>
+        </div>
+        <div class="arch-constant">Health Gate: 15% Liquidity Ratio</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">S</div>
+        <div class="arch-name">project52Sequencer.rs</div>
+        <div class="arch-role">The Prize Pot</div>
+        <p class="arch-desc">Distributes accumulated value every 52 transactions. No probability. No luck. Pure velocity-based distribution to network participants.</p>
+        <div class="arch-flow">
+          <div class="flow-item">Trigger<span>52 Transaction Epoch</span></div>
+          <div class="flow-item">Logic<span>Velocity-Based</span></div>
+          <div class="flow-item">LP Share<span>5/52 Yield</span></div>
+        </div>
+        <div class="arch-constant">Rewarding Volume, Not Chance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="maths" class="section">
+  <div class="container">
+    <p class="section-kicker">Clinical Architecture</p>
+    <h2 class="section-title">Every Parameter.<br><em>Mathematically Derived.</em></h2>
+    <div class="rule"></div>
+    
+    <div class="maths-grid">
+      <div class="math-card"><div class="math-sym">√2πe</div><div class="math-name">Team Allocation</div><div class="math-val">12.077%</div><p>(√2 × π × e / 100) × Supply. 52 tranches over 313 days.</p></div>
+      <div class="math-card"><div class="math-sym">52</div><div class="math-name">The Constant</div><div class="math-val">Universal Fractal</div><p>Supply, clock, pulse, and shift all derive from 52.</p></div>
+      <div class="math-card"><div class="math-sym">0.1s</div><div class="math-name">Finality</div><div class="math-val">Architectural</div><p>High-velocity network enables precise execution.</p></div>
+      <div class="math-card"><div class="math-sym">R</div><div class="math-name">Solvency</div><div class="math-val">1.33x</div><p>Guaranteed ratio ensures net liquidity production.</p></div>
+      <div class="math-card"><div class="math-sym">26M</div><div class="math-name">Phase Shift</div><div class="math-val">Block Count</div><p>Immutable transition to scarcity era.</p></div>
+    </div>
+
+    <div class="solvency-card">
+      <div class="solvency-equation">Team = (√2 × π × e / 100) × Supply</div>
+      <div class="solvency-proof">MATHEMATICAL ALLOCATION · IMMUTABLE VESTING</div>
+      <div class="solvency-value">12.077<span>%</span></div>
+      <p style="font-size:0.9rem;color:var(--muted);margin-top:1rem">9,741,094,233 tokens released in 52 equal installments. No admin keys can alter this schedule.</p>
+    </div>
+  </div>
+</section>
+
+<section id="build" class="section section--alt">
+  <div class="container">
+    <p class="section-kicker">Build Progress</p>
+    <h2 class="section-title">Three Contracts.<br><em>Sovereign System.</em></h2>
+    <div class="rule"></div>
+    <p class="section-lead">Mathematical architecture finalized. Security audited. Ready for QF Network deployment.</p>
+    
+    <div class="timeline">
+      <div class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Contract 1</div>
+        <div class="tl-name">project52f.rs — The Ledger</div>
+        <div class="tl-desc">Core token, 52-epoch heartbeat, phase-aware logic. <span class="tl-badge">Complete</span></div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Contract 2</div>
+        <div class="tl-name">project52Dampener.rs — The Watchdog</div>
+        <div class="tl-desc">36K block TWAP monitoring, 15% health gate. <span class="tl-badge">Complete</span></div>
+      </div>
+      <div class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Contract 3</div>
+        <div class="tl-name">project52Sequencer.rs — The Prize Pot</div>
+        <div class="tl-desc">52-transaction epoch trigger, velocity-based distribution. <span class="tl-badge">Complete</span></div>
+      </div>
+      <div class="tl-item now">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Integration</div>
+        <div class="tl-name">QF Network Mainnet</div>
+        <div class="tl-desc">Cross-contract calls, 0.1s finality optimization. <span class="tl-badge" style="background:rgba(14,155,142,0.1);color:var(--teal-light)">In Progress</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="origin" class="section">
+  <div class="container">
+    <p class="section-kicker">Protocol Genesis</p>
+    <h2 class="section-title">The Proof.<br><em>Origin Story.</em></h2>
+    <div class="rule"></div>
+    <p class="section-lead">Mathematics requires no credentials. Only proof.</p>
+    
+    <div class="founder-message">
+      <div class="founder-text">
+        <p>I am a British mathematician and educator who returned to university in my late 30s — <em>three years into sobriety</em> — to master the mathematics I now teach. With no formal software development background, I built this protocol using AI-assisted development and a deep understanding of the underlying mathematics.</p>
+        <p>I currently teach mathematics and engineering at higher education level, and Project 52F is a live exploration of whether a protocol can be made structurally resistant to snipers, rug pulls, and founder trust risk from first principles, with minimal funding and no team.</p>
+        <p><em>The constants do the rest.</em></p>
+      </div>
+      <div class="founder-attrib">Founder & Architect</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-brand-name">Project 52F</div>
+        <p class="footer-brand-desc">Sovereign Architecture for Autonomous Liquidity. Mathematical certainty in every transaction.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Protocol</h4>
+        <ul>
+          <li><a href="#architecture">Architecture</a></li>
+          <li><a href="#maths">Constants</a></li>
+          <li><a href="#build">Build</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Whitepaper</a></li>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0">Telegram</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Network</h4>
+        <ul>
+          <li><a href="#">QF Network</a></li>
+          <li><a href="#">ink! v6</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-legal">© 2025 Project 52F. All rights reserved.</div>
+      <div class="footer-disclaimer">Not financial advice. Smart contracts carry risk. DYOR. The protocol operates autonomously—no admin keys, no manual intervention.</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+  margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease 0.35s forwards;
+}
+.hero-title strong { font-weight: 700; color: var(--gold); display: block; font-style: italic; }
+.hero-subtitle {
+  font-size: 1.05rem; font-style: italic; color: var(--gold-warm); margin-bottom: 2rem;
+  font-weight: 300; opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards;
+}
+.hero-body {
+  font-size: 1.02rem; line-height: 1.9; color: var(--muted); max-width: 500px;
+  margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.65s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.8s ease 0.8s forwards;
+}
+.constants-panel { opacity: 0; animation: fadeIn 1s ease 1s forwards; }
+.const-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+}
+.const-cell { background: var(--ink-card); padding: 1.6rem 1.4rem; transition: background 0.2s; }
+.const-cell:hover { background: var(--ink-light); }
+.const-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.6rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+.const-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.const-val { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--muted); margin-bottom: 0.3rem; }
+.const-use { font-size: 0.92rem; font-style: italic; color: var(--body-text); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; text-decoration: none; padding: 0.8rem 1.8rem;
+  border: none; cursor: pointer; transition: all 0.2s; border-radius: 1px;
+}
+.btn-gold { background: var(--gold); color: var(--ink); font-weight: 500; }
+.btn-gold:hover { background: var(--gold-warm); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); }
+.btn-ghost:hover { border-color: var(--gold); background: var(--gold-ghost); }
+
+/* ── SECTIONS ── */
+.section { padding: 7rem 0; position: relative; }
+.section--alt { background: var(--ink-mid); }
+.section-kicker { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 1rem; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 300; line-height: 1.15; color: var(--paper); margin-bottom: 1.4rem; }
+.section-title em { font-style: italic; color: var(--gold); }
+.section-title strong { font-weight: 700; }
+.section-lead { font-size: 1.05rem; line-height: 1.9; color: var(--muted); max-width: 640px; margin-bottom: 3rem; }
+.rule { width: 48px; height: 1px; background: var(--gold); opacity: 0.5; margin: 1.4rem 0; }
+
+/* ── PHASE TOGGLE ── */
+.phase-indicator {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.phase-current {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+}
+.phase-current span {
+  color: var(--gold);
+  font-weight: 600;
+}
+.phase-blocks {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.phase-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--ink-light);
+  margin-bottom: 1rem;
+  position: relative;
+}
+.phase-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--teal-light) 100%);
+  width: 35%;
+  transition: width 0.3s ease;
+}
+.phase-markers {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.phase-marker {
+  text-align: center;
+}
+.phase-marker.active {
+  color: var(--gold);
+}
+
+/* ── ARCHITECTURE ── */
+.arch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border); margin-top: 3rem;
+}
+.arch-card { background: var(--ink-card); padding: 2.2rem 1.8rem; position: relative; }
+.arch-card.dampener { max-width: 400px; margin-left: auto; margin-right: auto; margin-top: 2rem; }
+.arch-icon {
+  font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--gold);
+  margin-bottom: 1rem; width: 40px; height: 40px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.arch-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--paper); margin-bottom: 0.3rem; }
+.arch-role { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+.arch-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+.arch-flow { border-top: 1px solid var(--border-dim); padding-top: 1rem; }
+.flow-item { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 0.4rem 0; border-bottom: 1px solid var(--border-dim); color: var(--muted); }
+.flow-item span { color: var(--gold-warm); }
+.arch-constant { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--teal-light); letter-spacing: 0.05em; }
+
+/* ── MECHANICS ── */
+.sect-grid { display: grid; gap: 4rem; align-items: start; }
+.sect-grid--mechanics { grid-template-columns: 1fr 1fr; }
+.mech-text p { font-size: 1.02rem; line-height: 1.9; color: var(--body-text); margin-bottom: 1.2rem; }
+
+/* ── EPOCH SYSTEM ── */
+.epoch-visual {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: center;
+}
+.epoch-pulse {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+  position: relative;
+}
+.epoch-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  animation: pulse 2s ease-out infinite;
+}
+.epoch-pulse::after {
+  content: '52';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.epoch-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.5rem;
+}
+.epoch-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ── LAUNCH FORTRESS ── */
+.fortress-callout {
+  background: linear-gradient(135deg, var(--ink-card) 0%, var(--ink-light) 100%);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.fortress-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.fortress-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--gold-ghost);
+  border: 1px solid var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+.fortress-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  color: var(--paper);
+}
+.fortress-body {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.fortress-math {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--gold);
+  padding: 1rem;
+  background: var(--ink);
+  border: 1px solid var(--border-dim);
+}
+
+/* ── SOLVENCY PROOF ── */
+.solvency-card {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+.solvency-equation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.solvency-proof {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--teal-light);
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+}
+.solvency-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--paper);
+  line-height: 1;
+}
+.solvency-value span {
+  font-size: 1.5rem;
+  color: var(--gold);
+}
+
+/* ── TIMELINE ── */
+.timeline { position: relative; padding-left: 1.5rem; max-width: 700px; }
+.timeline::before { content: ''; position: absolute; left: 0; top: 0.6rem; bottom: 0; width: 1px; background: var(--border); }
+.tl-item { position: relative; padding: 0 0 2.5rem 2rem; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -0.42rem; top: 0.45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--gold-dim); }
+.tl-item.done .tl-dot { background: var(--gold); border-color: var(--gold); }
+.tl-item.now .tl-dot { background: var(--teal); border-color: var(--teal-light); box-shadow: 0 0 12px rgba(14,155,142,0.5); }
+.tl-phase { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 0.2rem; }
+.tl-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--paper); margin-bottom: 0.4rem; }
+.tl-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+.tl-badge { display: inline-block; margin-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.57rem; letter-spacing: 0.1em; padding: 0.15rem 0.5rem; border-radius: 2px; }
+.tl-done { background: var(--gold-ghost); color: var(--gold); }
+.tl-now { background: var(--teal-ghost); color: var(--teal-light); }
+
+/* ── MATHS ── */
+.maths-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 3rem; }
+.math-card { background: var(--ink-card); padding: 1.8rem 1.4rem; text-align: center; }
+.math-sym { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--gold); line-height: 1; margin-bottom: 0.5rem; }
+.math-name { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--teal-light); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.math-val { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--paper); margin-bottom: 1rem; }
+.math-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+/* ── HEALTH GATE ── */
+.health-gate {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.gauge-container {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  margin: 0 auto 1.5rem;
+}
+.gauge-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px 100px 0 0;
+  background: conic-gradient(from 180deg at 50% 100%, var(--gold) 0deg, var(--teal-light) 54deg, var(--ink-light) 54deg, var(--ink-light) 180deg);
+}
+.gauge-center {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 80px;
+  background: var(--ink);
+  border-radius: 80px 80px 0 0;
+}
+.gauge-value {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.gauge-label {
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--teal-light);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── ORIGIN SECTION ── */
+.origin-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--border); border: 1px solid var(--border); margin-top: 3rem;
+}
+.origin-card { 
+  background: var(--ink-card); 
+  padding: 2.2rem 1.8rem; 
+  position: relative; 
+  transition: background 0.3s ease;
+}
+.origin-card:hover { background: var(--ink-light); }
+.origin-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 5rem;
+  font-weight: 700;
+  color: var(--gold);
+  opacity: 0.08;
+  line-height: 1;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.origin-card:hover .origin-number { opacity: 0.15; }
+.origin-icon {
+  font-family: 'DM Mono', monospace; 
+  font-size: 1.2rem; 
+  color: var(--gold);
+  margin-bottom: 1rem; 
+  width: 40px; 
+  height: 40px; 
+  border: 1px solid var(--border);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+.origin-name { 
+  font-family: 'Cormorant Garamond', serif; 
+  font-size: 1.4rem; 
+  color: var(--paper); 
+  margin-bottom: 0.3rem; 
+}
+.origin-role { 
+  font-family: 'DM Mono', monospace; 
+  font-size: 0.65rem; 
+  color: var(--teal-light); 
+  text-transform: uppercase; 
+  letter-spacing: 0.1em; 
+  margin-bottom: 1rem; 
+}
+.origin-desc { 
+  font-size: 0.95rem; 
+  color: var(--muted); 
+  line-height: 1.7; 
+  margin-bottom: 1.5rem; 
+}
+.origin-desc em { color: var(--gold-warm); font-style: italic; }
+.origin-quote {
+  margin-top: 4rem;
+  padding: 3rem;
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  position: relative;
+}
+.origin-quote::before {
+  content: '"';
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 8rem;
+  color: var(--gold);
+  opacity: 0.1;
+  position: absolute;
+  top: -1rem;
+  left: 1rem;
+  line-height: 1;
+}
+.quote-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  color: var(--paper);
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+.quote-text strong { color: var(--gold); font-weight: 600; }
+.quote-attrib {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── FOUNDER MESSAGE ── */
+.founder-message {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  padding: 3rem;
+  margin-top: 3rem;
+  position: relative;
+}
+.founder-message::before {
+  content: '"';
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 8rem;
+  color: var(--gold);
+  opacity: 0.08;
+  position: absolute;
+  top: -0.5rem;
+  left: 1.5rem;
+  line-height: 1;
+  pointer-events: none;
+}
+.founder-text {
+  font-size: 1.05rem;
+  line-height: 2;
+  color: var(--body-text);
+  position: relative;
+  z-index: 1;
+}
+.founder-text p {
+  margin-bottom: 1.5rem;
+}
+.founder-text p:last-child {
+  margin-bottom: 0;
+}
+.founder-text em {
+  color: var(--gold-warm);
+  font-style: italic;
+}
+.founder-attrib {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ── */
+footer { background: #07101a; border-top: 1px solid var(--border-dim); padding: 4rem 0 2rem; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand-name { font-family: 'DM Mono', monospace; font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.8rem; }
+.footer-brand-desc { font-size: 
