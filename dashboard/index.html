@@ -172,6 +172,814 @@
     main { padding: 16px; }
   }
 
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    header {
+      padding: 12px 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .logo-mark { font-size: 18px; }
+    .logo-sub  { display: none; }
+    .header-right { gap: 12px; }
+    .constants-ribbon { padding: 8px 16px; gap: 20px; }
+
+    main { padding: 12px; gap: 12px; }
+
+    /* Phase banner — stack vertically on mobile */
+    .phase-banner .card {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 16px;
+    }
+    .phase-countdown { text-align: left; }
+    .countdown-val   { font-size: 22px; }
+
+    /* Cards */
+    .card { padding: 16px; }
+
+    /* Epoch */
+    .epoch-number { font-size: 48px; letter-spacing: -2px; }
+    .epoch-slots  { gap: 1px; }
+    .epoch-slot   { height: 8px; }
+    .epoch-stats  { gap: 8px; }
+    .stat-val     { font-size: 15px; }
+
+    /* Prize pot */
+    .pot-amount { font-size: 28px; letter-spacing: -1px; }
+    .drain-history { gap: 8px; }
+    .drain-stat-val { font-size: 16px; }
+
+    /* Dampener — single column */
+    .dampener-grid { grid-template-columns: 1fr; }
+    .gauge-val     { font-size: 26px; }
+
+    /* Dampener bottom section */
+    #dampenerCard > div:last-child {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* Loan zones */
+    .zone-block { padding: 8px 4px; font-size: 10px; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.4;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  .badge-hardening { background: rgba(212,168,67,0.15); color: var(--gold); border: 1px solid var(--gold-dim); }
+  .badge-scarcity  { background: rgba(255,90,95,0.15);  color: var(--red);  border: 1px solid #7a2020; }
+  .badge-live      { background: rgba(61,220,132,0.15); color: var(--green); border: 1px solid #1a6a3a; }
+
+  /* ── PHASE BANNER ── */
+  .phase-banner .card {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+    padding: 20px 32px;
+  }
+
+  .phase-info { }
+
+  .phase-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .phase-name {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .phase-countdown {
+    text-align: right;
+  }
+
+  .countdown-val {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+
+  .countdown-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .phase-progress-wrap {
+    flex: 1;
+  }
+
+  .phase-bar-container {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .phase-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  .phase-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── EPOCH TRACKER ── */
+  .epoch-number {
+    font-family: var(--mono);
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -4px;
+    margin-bottom: 4px;
+  }
+
+  .epoch-denom {
+    font-family: var(--mono);
+    font-size: 24px;
+    color: var(--muted);
+  }
+
+  .epoch-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .epoch-bar-wrap {
+    margin-bottom: 20px;
+  }
+
+  .epoch-slots {
+    display: grid;
+    grid-template-columns: repeat(52, 1fr);
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+
+  .epoch-slot {
+    height: 10px;
+    border-radius: 1px;
+    background: var(--border);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .epoch-slot.filled {
+    background: var(--gold);
+  }
+
+  .epoch-slot.filled.collision {
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: slot-flash 0.6s ease;
+  }
+
+  @keyframes slot-flash {
+    0% { transform: scaleY(2); }
+    100% { transform: scaleY(1); }
+  }
+
+  .epoch-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-val.green { color: var(--green); }
+  .stat-val.gold  { color: var(--gold);  }
+  .stat-val.red   { color: var(--red);   }
+
+  /* Collision event feed */
+  .collision-feed {
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .feed-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .feed-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    animation: feed-in 0.4s ease;
+  }
+
+  @keyframes feed-in {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .feed-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .feed-icon.collision { background: rgba(61,220,132,0.15); color: var(--green); }
+  .feed-icon.rollover  { background: rgba(212,168,67,0.10); color: var(--gold); }
+  .feed-icon.drain     { background: rgba(255,90,95,0.15);  color: var(--red); }
+
+  .feed-text { color: var(--text); flex: 1; }
+  .feed-time { color: var(--muted); font-size: 10px; }
+
+  /* ── PRIZE POT ── */
+  .pot-amount {
+    font-family: var(--mono);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pot-unit {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* Drain threshold progress */
+  .drain-section {
+    margin-bottom: 20px;
+  }
+
+  .drain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .drain-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .drain-pct {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--gold);
+  }
+
+  .drain-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: visible;
+    position: relative;
+    margin-bottom: 6px;
+  }
+
+  .drain-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 4px;
+    transition: width 1s ease;
+    position: relative;
+  }
+
+  .drain-bar-fill::after {
+    content: '⚡';
+    position: absolute;
+    right: -8px;
+    top: -4px;
+    font-size: 14px;
+    filter: drop-shadow(0 0 6px var(--gold));
+  }
+
+  .drain-threshold-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* Great Drain history */
+  .drain-history {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .drain-stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .drain-stat-val {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--red);
+    display: block;
+  }
+
+  .drain-stat-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* Fibonacci retention indicator */
+  .fibonacci-split {
+    margin-top: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .fib-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .fib-bars {
+    display: flex;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    gap: 2px;
+  }
+
+  .fib-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .fib-retain { background: var(--gold-dim); color: #000; flex: 13; }
+  .fib-send   { background: var(--gold);     color: #000; flex: 39; }
+
+  .fib-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ── DAMPENER ── */
+  .dampener-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .dampener-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .health-gauge {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .gauge-val {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .gauge-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .gauge-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .gauge-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease, background 0.5s;
+  }
+
+  /* Health status threshold line */
+  .health-status-bar {
+    margin: 16px 0;
+  }
+
+  .hsb-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .hsb-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .hsb-val   { font-family: var(--mono); font-size: 13px; }
+
+  .hsb-track {
+    width: 100%;
+    height: 12px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .hsb-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1s ease, background 0.5s;
+  }
+
+  .hsb-threshold {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: var(--gold);
+    opacity: 0.7;
+  }
+
+  .hsb-threshold::after {
+    content: '15%';
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .emergency-threshold {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: var(--red);
+    opacity: 0.7;
+  }
+
+  /* Injection history */
+  .injection-list {
+    margin-top: 16px;
+  }
+
+  .injection-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .injection-item:last-child { border-bottom: none; }
+
+  .inj-amount { color: var(--green); }
+  .inj-block  { color: var(--muted); font-size: 10px; }
+  .inj-ratio  { color: var(--text); }
+
+  /* Loan repayment zones */
+  .zone-indicator {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .zone-block {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: 1px solid transparent;
+  }
+
+  .zone-block.red     { background: rgba(255,90,95,0.1);   color: var(--red);   border-color: #7a2020; }
+  .zone-block.yellow  { background: rgba(212,168,67,0.1);  color: var(--gold);  border-color: var(--gold-dim); }
+  .zone-block.green   { background: rgba(61,220,132,0.1);  color: var(--green); border-color: #1a6a3a; }
+  .zone-block.active  { border-width: 2px; }
+
+  .zone-sub {
+    font-size: 9px;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+
+  /* ── STATUS CHIPS ── */
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .chip-green { background: rgba(61,220,132,0.15); color: var(--green); }
+  .chip-gold  { background: rgba(212,168,67,0.15); color: var(--gold); }
+  .chip-red   { background: rgba(255,90,95,0.15);  color: var(--red); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  footer span { color: var(--gold); }
+
+  /* ── FLASH ANIMATION ── */
+  .flash {
+    animation: card-flash 1s ease;
+  }
+
+  @keyframes card-flash {
+    0% { border-color: var(--gold); box-shadow: 0 0 30px var(--gold-glow); }
+    100% { border-color: var(--border); box-shadow: none; }
+  }
+
+  /* ── CONSTANTS RIBBON ── */
+  .constants-ribbon {
+    background: rgba(13,17,23,0.8);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 32px;
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 9;
+  }
+
+  .constants-ribbon::-webkit-scrollbar { display: none; }
+
+  .const-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .const-name  { color: var(--muted); }
+  .const-val   { color: var(--gold); font-weight: 700; }
+  .const-sep   { color: var(--border); }
+
+  /* ── LOADING STATE ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--border) 25%, #252d39 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-load 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  @keyframes skeleton-load {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-mark">52F</span>
+    <span class="logo-sub">Protocol Dashboard</span>
+  </div>
+  <div class="header-right">
+    <div class="live-indicator">
+      <div class="live-dot" id="liveDot"></div>
+      <span id="liveLabel">MOCK DATA</span>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnMock" onclick="setMode('mock')">MOCK</button>
+      <button class="mode-btn" id="btnLive" onclick="setMode('live')">LIVE</button>
+    </div>
+  </div>
+</header>
+
+<!-- Constants ribbon -->
+<div class="constants-ribbon">
+  <div class="const-item"><span class="const-name">e BUY TAX</span><span class="const-val">2.72%</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">π SELL TAX</span><span class="const-val">3.14%</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">EPOCH SIZE</span><span class="const-val">52 TXS</span></div>
+  <span class="const-sep">|</span>
+  <div class="const-item"><span class="const-name">DRAIN THRESHOLD</span><    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .live-dot.mock { background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .mode-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .mode-btn {
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: var(--gold);
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    gap: 20px;
+  }
+
+  /* Top row: phase banner full width */
+  /* Middle row: epoch | prize pot */
+  /* Bottom row: dampener full width */
+
+  .phase-banner {
+    grid-column: 1 / -1;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    header { padding: 16px; }
+    main { padding: 16px; }
+  }
+
   /* ── CARDS ── */
   .card {
     background: var(--surface);
