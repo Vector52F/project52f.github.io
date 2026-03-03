@@ -16,4 +16,453 @@ header{position:sticky;top:0;z-index:100;background:rgba(14,21,32,0.95);backdrop
 main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:24px}.tab-panel{display:none}.tab-panel.active{display:block;animation:fadeIn 0.4s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .card{background:var(--ink-card);border:1px solid var(--border);border-radius:8px;padding:24px;position:relative;overflow:hidden;margin-bottom:16px}.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4}.card-title{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal-light);margin-bottom:16px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-family:var(--mono);font-size:0.6rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase}.chip-green{background:rgba(61,220,132,0.12);color:var(--green);border:1px solid rgba(61,220,132,0.3)}.chip-gold{background:var(--gold-ghost);color:var(--gold);border:1px solid var(--gold-dim)}.chip-red{background:rgba(255,90,95,0.12);color:var(--red);border:1px solid rgba(255,90,95,0.3)}.chip-teal{background:rgba(14,155,142,0.12);color:var(--teal-light);border:1px solid rgba(14,155,142,0.3)}
+.phase-pill{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:var(--ink-card);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-family:var(--mono)}.phase-pill-label{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}.phase-pill-name{font-family:var(--serif);font-size:1.3rem;font-weight:600;color:var(--gold);font-style:italic}.phase-pill-right{text-align:right;font-size:0.7rem;color:var(--muted)}.phase-pill-right span{color:var(--body-text);font-weight:500}
+.hero-block{text-align:center;padding:32px 24px;margin-bottom:16px}.hero-epoch{font-family:var(--mono);font-size:0.7rem;color:var(--teal-light);letter-spacing:0.15em;margin-bottom:10px;text-transform:uppercase}.hero-slots{display:grid;grid-template-columns:repeat(52,1fr);gap:3px;max-width:480px;margin:0 auto 20px}.hero-slot{height:10px;border-radius:2px;background:var(--ink-light)}.hero-slot.filled{background:var(--gold)}.hero-counter{font-family:var(--serif);font-size:3.5rem;font-weight:700;color:var(--gold);letter-spacing:-2px;font-style:italic}.hero-denom{font-family:var(--mono);font-size:1.2rem;color:var(--muted);margin-left:6px}.hero-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}.hero-meta{display:flex;align-items:center;justify-content:center;gap:12px}
+.last-win-banner{background:rgba(61,220,132,0.05);border:1px solid rgba(61,220,132,0.2);border-radius:8px;padding:18px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}.win-icon{font-size:1.8rem}.win-details{flex:1}.win-title{font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--green);margin-bottom:3px;font-style:italic}.win-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted)}.win-prize{text-align:right}.win-prize-val{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--green);font-style:italic}.win-prize-label{font-family:var(--mono);font-size:0.55rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
+.lite-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.lite-stat{background:var(--ink-card);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center}.lite-stat-val{font-family:var(--serif);font-size:1.8rem;font-weight:700;color:var(--paper);display:block;margin-bottom:4px;font-style:italic}.lite-stat-val.gold{color:var(--gold)}.lite-stat-val.green{color:var(--green)}.lite-stat-val.teal{color:var(--teal-light)}.lite-stat-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)}
+.pot-lite{display:flex;align-items:center;justify-content:space-between;padding:20px;background:var(--ink-card);border:1px solid var(--border);border-radius:8px;margin-bottom:16px}.pot-lite-left .label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}.pot-lite-left .val{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--gold);font-style:italic}.pot-lite-bar{flex:1;margin:0 24px}.pot-bar-track{height:8px;background:var(--ink-light);border-radius:4px;overflow:hidden;border:1px solid var(--border-dim)}.pot-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:4px}.pot-bar-label{font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-align:right}.pot-lite-pct{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--gold);font-style:italic}
+.event-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-dim)}.event-item:last-child{border-bottom:none}.ev-icon{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1px solid var(--border)}.ev-icon.collision{background:rgba(61,220,132,0.1);border-color:rgba(61,220,132,0.3)}.ev-icon.rollover{background:var(--gold-ghost)}.ev-icon.drain{background:rgba(255,90,95,0.1);border-color:rgba(255,90,95,0.3)}.ev-text{flex:1;font-family:var(--serif);font-size:0.95rem;color:var(--body-text);font-weight:500}.ev-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:2px}.ev-time{font-family:var(--mono);font-size:0.6rem;color:var(--muted);font-style:italic}
+.adv-section{margin-bottom:24px}.adv-section-title{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal-light);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.phase-banner-adv{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;padding:24px;margin-bottom:20px;background:var(--ink-card);border:1px solid var(--border);border-radius:8px}.adv-phase-name{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--gold);font-style:italic;margin-bottom:4px}.adv-phase-sub{font-family:var(--mono);font-size:0.65rem;color:var(--muted)}.phase-bar-track{height:6px;background:var(--ink-light);border-radius:3px;overflow:hidden;border:1px solid var(--border-dim)}.phase-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:3px}.phase-bar-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:6px}.adv-countdown{text-align:right}.adv-countdown-val{font-family:var(--serif);font-size:1.8rem;font-weight:700;color:var(--paper);font-style:italic;display:block;margin-bottom:4px}.adv-countdown-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)}
+.stat-box{background:var(--ink);border:1px solid var(--border);border-radius:6px;padding:16px}.stat-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}.stat-val{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--paper);font-style:italic}.stat-sub{font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:3px}.stat-val.green{color:var(--green)}.stat-val.gold{color:var(--gold)}.stat-val.red{color:var(--red)}.stat-val.teal{color:var(--teal-light)}
+.epoch-slots-adv{display:grid;grid-template-columns:repeat(52,1fr);gap:2px;margin:14px 0}.epoch-slot{height:8px;border-radius:2px;background:var(--ink-light);border:1px solid var(--border-dim)}.epoch-slot.filled{background:var(--gold);border-color:var(--gold-dim)}.epoch-slot.win{background:var(--green);border-color:var(--green)}
+.drain-bar-track{height:10px;background:var(--ink-light);border-radius:5px;overflow:hidden;margin:10px 0;border:1px solid var(--border-dim);position:relative}.drain-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));box-shadow:0 0 10px rgba(201,168,76,0.2)}.drain-bar-fill::after{content:'⚡';position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:14px}
+.fib-split{margin-top:20px}.fib-title{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}.fib-bars{display:flex;height:24px;border-radius:4px;overflow:hidden;gap:2px;border:1px solid var(--border)}.fib-retain{background:var(--gold-dim);color:var(--ink);flex:13;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.65rem;font-weight:500}.fib-send{background:var(--gold);color:var(--ink);flex:39;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.65rem;font-weight:500}.fib-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:6px}
+.gauge-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}.gauge-box{background:var(--ink);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center}.gauge-val{font-family:var(--serif);font-size:2rem;font-weight:700;font-style:italic;display:block;margin-bottom:4px}.gauge-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}.gauge-bar{height:4px;background:var(--ink-light);border-radius:2px;margin-top:12px;overflow:hidden;border:1px solid var(--border-dim)}.gauge-bar-fill{height:100%;border-radius:2px}
+.health-track{height:12px;background:var(--ink-light);border-radius:6px;overflow:hidden;position:relative;margin:10px 0;border:1px solid var(--border-dim)}.health-fill{height:100%;border-radius:6px;box-shadow:0 0 8px rgba(201,168,76,0.15)}.health-line{position:absolute;top:0;height:100%;width:2px;background:var(--gold);opacity:0.8}.health-line::after{content:attr(data-label);position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:0.6rem;color:var(--gold)}.health-line.emergency{background:var(--red)}.health-line.emergency::after{color:var(--red)}
+.inj-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-dim);font-family:var(--mono);font-size:0.7rem}.inj-row:last-child{border-bottom:none}.inj-amount{color:var(--green);font-weight:500}.inj-ratio{color:var(--body-text)}.inj-block{color:var(--muted);font-size:0.6rem}
+.zone-row{display:flex;gap:10px;margin-top:14px}.zone-block{flex:1;padding:14px 10px;border-radius:6px;text-align:center;font-family:var(--mono);font-size:0.7rem;font-weight:500;border:1px solid transparent;letter-spacing:0.05em}.zone-block.red{background:rgba(255,90,95,0.08);color:var(--red);border-color:rgba(255,90,95,0.3)}.zone-block.yellow{background:var(--gold-ghost);color:var(--gold);border-color:var(--gold-dim)}.zone-block.green{background:rgba(61,220,132,0.08);color:var(--green);border-color:rgba(61,220,132,0.3)}.zone-block.active{border-width:2px}.zone-sub{font-size:0.6rem;font-weight:400;opacity:0.7;margin-top:3px}
+.threshold-info{background:var(--ink-light);border:1px solid var(--border);border-radius:6px;padding:12px;margin-top:16px;font-family:var(--mono);font-size:0.65rem;color:var(--muted)}.threshold-info strong{color:var(--teal-light)}
+footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px solid var(--border);background:rgba(14,21,32,0.8)}.footer-content{font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:0.1em}.footer-content span{color:var(--gold);font-weight:500}
+@media(max-width:960px){.logo-sub{display:none}.tab-hint{display:none}main{padding:16px}.grid-2,.grid-3{grid-template-columns:1fr}.gauge-row{grid-template-columns:1fr 1fr}.lite-stats{grid-template-columns:1fr 1fr}.phase-banner-adv{grid-template-columns:1fr;gap:16px}.adv-countdown{text-align:left}.pot-lite{flex-wrap:wrap;gap:12px}.pot-lite-bar{width:100%;margin:0;order:3}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-mark">52F</span>
+    <span class="logo-sub">Protocol Dashboard</span>
+  </div>
+  <div class="header-right">
+    <div class="live-indicator">
+      <div class="live-dot mock" id="liveDot"></div>
+      <span id="liveLabel">MOCK</span>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnMock" onclick="setMode('mock')">MOCK</button>
+      <button class="mode-btn" id="btnLive" onclick="setMode('live')">LIVE</button>
+    </div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabLiteBtn" onclick="setTab('lite')">Overview</button>
+  <button class="tab-btn" id="tabAdvBtn" onclick="setTab('adv')">Advanced</button>
+  <span class="tab-hint">e=2.718... π=3.141... 52!=80,658,175,170</span>
+</div>
+
+<main>
+
+<!-- LITE PANEL -->
+<div class="tab-panel active" id="panelLite">
+  
+  <div class="phase-pill">
+    <div>
+      <div class="phase-pill-label">Protocol Phase</div>
+      <div class="phase-pill-name" id="litePhaseName">HARDENING</div>
+    </div>
+    <div class="phase-pill-right">
+      <span id="liteCountdown">22,970,000</span> blocks · <span id="liteDays">~ 26.6 days</span> remaining
+    </div>
+  </div>
+
+  <div class="card hero-block" id="liteEpochCard">
+    <div class="card-title">Current Epoch</div>
+    <div class="hero-epoch" id="liteEpochLabel">EPOCH #147</div>
+    <div class="hero-slots" id="liteSlots"></div>
+    <div>
+      <span class="hero-counter" id="liteCounter">34</span>
+      <span class="hero-denom">/52</span>
+    </div>
+    <div class="hero-label">TRANSACTIONS THIS EPOCH</div>
+    <div class="hero-meta">
+      <span class="chip chip-green">● ACTIVE</span>
+      <span class="hero-meta-text">MOD-1000 collision engine · 52M entry threshold</span>
+    </div>
+  </div>
+
+  <div class="last-win-banner">
+    <div class="win-icon">🎯</div>
+    <div class="win-details">
+      <div class="win-title" id="liteWinTitle">Epoch #144 — Collision Detected</div>
+      <div class="win-sub" id="liteWinSub">2 winners · MOD-1000 match confirmed</div>
+    </div>
+    <div class="win-prize">
+      <span class="win-prize-val" id="liteWinPrize">33.5M</span>
+      <div class="win-prize-label">52F EACH</div>
+    </div>
+  </div>
+
+  <div class="lite-stats">
+    <div class="lite-stat">
+      <span class="lite-stat-val green" id="liteCollisions">23</span>
+      <span class="lite-stat-label">Total Wins</span>
+    </div>
+    <div class="lite-stat">
+      <span class="lite-stat-val" id="liteEpochId">#147</span>
+      <span class="lite-stat-label">Epoch</span>
+    </div>
+    <div class="lite-stat">
+      <span class="lite-stat-val gold" id="liteRollover">41.2M</span>
+      <span class="lite-stat-label">Rollover Pot</span>
+    </div>
+  </div>
+
+  <div class="pot-lite">
+    <div class="pot-lite-left">
+      <div class="label">Prize Pot</div>
+      <div><span class="val" id="litePotVal">247.8M</span><span class="unit">52F</span></div>
+    </div>
+    <div class="pot-lite-bar">
+      <div class="pot-bar-track">
+        <div class="pot-bar-fill" id="litePotBar" style="width:47.7%"></div>
+      </div>
+      <div class="pot-bar-label">Great Drain at 520M 52F (TWAP-protected)</div>
+    </div>
+    <div class="pot-lite-pct" id="litePotPct">47.7%</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent Events</div>
+    <div class="event-feed" id="liteEventFeed"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Dampener Status</div>
+    <div class="grid-2">
+      <div class="stat-box">
+        <div class="stat-label">L/MC Ratio</div>
+        <div class="stat-val green" id="liteLmcRatio">18.4%</div>
+        <div class="stat-sub">Healthy (≥15%)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Vault Balance</div>
+        <div class="stat-val gold" id="liteVaultQF">8,240 QF</div>
+        <div class="stat-sub">Accumulated tax</div>
+      </div>
+    </div>
+    <div class="threshold-info">
+      <strong>Three-Tier Response:</strong> Healthy (≥15%) · Normal (7.5-14.99%) · Emergency (&lt;7.5%)<br>
+      <strong>TWAP:</strong> 60 snapshots · 36,000 block lookback · Flash loan resistant
+    </div>
+  </div>
+
+</div>
+
+<!-- ADVANCED PANEL -->
+<div class="tab-panel" id="panelAdv">
+  
+  <div class="phase-banner-adv">
+    <div>
+      <div class="adv-phase-name" id="advPhaseName">HARDENING</div>
+      <div class="adv-phase-sub" id="advPhaseSub">1.25% Dampener rate · Team tax active · Great Drain → LP</div>
+      <div style="margin-top:10px">
+        <span class="chip chip-gold" id="advPhaseChip">⚙ HARDENING PHASE</span>
+      </div>
+    </div>
+    <div class="phase-bar-wrap">
+      <div class="phase-bar-track">
+        <div class="phase-bar-fill" id="advPhaseBar" style="width:12%"></div>
+      </div>
+      <div class="phase-bar-labels">
+        <span>DEPLOY</span>
+        <span id="advPhaseBarPct">12% elapsed</span>
+        <span>SCARCITY</span>
+      </div>
+    </div>
+    <div class="adv-countdown">
+      <span class="adv-countdown-val" id="advCountdown">22,970,000</span>
+      <span class="adv-countdown-label">BLOCKS REMAINING</span>
+      <div style="margin-top:4px;font-family:var(--mono);font-size:0.65rem;color:var(--muted)" id="advDays">~ 26.6 days</div>
+    </div>
+  </div>
+
+  <div class="adv-section">
+    <div class="adv-section-title">Epoch & Collision Engine</div>
+    <div class="card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <div style="font-family:var(--serif);font-size:2.8rem;font-weight:700;color:var(--gold);letter-spacing:-2px;font-style:italic">
+            <span id="advEpochCounter">34</span>
+            <span style="font-size:1rem;color:var(--muted);margin-left:6px">/52</span>
+          </div>
+          <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-top:4px">TRANSACTIONS THIS EPOCH</div>
+        </div>
+        <span class="chip chip-green">● EPOCH #<span id="advEpochId">147</span></span>
+      </div>
+      <div class="epoch-slots-adv" id="advSlots"></div>
+      <div class="grid-2" style="gap:10px;margin-top:16px">
+        <div class="stat-box">
+          <div class="stat-label">Entry Threshold</div>
+          <div class="stat-val teal">52M 52F</div>
+          <div class="stat-sub">Per qualifying transaction</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Collision Modulus</div>
+          <div class="stat-val">MOD-1000</div>
+          <div class="stat-sub">~73.9% hit rate per epoch</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Collisions All-Time</div>
+          <div class="stat-val green" id="advCollisions">23</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Last Collision</div>
+          <div class="stat-val" id="advLastCollision">Epoch #144</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Rollover Pot</div>
+          <div class="stat-val gold" id="advRollover">41.2M 52F</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Epoch Max Blocks</div>
+          <div class="stat-val">5.2M</div>
+          <div class="stat-sub">~6 days timeout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="adv-section">
+    <div class="adv-section-title">Prize Pot & Great Drain</div>
+    <div class="card">
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
+        <div style="font-family:var(--serif);font-size:2.2rem;font-weight:700;color:var(--gold);letter-spacing:-2px;font-style:italic" id="advPotAmount">247,831,204</div>
+        <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);letter-spacing:0.1em">52F IN PRIZE POT</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;margin-bottom:6px">
+        <span style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)">Great Drain Threshold</span>
+        <span style="font-family:var(--mono);font-size:0.75rem;color:var(--gold);font-weight:500" id="advDrainPct">47.7%</span>
+      </div>
+      <div class="drain-bar-track">
+        <div class="drain-bar-fill" id="advDrainBar" style="width:47.7%"></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-align:right">Fires at 520,000,000 52F (TWAP-protected)</div>
+      
+      <div class="grid-3" style="gap:10px;margin-top:16px">
+        <div class="stat-box">
+          <div class="stat-label">Drains Fired</div>
+          <div class="stat-val red" id="advDrainCount">3</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total 52F Burned</div>
+          <div class="stat-val red" id="advTotalBurned">0 52F</div>
+          <div class="stat-sub">Scarcity phase only</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">LP Added</div>
+          <div class="stat-val teal" id="advTotalPaired">390M 52F</div>
+          <div class="stat-sub">Hardening phase</div>
+        </div>
+      </div>
+      
+      <div class="fib-split">
+        <div class="fib-title">Epoch Yield Split — 13/52 Retention</div>
+        <div class="fib-bars">
+          <div class="fib-retain">13</div>
+          <div class="fib-send">39</div>
+        </div>
+        <div class="fib-labels">
+          <span>13/52 retained → Great Drain fuel (immutable)</span>
+          <span>39/52 → Sequencer (34/39 prize · 5/39 liquidity)</span>
+        </div>
+      </div>
+      
+      <div class="grid-2" style="gap:10px;margin-top:16px">
+        <div class="stat-box">
+          <div class="stat-label">Last Drain Block</div>
+          <div class="stat-val" id="advLastDrainBlock">18,421,300</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Needed for Next Drain</div>
+          <div class="stat-val gold" id="advPotNeeded">272.2M 52F</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="adv-section">
+    <div class="adv-section-title">Dampener Vault — Liquidity Governor</div>
+    <div class="card">
+      <div class="gauge-row">
+        <div class="gauge-box">
+          <span class="gauge-val" id="advLmcRatio" style="color:var(--green)">18.4%</span>
+          <div class="gauge-label">L/MC Ratio</div>
+          <div class="gauge-bar">
+            <div class="gauge-bar-fill" id="advLmcBar" style="width:55%;background:var(--green)"></div>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <span class="gauge-val gold" id="advVaultQF">8,240</span>
+          <div class="gauge-label">Vault QF</div>
+          <div class="gauge-bar">
+            <div class="gauge-bar-fill" id="advVaultBar" style="width:79%;background:var(--gold)"></div>
+          </div>
+        </div>
+        <div class="gauge-box">
+          <span class="gauge-val teal" id="advLoanRemaining">41,200</span>
+          <div class="gauge-label">Loan Remaining (QF)</div>
+          <div class="gauge-bar">
+            <div class="gauge-bar-fill" id="advLoanBar" style="width:79%;background:var(--teal-light)"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <span style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)">Liquidity / Market Cap</span>
+          <span style="font-family:var(--mono);font-size:0.7rem;font-weight:500;color:var(--green)" id="advHealthLabel">18.4% — HEALTHY</span>
+        </div>
+        <div class="health-track">
+          <div class="health-fill" id="advHealthFill" style="width:37%;background:var(--green)"></div>
+          <div class="health-line" style="left:30%" data-label="15%"></div>
+          <div class="health-line emergency" style="left:15%" data-label="7.5%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:8px">
+          <span>Emergency (&lt;7.5%)</span>
+          <span>Normal (7.5-15%)</span>
+          <span>Healthy (≥15%)</span>
+        </div>
+      </div>
+      
+      <div class="grid-2" style="gap:16px">
+        <div>
+          <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Recent Injections</div>
+          <div id="advInjectionList"></div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Seed Loan Recovery</div>
+          <div class="zone-row" id="advZoneRow">
+            <div class="zone-block red active" id="advZoneRed">RED<div class="zone-sub">0–90 days</div></div>
+            <div class="zone-block yellow" id="advZoneYellow">YELLOW<div class="zone-sub">91–180 days</div></div>
+            <div class="zone-block green" id="advZoneGreen">GREEN<div class="zone-sub">181+ days</div></div>
+          </div>
+          <div class="grid-2" style="gap:8px;margin-top:10px">
+            <div class="stat-box">
+              <div class="stat-label">Total Repaid</div>
+              <div class="stat-val" id="advTotalRepaid">0 QF</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Lifetime Injected</div>
+              <div class="stat-val green" id="advLifetimeInjected">1,840 QF</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Cooldown</div>
+              <div class="stat-val green" id="advCooldown">READY</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Last Injection</div>
+              <div class="stat-val" id="advLastInj" style="font-size:0.75rem">Blk 14,832,100</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="threshold-info" style="margin-top:16px">
+        <strong>TWAP Configuration:</strong> 60 snapshots · 36,000 block lookback (~1 hour) · Randomised ±12min cooldown<br>
+        <strong>Injection Mode:</strong> Normal (50% market buy + 50% LP) · Emergency (100% direct LP)<br>
+        <strong>LP Tokens:</strong> Permanently locked · No withdrawal function exists
+      </div>
+    </div>
+  </div>
+
+  <div class="adv-section">
+    <div class="adv-section-title">Tax Configuration by Phase</div>
+    <div class="card">
+      <div class="grid-3" style="gap:12px">
+        <div class="stat-box">
+          <div class="stat-label">Current Phase</div>
+          <div class="stat-val gold">HARDENING</div>
+          <div class="stat-sub">Blocks 10,400 – 26M</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Buy Tax</div>
+          <div class="stat-val">3.47%</div>
+          <div class="stat-sub">1.25% D · 1.47% P · 0.75% T</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Sell Tax</div>
+          <div class="stat-val">3.89%</div>
+          <div class="stat-sub">1.25% D · 1.89% P · 0.75% T</div>
+        </div>
+      </div>
+      <div class="threshold-info" style="margin-top:16px">
+        <strong>D</strong> = Dampener Vault · <strong>P</strong> = Prize Pot · <strong>T</strong> = Team<br>
+        Scarcity Phase (26M+): Buy 2.72% (e) · Sell 3.14% (π) · Dampener 0.50%
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<footer>
+  <div class="footer-content">
+    <span>52F</span> Protocol · QF Network · <span>e</span>=2.71828 <span>π</span>=3.14159 <span>52!</span>=80,658,175,170 · <a href="/" style="color:var(--muted);text-decoration:none">← Back to Home</a>
+  </div>
+</footer>
+
+<script>
+// Contract-accurate mock data
+var MOCK = {
+  deployBlock: 3000000,
+  currentBlock: 6030000,
+  shieldEndBlock: 26000000,
+  epochCounter: 34,
+  epochId: 147,
+  collisionCount: 23,
+  lastCollisionEpoch: 144,
+  lastCollisionWinners: 2,
+  lastCollisionPrize: 33500000,
+  rolloverPot: 41200000,
+  prizePot: 247831204,
+  drainThreshold: 520000000,
+  drainCount: 3,
+  totalBurned: '0 52F',
+  totalPaired: '390M 52F',
+  lastDrainBlock: 18421300,
+  lmcRatioPct: 18.4,
+  vaultQF: 8240,
+  founderLoanTotal: 52000,
+  founderLoanRemaining: 41200,
+  totalRepaid: 0,
+  lifetimeInjected: 1840,
+  lastInjectionBlock: 14832100,
+  cooldownReady: true,
+  injections: [
+    { block: 14832100, amount: '420 QF', ratio: '12.1%' },
+    { block: 11200050, amount: '380 QF', ratio: '13.8%' },
+    { block: 8940200, amount: '210 QF', ratio: '14.2%' }
+  ],
+  events: [
+    { type: 'collision', title: 'Epoch #144 — Collision!', sub: '2 winners · 33.5M 52F each · MOD-847', time: '2h ago' },
+    { type: 'rollover', title: 'Epoch #145 — No collision', sub: 'Rolled over · pot +27.8M 52F', time: '1h ago' },
+    { type: 'rollover', title: 'Epoch #146 — No collision', sub: 'Rolled over · pot +31.2M 52F', time: '30m ago' },
+    { type: 'drain', title: 'Great Drain Fired', sub: '150M 52F → Dampener liquidity accumulator', time: '4h ago' }
+  ]
+};
+
+function fmtM(n) {
+  if (n >= 1000000000) return (n / 1000000000).toFixed(1) + 'B';
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function phaseInfo(d) {
+  var elapsed = d.currentBlock - d.deployBlock;
+  var total = d.shieldEndBlock - d.deployBlock;
+  var pct = Math.min(100, (elapsed / total) * 100);
