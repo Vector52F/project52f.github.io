@@ -466,3 +466,176 @@ function phaseInfo(d) {
   var elapsed = d.currentBlock - d.deployBlock;
   var total = d.shieldEndBlock - d.deployBlock;
   var pct = Math.min(100, (elapsed / total) * 100);
+  var remaining = d.shieldEndBlock - d.currentBlock;
+  var days = (remaining * 3) / 86400; // ~3s blocks
+  return { pct: pct, remaining: remaining, days: days };
+}
+
+// ===== TAB SWITCHING FUNCTION (THE MISSING PIECE!) =====
+function setTab(tabName) {
+  // Update button states
+  document.getElementById('tabLiteBtn').classList.remove('active');
+  document.getElementById('tabAdvBtn').classList.remove('active');
+  
+  // Hide all panels
+  document.getElementById('panelLite').classList.remove('active');
+  document.getElementById('panelAdv').classList.remove('active');
+  
+  // Show selected tab
+  if (tabName === 'lite') {
+    document.getElementById('tabLiteBtn').classList.add('active');
+    document.getElementById('panelLite').classList.add('active');
+  } else if (tabName === 'adv') {
+    document.getElementById('tabAdvBtn').classList.add('active');
+    document.getElementById('panelAdv').classList.add('active');
+  }
+}
+
+// ===== MODE TOGGLE FUNCTION =====
+function setMode(mode) {
+  var dot = document.getElementById('liveDot');
+  var label = document.getElementById('liveLabel');
+  var btnMock = document.getElementById('btnMock');
+  var btnLive = document.getElementById('btnLive');
+  
+  if (mode === 'live') {
+    dot.classList.remove('mock');
+    label.textContent = 'LIVE';
+    btnMock.classList.remove('active');
+    btnLive.classList.add('active');
+  } else {
+    dot.classList.add('mock');
+    label.textContent = 'MOCK';
+    btnLive.classList.remove('active');
+    btnMock.classList.add('active');
+  }
+}
+
+// ===== RENDER FUNCTIONS =====
+function renderSlots(containerId, filled, winIndex) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  for (var i = 0; i < 52; i++) {
+    var slot = document.createElement('div');
+    slot.className = 'hero-slot';
+    if (i < filled) slot.classList.add('filled');
+    if (i === winIndex) slot.classList.add('win');
+    container.appendChild(slot);
+  }
+}
+
+function renderAdvSlots(containerId, filled) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  for (var i = 0; i < 52; i++) {
+    var slot = document.createElement('div');
+    slot.className = 'epoch-slot';
+    if (i < filled) slot.classList.add('filled');
+    container.appendChild(slot);
+  }
+}
+
+function renderEvents() {
+  var container = document.getElementById('liteEventFeed');
+  if (!container) return;
+  container.innerHTML = '';
+  MOCK.events.forEach(function(ev) {
+    var item = document.createElement('div');
+    item.className = 'event-item';
+    var iconClass = ev.type === 'collision' ? 'collision' : ev.type === 'drain' ? 'drain' : 'rollover';
+    var icon = ev.type === 'collision' ? '✅' : ev.type === 'drain' ? '⚡' : '🔄';
+    item.innerHTML = 
+      '<div class="ev-icon ' + iconClass + '">' + icon + '</div>' +
+      '<div class="ev-text">' + ev.title + '<div class="ev-sub">' + ev.sub + '</div></div>' +
+      '<div class="ev-time">' + ev.time + '</div>';
+    container.appendChild(item);
+  });
+}
+
+function renderInjections() {
+  var container = document.getElementById('advInjectionList');
+  if (!container) return;
+  container.innerHTML = '';
+  MOCK.injections.forEach(function(inj) {
+    var row = document.createElement('div');
+    row.className = 'inj-row';
+    row.innerHTML = 
+      '<span class="inj-amount">' + inj.amount + '</span>' +
+      '<span class="inj-ratio">' + inj.ratio + '</span>' +
+      '<span class="inj-block">Blk ' + inj.block.toLocaleString() + '</span>';
+    container.appendChild(row);
+  });
+}
+
+// ===== INITIALIZATION =====
+function init() {
+  var ph = phaseInfo(MOCK);
+  
+  // Phase info
+  document.getElementById('liteCountdown').textContent = ph.remaining.toLocaleString();
+  document.getElementById('liteDays').textContent = '~ ' + ph.days.toFixed(1) + ' days';
+  document.getElementById('advCountdown').textContent = ph.remaining.toLocaleString();
+  document.getElementById('advDays').textContent = '~ ' + ph.days.toFixed(1) + ' days';
+  document.getElementById('advPhaseBar').style.width = ph.pct + '%';
+  document.getElementById('advPhaseBarPct').textContent = ph.pct.toFixed(1) + '% elapsed';
+  
+  // Epoch slots
+  renderSlots('liteSlots', MOCK.epochCounter, -1);
+  renderAdvSlots('advSlots', MOCK.epochCounter);
+  
+  // Stats
+  document.getElementById('liteCounter').textContent = MOCK.epochCounter;
+  document.getElementById('advEpochCounter').textContent = MOCK.epochCounter;
+  document.getElementById('liteEpochId').textContent = '#' + MOCK.epochId;
+  document.getElementById('advEpochId').textContent = MOCK.epochId;
+  document.getElementById('liteCollisions').textContent = MOCK.collisionCount;
+  document.getElementById('advCollisions').textContent = MOCK.collisionCount;
+  document.getElementById('advLastCollision').textContent = 'Epoch #' + MOCK.lastCollisionEpoch;
+  document.getElementById('liteRollover').textContent = fmtM(MOCK.rolloverPot);
+  document.getElementById('advRollover').textContent = fmtM(MOCK.rolloverPot) + ' 52F';
+  
+  // Prize pot
+  var potPct = (MOCK.prizePot / MOCK.drainThreshold * 100).toFixed(1);
+  document.getElementById('litePotVal').textContent = fmtM(MOCK.prizePot);
+  document.getElementById('litePotPct').textContent = potPct + '%';
+  document.getElementById('litePotBar').style.width = potPct + '%';
+  document.getElementById('advPotAmount').textContent = MOCK.prizePot.toLocaleString();
+  document.getElementById('advDrainPct').textContent = potPct + '%';
+  document.getElementById('advDrainBar').style.width = potPct + '%';
+  document.getElementById('advPotNeeded').textContent = fmtM(MOCK.drainThreshold - MOCK.prizePot) + ' 52F';
+  
+  // Last win
+  document.getElementById('liteWinTitle').textContent = 'Epoch #' + MOCK.lastCollisionEpoch + ' — Collision Detected';
+  document.getElementById('liteWinSub').textContent = MOCK.lastCollisionWinners + ' winners · MOD-1000 match confirmed';
+  document.getElementById('liteWinPrize').textContent = fmtM(MOCK.lastCollisionPrize);
+  
+  // Dampener
+  document.getElementById('liteLmcRatio').textContent = MOCK.lmcRatioPct + '%';
+  document.getElementById('liteVaultQF').textContent = MOCK.vaultQF.toLocaleString() + ' QF';
+  document.getElementById('advLmcRatio').textContent = MOCK.lmcRatioPct + '%';
+  document.getElementById('advVaultQF').textContent = MOCK.vaultQF.toLocaleString();
+  document.getElementById('advLoanRemaining').textContent = MOCK.founderLoanRemaining.toLocaleString();
+  document.getElementById('advTotalRepaid').textContent = MOCK.totalRepaid + ' QF';
+  document.getElementById('advLifetimeInjected').textContent = MOCK.lifetimeInjected.toLocaleString() + ' QF';
+  document.getElementById('advLastInj').textContent = 'Blk ' + MOCK.lastInjectionBlock.toLocaleString();
+  document.getElementById('advCooldown').textContent = MOCK.cooldownReady ? 'READY' : 'COOLDOWN';
+  
+  // Drain stats
+  document.getElementById('advDrainCount').textContent = MOCK.drainCount;
+  document.getElementById('advTotalBurned').textContent = MOCK.totalBurned;
+  document.getElementById('advTotalPaired').textContent = MOCK.totalPaired;
+  document.getElementById('advLastDrainBlock').textContent = MOCK.lastDrainBlock.toLocaleString();
+  
+  // Lists
+  renderEvents();
+  renderInjections();
+}
+
+// Run on load
+init();
+</script>
+
+</body>
+</html>
