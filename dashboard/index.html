@@ -163,8 +163,9 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       </div>
     </div>
     <div class="threshold-info">
-      <strong>Three-Tier Response:</strong> Healthy (≥15%) · Normal (7.5-14.99%) · Emergency (&lt;7.5%)<br>
-      <strong>TWAP:</strong> 60 snapshots · 36,000 block lookback · Flash loan resistant
+      <strong>Three-Tier Response:</strong> Healthy (≥15%) · Normal (7.5–14.99%) · Emergency (&lt;7.5%)<br>
+      <strong>TWAP:</strong> 60 snapshots · 36,000 block lookback · Flash loan resistant<br>
+      <strong>Cooldown:</strong> 48–72 min randomised (defeats front-running)
     </div>
   </div>
 
@@ -176,7 +177,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
   <div class="phase-banner-adv">
     <div>
       <div class="adv-phase-name" id="advPhaseName">HARDENING</div>
-      <div class="adv-phase-sub" id="advPhaseSub">1.25% Dampener rate · Team tax active · Great Drain → LP</div>
+      <div class="adv-phase-sub" id="advPhaseSub">Buy 2.72% (0 D · 1.97% P · 0.75% T) · Sell 3.14% (2.39% D · 0 P · 0.75% T) · Great Drain → LP</div>
       <div style="margin-top:10px">
         <span class="chip chip-gold" id="advPhaseChip">⚙ HARDENING PHASE</span>
       </div>
@@ -321,10 +322,10 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
           </div>
         </div>
         <div class="gauge-box">
-          <span class="gauge-val teal" id="advLoanRemaining">41,200</span>
-          <div class="gauge-label">Loan Remaining (QF)</div>
+          <span class="gauge-val teal" id="advTotalInjected">1,840</span>
+          <div class="gauge-label">Lifetime Injected (QF)</div>
           <div class="gauge-bar">
-            <div class="gauge-bar-fill" id="advLoanBar" style="width:79%;background:var(--teal-light)"></div>
+            <div class="gauge-bar-fill" id="advTotalInjBar" style="width:18%;background:var(--teal-light)"></div>
           </div>
         </div>
       </div>
@@ -352,16 +353,12 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
           <div id="advInjectionList"></div>
         </div>
         <div>
-          <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Seed Loan Recovery</div>
-          <div class="zone-row" id="advZoneRow">
-            <div class="zone-block red active" id="advZoneRed">RED<div class="zone-sub">0–90 days</div></div>
-            <div class="zone-block yellow" id="advZoneYellow">YELLOW<div class="zone-sub">91–180 days</div></div>
-            <div class="zone-block green" id="advZoneGreen">GREEN<div class="zone-sub">181+ days</div></div>
-          </div>
+          <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Injection Stats</div>
           <div class="grid-2" style="gap:8px;margin-top:10px">
             <div class="stat-box">
-              <div class="stat-label">Total Repaid</div>
-              <div class="stat-val" id="advTotalRepaid">0 QF</div>
+              <div class="stat-label">Total LP Received</div>
+              <div class="stat-val teal" id="advTotalLP">—</div>
+              <div class="stat-sub">Permanently locked</div>
             </div>
             <div class="stat-box">
               <div class="stat-label">Lifetime Injected</div>
@@ -370,6 +367,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
             <div class="stat-box">
               <div class="stat-label">Cooldown</div>
               <div class="stat-val green" id="advCooldown">READY</div>
+              <div class="stat-sub">48–72 min between injections</div>
             </div>
             <div class="stat-box">
               <div class="stat-label">Last Injection</div>
@@ -380,7 +378,8 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       </div>
       
       <div class="threshold-info" style="margin-top:16px">
-        <strong>TWAP Configuration:</strong> 60 snapshots · 36,000 block lookback (~1 hour) · Randomised ±12min cooldown<br>
+        <strong>TWAP Configuration:</strong> 60 snapshots · 36,000 block lookback (~1 hour)<br>
+        <strong>Injection Cooldown:</strong> 36,000 blocks base ± 7,200 blocks randomised variance (48–72 min)<br>
         <strong>Injection Mode:</strong> Normal (50% market buy + 50% LP) · Emergency (100% direct LP)<br>
         <strong>LP Tokens:</strong> Permanently locked · No withdrawal function exists
       </div>
@@ -398,18 +397,18 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
         </div>
         <div class="stat-box">
           <div class="stat-label">Buy Tax</div>
-          <div class="stat-val">3.47%</div>
-          <div class="stat-sub">1.25% D · 1.47% P · 0.75% T</div>
+          <div class="stat-val">2.72%</div>
+          <div class="stat-sub">0 D · 1.97% P · 0.75% T</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Sell Tax</div>
-          <div class="stat-val">3.89%</div>
-          <div class="stat-sub">1.25% D · 1.89% P · 0.75% T</div>
+          <div class="stat-val">3.14%</div>
+          <div class="stat-sub">2.39% D · 0 P · 0.75% T</div>
         </div>
       </div>
       <div class="threshold-info" style="margin-top:16px">
         <strong>D</strong> = Dampener Vault · <strong>P</strong> = Prize Pot · <strong>T</strong> = Team<br>
-        Scarcity Phase (26M+): Buy 2.72% (e) · Sell 3.14% (π) · Dampener 0.50%
+        Scarcity Phase (26M+): Buy 2.72% (e) · Sell 3.14% (π) · Same split, drain switches to burn if ratio ≥ 15%
       </div>
     </div>
   </div>
@@ -445,10 +444,8 @@ var MOCK = {
   lastDrainBlock: 18421300,
   lmcRatioPct: 18.4,
   vaultQF: 8240,
-  founderLoanTotal: 52000,
-  founderLoanRemaining: 41200,
-  totalRepaid: 0,
   lifetimeInjected: 1840,
+  totalLPReceived: 0,
   lastInjectionBlock: 14832100,
   cooldownReady: true,
   injections: [
@@ -476,7 +473,7 @@ function phaseInfo(d) {
   var total = d.shieldEndBlock - d.deployBlock;
   var pct = Math.min(100, (elapsed / total) * 100);
   var remaining = d.shieldEndBlock - d.currentBlock;
-  var days = (remaining * 3) / 86400; // ~3s blocks
+  var days = (remaining * 0.1) / 86400; // 0.1s blocks (QF Network)
   return { pct: pct, remaining: remaining, days: days };
 }
 
@@ -625,9 +622,9 @@ function init() {
   document.getElementById('liteVaultQF').textContent = MOCK.vaultQF.toLocaleString() + ' QF';
   document.getElementById('advLmcRatio').textContent = MOCK.lmcRatioPct + '%';
   document.getElementById('advVaultQF').textContent = MOCK.vaultQF.toLocaleString();
-  document.getElementById('advLoanRemaining').textContent = MOCK.founderLoanRemaining.toLocaleString();
-  document.getElementById('advTotalRepaid').textContent = MOCK.totalRepaid + ' QF';
+  document.getElementById('advTotalInjected').textContent = MOCK.lifetimeInjected.toLocaleString();
   document.getElementById('advLifetimeInjected').textContent = MOCK.lifetimeInjected.toLocaleString() + ' QF';
+  document.getElementById('advTotalLP').textContent = MOCK.totalLPReceived > 0 ? MOCK.totalLPReceived.toLocaleString() : '—';
   document.getElementById('advLastInj').textContent = 'Blk ' + MOCK.lastInjectionBlock.toLocaleString();
   document.getElementById('advCooldown').textContent = MOCK.cooldownReady ? 'READY' : 'COOLDOWN';
   
