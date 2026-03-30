@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XHW6SEMGRE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -12,506 +12,1617 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project 52F — Sovereign Architecture for Autonomous Liquidity</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Project 52F — A Mathematical DeFi Protocol</title>
+<meta name="description" content="A DeFi protocol on QF Network where every parameter is derived from mathematical constants. 52!, e, π, √2. The constants do the rest.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500&family=Cormorant+Garabold:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <style>
-:root{--ink:#0e1520;--ink-mid:#111c2d;--ink-card:#142030;--ink-light:#1a2940;--gold:#c9a84c;--gold-warm:#dfc078;--gold-dim:rgba(201,168,76,0.3);--gold-ghost:rgba(201,168,76,0.1);--teal:#0e9b8e;--teal-light:#15c4b4;--paper:#edeae2;--body-text:#b8c4d0;--muted:#6e8299;--border:rgba(201,168,76,0.18);--border-dim:rgba(201,168,76,0.08);--green:#3ddc84;--red:#ff5a5f;--mono:'DM Mono',monospace;--serif:'Cormorant Garamond',serif}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;font-size:18px}
-body{background:var(--ink);color:var(--body-text);font-family:var(--serif);line-height:1.85;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(201,168,76,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-.container{max-width:1100px;margin:0 auto;padding:0 2.5rem;position:relative;z-index:1}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(14,21,32,0.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:0 2.5rem;height:62px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:var(--mono);font-size:0.78rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;font-weight:500;text-decoration:none}
-.nav-links{display:flex;gap:0.2rem;list-style:none}
-.nav-links a{font-family:var(--mono);font-size:0.67rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:0.38rem 0.72rem;transition:all 0.2s}
-.nav-links a:hover{color:var(--gold)}
-.nav-links .nav-cta{color:var(--ink);background:var(--gold);font-weight:500;margin-left:0.5rem}
-.section{padding:7rem 0;position:relative}
-.section--alt{background:var(--ink-mid)}
-.section-kicker{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--teal-light);margin-bottom:1rem}
-.section-title{font-family:var(--serif);font-size:clamp(2rem,3.5vw,3.2rem);font-weight:300;line-height:1.15;color:var(--paper);margin-bottom:1.4rem}
-.section-title em{font-style:italic;color:var(--gold)}
-.section-lead{font-size:1.05rem;line-height:1.9;color:var(--muted);max-width:640px;margin-bottom:3rem}
-.rule{width:48px;height:1px;background:var(--gold);opacity:0.5;margin:1.4rem 0}
-.hero-inner{display:grid;grid-template-columns:1.05fr 0.95fr;gap:5rem;align-items:center;padding:8rem 0 5rem}
-.hero-kicker{font-family:var(--mono);font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--teal-light);margin-bottom:1.4rem}
-.hero-title{font-family:var(--serif);font-size:clamp(2.8rem,4.5vw,4.6rem);font-weight:300;line-height:1.08;color:var(--paper);margin-bottom:0.4rem}
-.hero-title strong{font-weight:700;color:var(--gold);display:block;font-style:italic}
-.hero-subtitle{font-size:1.05rem;font-style:italic;color:var(--gold-warm);margin-bottom:2rem;font-weight:300}
-.hero-body{font-size:1.02rem;line-height:1.9;color:var(--muted);max-width:500px;margin-bottom:2.5rem}
-.hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;text-decoration:none;padding:0.8rem 1.8rem;border:none;cursor:pointer;transition:all 0.2s}
-.btn-gold{background:var(--gold);color:var(--ink);font-weight:500}
-.btn-gold:hover{background:var(--gold-warm);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--gold);border:1px solid var(--gold-dim)}
-.btn-ghost:hover{border-color:var(--gold);background:var(--gold-ghost)}
-.const-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border)}
-.const-cell{background:var(--ink-card);padding:1.6rem 1.4rem;transition:background 0.2s}
-.const-cell:hover{background:var(--ink-light)}
-.const-sym{font-family:var(--serif);font-size:2.6rem;font-weight:700;color:var(--gold);line-height:1;margin-bottom:0.3rem}
-.const-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.2rem}
-.const-val{font-family:var(--mono);font-size:0.64rem;color:var(--muted);margin-bottom:0.3rem}
-.const-use{font-size:0.92rem;font-style:italic;color:var(--body-text)}
-.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem}
-.arch-card{background:var(--ink-card);padding:2.2rem 1.8rem}
-.arch-icon{font-family:var(--mono);font-size:1.2rem;color:var(--gold);margin-bottom:1rem;width:40px;height:40px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
-.arch-name{font-family:var(--serif);font-size:1.4rem;color:var(--paper);margin-bottom:0.3rem}
-.arch-role{font-family:var(--mono);font-size:0.65rem;color:var(--teal-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem}
-.arch-desc{font-size:0.95rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem}
-.arch-flow{border-top:1px solid var(--border-dim);padding-top:1rem}
-.flow-item{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.7rem;padding:0.4rem 0;border-bottom:1px solid var(--border-dim);color:var(--muted)}
-.flow-item span{color:var(--gold-warm)}
-.arch-constant{margin-top:1rem;font-family:var(--mono);font-size:0.65rem;color:var(--teal-light);letter-spacing:0.05em}
-.tax-table{width:100%;border-collapse:collapse;margin:2rem 0;font-family:var(--mono);font-size:0.75rem}
-.tax-table th{text-align:left;padding:1rem;background:var(--ink-light);color:var(--teal-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;border:1px solid var(--border)}
-.tax-table td{padding:0.8rem 1rem;border:1px solid var(--border);color:var(--body-text)}
-.tax-table tr:hover{background:var(--ink-light)}
-.phase-indicator{background:var(--ink-card);border:1px solid var(--border);padding:2rem;margin:2rem 0}
-.phase-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
-.phase-current{font-family:var(--mono);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal-light)}
-.phase-current span{color:var(--gold);font-weight:600}
-.phase-blocks{font-family:var(--mono);font-size:0.65rem;color:var(--muted)}
-.phase-progress{width:100%;height:4px;background:var(--ink-light);margin-bottom:1rem;position:relative}
-.phase-progress-bar{height:100%;background:linear-gradient(90deg,var(--gold) 0%,var(--teal-light) 100%);width:12%;transition:width 0.3s ease}
-.phase-markers{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--muted)}
-.phase-marker{text-align:center}
-.phase-marker.active{color:var(--gold)}
-.timeline{position:relative;padding-left:1.5rem;max-width:700px}
-.timeline::before{content:'';position:absolute;left:0;top:0.6rem;bottom:0;width:1px;background:var(--border)}
-.tl-item{position:relative;padding:0 0 2.5rem 2rem}
-.tl-item:last-child{padding-bottom:0}
-.tl-dot{position:absolute;left:-0.42rem;top:0.45rem;width:10px;height:10px;border-radius:50%;background:var(--ink);border:2px solid var(--gold-dim)}
-.tl-item.done .tl-dot{background:var(--gold);border-color:var(--gold)}
-.tl-item.now .tl-dot{background:var(--teal);border-color:var(--teal-light);box-shadow:0 0 12px rgba(14,155,142,0.5)}
-.tl-phase{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal-light);margin-bottom:0.2rem}
-.tl-name{font-family:var(--serif);font-size:1.3rem;font-weight:600;color:var(--paper);margin-bottom:0.4rem}
-.tl-desc{font-size:0.95rem;color:var(--muted);line-height:1.7;max-width:520px}
-.tl-badge{display:inline-block;margin-top:0.5rem;font-family:var(--mono);font-size:0.57rem;letter-spacing:0.1em;padding:0.15rem 0.5rem;background:var(--gold-ghost);color:var(--gold)}
-.maths-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:3rem}
-.math-card{background:var(--ink-card);padding:1.8rem 1.4rem;text-align:center}
-.math-sym{font-family:var(--serif);font-size:2.2rem;color:var(--gold);line-height:1;margin-bottom:0.5rem}
-.math-name{font-family:var(--mono);font-size:0.6rem;color:var(--teal-light);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:0.5rem}
-.math-val{font-family:var(--mono);font-size:0.75rem;color:var(--paper);margin-bottom:1rem}
-.math-card p{font-size:0.8rem;color:var(--muted);line-height:1.6}
-.solvency-card{background:var(--ink-card);border:1px solid var(--border);padding:2.5rem;text-align:center;margin:2rem 0}
-.solvency-equation{font-family:var(--serif);font-size:2rem;color:var(--gold);margin-bottom:1rem}
-.solvency-proof{font-family:var(--mono);font-size:0.8rem;color:var(--teal-light);letter-spacing:0.1em;margin-bottom:1.5rem}
-.solvency-value{font-family:var(--serif);font-size:4rem;font-weight:700;color:var(--paper);line-height:1}
-.solvency-value span{font-size:1.5rem;color:var(--gold)}
-.founder-message{background:var(--ink-card);border:1px solid var(--border);border-left:4px solid var(--gold);padding:3rem;margin-top:3rem;position:relative}
-.founder-message::before{content:'"';font-family:var(--serif);font-size:8rem;color:var(--gold);opacity:0.08;position:absolute;top:-0.5rem;left:1.5rem;line-height:1;pointer-events:none}
-.founder-text{font-size:1.05rem;line-height:2;color:var(--body-text);position:relative;z-index:1}
-.founder-text p{margin-bottom:1.5rem}
-.founder-text p:last-child{margin-bottom:0}
-.founder-text em{color:var(--gold-warm);font-style:italic}
-.founder-attrib{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);font-family:var(--mono);font-size:0.7rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase}
-.great-drain-diagram{background:var(--ink-card);border:1px solid var(--border);padding:2rem;margin:2rem 0;font-family:var(--mono);font-size:0.8rem}
-.drain-line{display:flex;align-items:center;gap:1rem;margin:0.5rem 0;color:var(--muted)}
-.drain-line.arrow::before{content:'→';color:var(--gold)}
-.drain-line.branch{margin-left:2rem}
-.drain-line.branch::before{content:'├─';color:var(--gold)}
-.drain-line.end{margin-left:2rem}
-.drain-line.end::before{content:'└─';color:var(--gold)}
-.drain-highlight{color:var(--gold-warm)}
-footer{background:#07101a;border-top:1px solid var(--border-dim);padding:4rem 0 2rem}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
-.footer-brand-name{font-family:var(--mono);font-size:0.82rem;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:0.8rem}
-.footer-brand-desc{font-size:0.9rem;color:var(--muted);line-height:1.7;font-style:italic;max-width:280px}
-.footer-col h4{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:1rem;font-weight:400}
-.footer-col ul{list-style:none}
-.footer-col li{margin-bottom:0.5rem}
-.footer-col a{font-size:0.9rem;color:var(--muted);text-decoration:none;transition:color 0.2s}
-.footer-col a:hover{color:var(--gold)}
-.footer-bottom{padding-top:2rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem}
-.footer-legal{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.08em;color:var(--muted);opacity:0.55}
-.footer-disclaimer{font-family:var(--mono);font-size:0.56rem;color:var(--muted);opacity:0.45;max-width:480px;text-align:right;line-height:1.7}
-@media(max-width:960px){.hero-inner,.arch-grid,.maths-grid{grid-template-columns:1fr}.nav-links{display:none}.footer-grid{grid-template-columns:1fr 1fr}.const-grid{grid-template-columns:1fr}}
-@media(max-width:600px){html{font-size:16px}.container{padding:0 1.2rem}.section{padding:4rem 0}.hero-inner{padding-top:6rem}.maths-grid{grid-template-columns:repeat(2,1fr)}.tax-table{font-size:0.65rem}}
+/* ═══════════════════════════════════════════
+   CSS CUSTOM PROPERTIES
+   ═══════════════════════════════════════════ */
+:root {
+  --mono: 'DM Mono', monospace;
+  --serif: 'Cormorant Garamond', serif;
+  --transition: 0.35s;
+  --max-width: 960px;
+  --nav-height: 62px;
+}
+
+[data-theme="dark"] {
+  --ink: #0e1520;
+  --ink-mid: #111c2d;
+  --ink-card: #142030;
+  --ink-light: #1a2940;
+  --ink-deep: #07101a;
+  --gold: #c9a84c;
+  --gold-warm: #dfc078;
+  --gold-dim: rgba(201, 168, 76, 0.3);
+  --gold-ghost: rgba(201, 168, 76, 0.1);
+  --teal: #0e9b8e;
+  --teal-light: #15c4b4;
+  --paper: #edeae2;
+  --body-text: #b8c4d0;
+  --muted: #6e8299;
+  --border: rgba(201, 168, 76, 0.18);
+  --border-dim: rgba(201, 168, 76, 0.08);
+  --green: #3ddc84;
+  --red: #ff5a5f;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --glow: 0 0 20px rgba(201, 168, 76, 0.1);
+}
+
+[data-theme="light"] {
+  --ink: #f5f3ef;
+  --ink-mid: #eceae4;
+  --ink-card: #ffffff;
+  --ink-light: #e3e0d8;
+  --ink-deep: #d8d5cd;
+  --gold: #8a6d1b;
+  --gold-warm: #6b5415;
+  --gold-dim: rgba(138, 109, 27, 0.25);
+  --gold-ghost: rgba(138, 109, 27, 0.06);
+  --teal: #0a7a6f;
+  --teal-light: #0e6b62;
+  --paper: #1a1a1c;
+  --body-text: #3a3a3e;
+  --muted: #6a6a6e;
+  --border: rgba(138, 109, 27, 0.2);
+  --border-dim: rgba(138, 109, 27, 0.08);
+  --green: #1a8a4a;
+  --red: #8a2d2d;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --glow: none;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-height) + 24px);
+  font-size: 18px;
+}
+
+body {
+  font-family: var(--serif);
+  background: var(--ink);
+  color: var(--body-text);
+  line-height: 1.85;
+  transition: background var(--transition), color var(--transition);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Subtle grid overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201, 168, 76, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 168, 76, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="light"] body::before {
+  background-image:
+    linear-gradient(rgba(138, 109, 27, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 109, 27, 0.04) 1px, transparent 1px);
+}
+
+main, nav, footer { position: relative; z-index: 1; }
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════ */
+h1, h2, h3, h4 {
+  font-family: var(--serif);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 300;
+  color: var(--paper);
+  margin-bottom: 0.4rem;
+}
+
+h2 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--paper);
+  margin: 2.2rem 0 0.75rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+strong { font-weight: 600; color: var(--paper); }
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover { color: var(--gold-warm); }
+
+.inline-code {
+  font-family: var(--mono);
+  font-size: 0.78em;
+  background: var(--ink-card);
+  padding: 0.12em 0.4em;
+  border: 1px solid var(--border-dim);
+}
+
+.accent { color: var(--gold); }
+.accent-teal { color: var(--teal-light); }
+.accent-green { color: var(--green); }
+.accent-red { color: var(--red); }
+
+.section-kicker {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 1rem;
+}
+
+.section-lead {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 640px;
+  margin-bottom: 2rem;
+}
+
+.rule {
+  width: 48px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.5;
+  margin: 1.4rem 0;
+}
+
+.signature {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gold);
+  font-size: 1.15rem;
+  margin-top: 1.2rem;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  background: rgba(14, 21, 32, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  transition: background var(--transition);
+}
+
+[data-theme="light"] nav {
+  background: rgba(245, 243, 239, 0.94);
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.67rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.38rem 0.72rem;
+  transition: all 0.2s;
+}
+.nav-links a:hover { color: var(--gold); }
+
+.nav-cta {
+  color: var(--ink) !important;
+  background: var(--gold);
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+.nav-cta:hover {
+  background: var(--gold-warm) !important;
+  color: var(--ink) !important;
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+  margin-left: 0.8rem;
+}
+.theme-toggle:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--paper);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 1.2rem; }
+  .menu-toggle { display: block; }
+  .nav-links {
+    position: fixed;
+    top: var(--nav-height);
+    left: 0; right: 0;
+    background: var(--ink);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.5rem;
+    transform: translateY(-120%);
+    transition: transform 0.3s ease;
+    z-index: 99;
+  }
+  .nav-links.open { transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   SECTIONS
+   ═══════════════════════════════════════════ */
+.section {
+  padding: 5rem 2.5rem;
+  position: relative;
+}
+
+.section--base { background: var(--ink); }
+.section--alt { background: var(--ink-mid); }
+
+.section-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .section { padding: 3rem 1.2rem; }
+}
+
+/* ═══════════════════════════════════════════
+   COLLAPSIBLE (MOBILE)
+   ═══════════════════════════════════════════ */
+.section-toggle {
+  display: none;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+}
+
+.section-toggle h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.collapse-icon {
+  font-size: 0.7rem;
+  transition: transform 0.3s;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.section-toggle.collapsed .collapse-icon { transform: rotate(-90deg); }
+
+@media (max-width: 768px) {
+  .section-toggle { display: block; }
+  .section-content.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+  }
+  .section-content {
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    overflow: hidden;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+.hero {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  padding: calc(var(--nav-height) + 4rem) 2.5rem 5rem;
+  background: var(--ink);
+}
+
+.hero-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 1.4rem;
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 4.5vw, 4.2rem);
+  font-weight: 300;
+  line-height: 1.08;
+  color: var(--paper);
+  margin-bottom: 0.4rem;
+}
+
+.hero-title strong {
+  font-weight: 700;
+  color: var(--gold);
+  display: block;
+  font-style: italic;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--gold-warm);
+  margin-bottom: 2rem;
+  font-weight: 300;
+}
+
+.hero-body {
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 520px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-meta {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 500;
+}
+.btn-gold:hover {
+  background: var(--gold-warm);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  background: var(--gold-ghost);
+}
+
+@media (max-width: 768px) {
+  .hero { min-height: auto; padding: calc(var(--nav-height) + 2rem) 1.2rem 3rem; }
+  .hero-meta { flex-direction: column; gap: 0.4rem; }
+}
+
+/* ═══════════════════════════════════════════
+   CONSTANTS GRID
+   ═══════════════════════════════════════════ */
+.const-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+.const-cell {
+  background: var(--ink-card);
+  padding: 1.6rem 1.4rem;
+  transition: background 0.2s;
+}
+.const-cell:hover { background: var(--ink-light); }
+
+.const-sym {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.const-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.3rem;
+}
+
+.const-use {
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--body-text);
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .const-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   TABLES
+   ═══════════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 1rem;
+  background: var(--ink-light);
+  color: var(--teal-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+thead th:hover { color: var(--gold); }
+
+tbody td {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  color: var(--body-text);
+}
+tbody tr:hover { background: var(--ink-light); }
+
+/* ═══════════════════════════════════════════
+   CARDS & CALLOUTS
+   ═══════════════════════════════════════════ */
+.card {
+  background: var(--ink-card);
+  border: 1px solid var(--border);
+  padding: 1.4rem 1.6rem;
+  margin: 1.2rem 0;
+  transition: background 0.2s;
+}
+.card:hover { background: var(--ink-light); }
+
+.card-header {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.5rem;
+}
+
+.callout {
+  border-left: 3px solid var(--gold);
+  padding: 0.75rem 1.2rem;
+  margin: 1.5rem 0;
+  background: var(--gold-ghost);
+  font-style: italic;
+}
+.callout p { margin-bottom: 0; }
+
+.invariant {
+  background: var(--ink-card);
+  border: 1px solid var(--gold-dim);
+  padding: 1.2rem 1.5rem;
+  margin: 1.8rem 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--gold);
+  text-align: center;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   PHASE TIMELINE
+   ═══════════════════════════════════════════ */
+.phase-timeline {
+  position: relative;
+  margin: 2rem 0;
+  padding-left: 2rem;
+}
+.phase-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.phase-item {
+  position: relative;
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+}
+.phase-item::before {
+  content: '';
+  position: absolute;
+  left: -2.42rem;
+  top: 0.45rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--gold-dim);
+}
+
+.phase-name {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.2rem;
+}
+
+.phase-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--paper);
+  margin-bottom: 0.3rem;
+}
+
+.phase-desc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 540px;
+}
+
+/* ═══════════════════════════════════════════
+   ROUTES GRID
+   ═══════════════════════════════════════════ */
+.routes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+.route-card {
+  background: var(--ink-card);
+  padding: 1.6rem 1.4rem;
+  transition: background 0.2s;
+}
+.route-card:hover { background: var(--ink-light); }
+
+.route-num {
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
+.route-name {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 0.5rem;
+}
+
+.route-desc {
+  font-size: 0.9rem;
+  color: var(--body-text);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .routes-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════
+   SVG DIAGRAM
+   ═══════════════════════════════════════════ */
+.diagram-container {
+  margin: 2.5rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+.diagram-container svg { max-width: 100%; height: auto; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+footer {
+  background: var(--ink-deep);
+  border-top: 1px solid var(--border-dim);
+  padding: 4rem 2.5rem 2rem;
+}
+
+[data-theme="light"] footer { background: var(--ink-light); }
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.footer-links a:hover { color: var(--gold); }
+
+.disclaimer {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.disclaimer p { font-size: 0.82rem; margin-bottom: 0.75rem; }
+
+.footer-sig {
+  text-align: center;
+  margin-top: 2.5rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════
+   KATEX
+   ═══════════════════════════════════════════ */
+.katex { font-size: 1.1em; }
+.katex-display { margin: 1.5rem 0; overflow-x: auto; }
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim { opacity: 0; animation: fadeUp 0.6s ease forwards; }
+.d1 { animation-delay: 0.1s; }
+.d2 { animation-delay: 0.2s; }
+.d3 { animation-delay: 0.3s; }
+.d4 { animation-delay: 0.4s; }
+.d5 { animation-delay: 0.5s; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  footer { padding: 3rem 1.2rem 2rem; }
+}
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════
+     NAVIGATION
+     ═══════════════════════════════════════════ -->
 <nav>
-  <a class="nav-logo" href="#">Project 52F</a>
-  <ul class="nav-links">
-    <li><a href="#architecture">Architecture</a></li>
-    <li><a href="#mechanics">Mechanics</a></li>
-    <li><a href="#phases">Phases</a></li>
-    <li><a href="#constants">Constants</a></li>
-    <li><a href="#build">Build</a></li>
-    <li><a href="/dashboard" class="nav-cta">Dashboard →</a></li>
-  </ul>
+  <a href="#" class="nav-logo">Project 52F</a>
+  <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle menu">☰</button>
+  <div class="nav-links" id="navLinks">
+    <a href="#architecture">Architecture</a>
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="#drain">Mechanics</a>
+    <a href="#routes">Liquidity</a>
+    <a href="#phases">Phases</a>
+    <a href="/dashboard/" class="nav-cta" target="_blank">Dashboard →</a>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" aria-label="Toggle theme">☽</button>
+  </div>
 </nav>
 
-<section id="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div>
-        <p class="hero-kicker">QF Network · Sovereign Architecture · Deterministic Liquidity</p>
-        <h1 class="hero-title">The floor is not a hope.<br><strong>It is a mathematical certainty.</strong></h1>
-        <p class="hero-subtitle">"We didn't build a coin. We solved an equation."</p>
-        <p class="hero-body">Project 52F is a deterministic liquidity engine on QF Network. By utilizing 0.1s finality, we have built a system that self-hardens for 30 days before entering hyper-deflationary scarcity. No luck. No arbitrary numbers. Just a 1.33x solvency guarantee and a floor that grows with every heartbeat.</p>
-        <div class="hero-actions">
-          <a href="#" class="btn btn-gold">Read Whitepaper</a>
-          <a href="/dashboard" class="btn btn-ghost">Live Dashboard</a>
-          <a href="#architecture" class="btn btn-ghost">Explore Architecture</a>
+<!-- ═══════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker anim">52! · e · π · √2</div>
+    <h1 class="hero-title anim d1">The floor is not a hope.<br><strong>It is a mathematical certainty.</strong></h1>
+    <p class="hero-subtitle anim d2">Where mathematics meets decentralised finance.</p>
+    <p class="hero-body anim d3">A DeFi protocol on QF Network where every parameter — every tax rate, every threshold, every boundary — is derived from the fundamental constants of mathematics. Not arbitrary. Not governance. Constants.</p>
+    <div class="hero-meta anim d4">
+      <span>QF Network · Chain ID 3426</span>
+      <span>Solidity 0.8.26 · PolkaVM</span>
+      <span>280+ Tests Passing</span>
+    </div>
+    <div class="hero-cta anim d5">
+      <a href="https://t.me/+c-FlYTpZrhU4ZTI0" class="btn btn-gold" target="_blank">Join Community</a>
+      <a href="/Project52F_Whitepaper" class="btn btn-ghost" download="Project52F_Whitepaper.pdf">Download Whitepaper</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     1. INTRODUCTION
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="introduction">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>1. Introduction <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>Project 52F is a decentralised finance protocol built on QF Network, a Substrate-based blockchain with 0.1-second block time and PolkaVM smart contract execution. The protocol introduces a token economy where every parameter, threshold, and mechanism is derived from mathematical constants — not arbitrary choices, not copy-pasted defaults, but values drawn from the fundamental constants of mathematics: 52 (the project's identity number), Euler's number <em>e</em>, the ratio of a circle's circumference to its diameter <em>π</em>, and the square root of 2.</p>
+
+      <p>The result is a self-reinforcing system. Tax revenue funds autonomous liquidity. Autonomous liquidity stabilises the floor. Floor stability enables a prize mechanism. The prize mechanism attracts volume. Volume generates tax revenue. Each component feeds the next.</p>
+
+      <p>52F is built on QF Network but is a distinct, independent protocol. QF Network is the infrastructure layer; 52F is an application built on top of it.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     2. FOUNDER
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="founder">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>2. Founder <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>Project 52F is built by a single founder — a British mathematician and educator who returned to university in his late thirties, three years into sobriety, to master the mathematics he now teaches. He currently teaches mathematics and engineering at higher education level. He has no formal software development background.</p>
+
+      <p>The protocol was built using AI-assisted development and a deep understanding of the underlying mathematics. This is not a venture-backed project with a development team, a marketing department, and a treasury. It is one person, a set of mathematical constants, and the question of whether a protocol can be made structurally resistant to snipers, rug pulls, and founder trust risk from first principles — with minimal funding and no team.</p>
+
+      <p>The design reflects this constraint. Every mechanism that would normally require ongoing human judgement has been replaced with a mathematical rule. Tax rates are derived from constants, not set by governance. Liquidity management is autonomous, not discretionary. The prize system runs on probability theory, not admin intervention. The founder's vesting allocation is locked in contract bytecode with no override.</p>
+
+      <p class="signature">The constants do the rest.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     3. THE MATHEMATICS
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="mathematics">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>3. The Mathematics <em>of 52F</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p class="section-lead">Every numerical parameter in the protocol is derived from one of four mathematical constants. No arbitrary choices. No round numbers. No governance decisions. Mathematical facts.</p>
+
+      <h3>Why 52?</h3>
+      <p>Take a standard deck of playing cards and shuffle it. The number of possible orderings is 52 factorial — written 52! — a number so vast it defies intuition. It is larger than the number of atoms on Earth, larger than the number of seconds since the Big Bang, larger than any quantity the human mind encounters in daily life.</p>
+
+      <p>There is a famous thought experiment: set a timer for 52! seconds. Stand on the equator. Every billion years, take a single step. When you have circled the Earth, take a single drop of water from the Pacific Ocean. When the Pacific is empty, lay a single sheet of paper on the ground. Refill the ocean. Start walking again. When the stack of paper reaches the Sun — you are not even close to being a fraction of the way through.</p>
+
+      <p>Every time anyone has ever shuffled a deck of cards, the resulting order has almost certainly never existed before in the history of the universe, and will almost certainly never exist again. That is the scale of 52 factorial. It is a way of holding infinity in your hand.</p>
+
+      <p>This is the number that defines Project 52F. The total token supply is its first 11 digits. Epochs hold exactly 52 entries. Vesting releases across 52 tranches. The project's identity is not a brand exercise — it is a mathematical constant with extraordinary depth.</p>
+
+      <div class="const-grid">
+        <div class="const-cell">
+          <div class="const-sym">52!</div>
+          <div class="const-label">The Identity Number</div>
+          <div class="const-use">Supply from 52!, epochs hold 52 entries, 52 vesting tranches, zone boundaries at multiples of 5,200</div>
+        </div>
+        <div class="const-cell">
+          <div class="const-sym">e</div>
+          <div class="const-label">Euler's Number ≈ 2.718</div>
+          <div class="const-use">Buy tax: 272 BPS. Exponential growth governs the mechanism that compounds participation</div>
+        </div>
+        <div class="const-cell">
+          <div class="const-sym">π</div>
+          <div class="const-label">Pi ≈ 3.14159</div>
+          <div class="const-use">Sell tax: 314 BPS. The cyclical constant feeds the circular defence mechanism</div>
+        </div>
+        <div class="const-cell">
+          <div class="const-sym">√2</div>
+          <div class="const-label">Square Root of 2 ≈ 1.414</div>
+          <div class="const-use">Founder allocation: 12.077% from √2 × π × e. The diagonal that binds orthogonal dimensions</div>
         </div>
       </div>
-      <div class="constants-panel">
-        <div class="const-grid">
-          <div class="const-cell"><div class="const-sym">R</div><div class="const-label">Solvency Ratio</div><div class="const-val">1.33x Guaranteed</div><div class="const-use">Accumulated Tax / Pairing Cost</div></div>
-          <div class="const-cell"><div class="const-sym">52</div><div class="const-label">The Epoch</div><div class="const-val">52 Transactions</div><div class="const-use">Sequencer trigger rhythm</div></div>
-          <div class="const-cell"><div class="const-sym">0.1s</div><div class="const-label">Finality</div><div class="const-val">Architectural</div><div class="const-use">High-velocity network clock</div></div>
-          <div class="const-cell"><div class="const-sym">15%</div><div class="const-label">Health Gate</div><div class="const-val">L/MC Ratio</div><div class="const-use">Dampener activation threshold</div></div>
-          <div class="const-cell"><div class="const-sym">26M</div><div class="const-label">Phase Shift</div><div class="const-val">Block 26,000,000</div><div class="const-use">Hardening → Scarcity</div></div>
-          <div class="const-cell"><div class="const-sym">52!</div><div class="const-label">Supply</div><div class="const-val">80,658,175,170</div><div class="const-use">First 11 digits of 52 factorial</div></div>
-        </div>
+
+      <h3>3.1 Total Supply</h3>
+      <p>The total token supply is the first 11 digits of 52 factorial:</p>
+      <div class="katex-display">$$52! = 80{,}658{,}175{,}170{,}943{,}878{,}571{,}660{,}636{,}856{,}403{,}766{,}975{,}289{,}505{,}440{,}883{,}277{,}824{,}000{,}000{,}000{,}000$$</div>
+      <p>Yielding a fixed supply of <strong>80,658,175,170 tokens</strong>. No mint function, no inflation, no governance pathway to increase supply.</p>
+
+      <h3>3.2 Founder Allocation</h3>
+      <p>The vesting allocation is derived from the product of the three irrational constants: $\sqrt{2} \times \pi \times e \approx 12.077\%$</p>
+
+      <h3>3.3 Verifiability</h3>
+      <div class="invariant">Every numerical constant in Project 52F can be independently verified by any holder with a scientific calculator. The protocol's parameters are mathematical facts, not governance decisions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     4. PROTOCOL ARCHITECTURE
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="architecture">
+  <div class="section-inner">
+    <div class="section-kicker">Protocol Architecture</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>4. Three Contracts. <em>One Keeper.</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p class="section-lead">Three smart contracts handle token logic, liquidity management, and prize distribution. A keeper bot maintains them. The protocol trades on a Uniswap V2-compatible DEX.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Type</th><th>Responsibility</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="accent">TokenEngine</td><td>Solidity contract</td><td>ERC-20 token, tax routing, Great Drain, vesting, TWAP oracle, team wallet</td></tr>
+            <tr><td class="accent">DampenerVault</td><td>Solidity contract</td><td>Floor injection, sell-into-strength, emergency mode, permanent LP lock</td></tr>
+            <tr><td class="accent">CryptographicSequencer</td><td>Solidity contract</td><td>Birthday Paradox epochs, collision detection, winner payouts</td></tr>
+            <tr><td class="accent">Keeper Bot</td><td>Off-chain script</td><td>TWAP snapshots, drain checks, injection triggers, sell-into-strength triggers</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>All three contracts are written in Solidity 0.8.26 and compiled with <span class="inline-code">resolc</span>, the PolkaVM-compatible Solidity compiler. Zero inline assembly — a constraint imposed by the target runtime.</p>
+
+      <h3>4.1 Information Flow</h3>
+      <p>Every transaction passes through TokenEngine, which routes tax to the appropriate destination. TokenEngine is intentionally agnostic to the internal mechanics of both satellite contracts — it sends funds according to fixed BPS allocations. Either satellite could be upgraded via the governance timelock without modifying TokenEngine's core logic.</p>
+
+      <!-- Architecture Diagram -->
+      <div class="diagram-container">
+        <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Protocol architecture diagram">
+          <!-- DEX -->
+          <rect x="250" y="15" width="200" height="44" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="350" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--gold)">DEX</text>
+
+          <!-- TokenEngine -->
+          <rect x="175" y="120" width="350" height="60" rx="3" fill="var(--ink-card)" stroke="var(--gold-dim)" stroke-width="2"/>
+          <text x="350" y="147" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--gold)">TokenEngine</text>
+          <text x="350" y="167" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">ERC-20 · Tax Routing · TWAP · Great Drain · Vesting</text>
+
+          <!-- Arrow: DEX -> TokenEngine (buys) -->
+          <line x1="320" y1="59" x2="320" y2="120" stroke="var(--muted)" stroke-width="1.5"/>
+          <polygon points="316,117 320,125 324,117" fill="var(--muted)"/>
+          <text x="305" y="92" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">buys</text>
+
+          <!-- Arrow: TokenEngine -> DEX (sells) -->
+          <line x1="380" y1="120" x2="380" y2="59" stroke="var(--muted)" stroke-width="1.5"/>
+          <polygon points="376,62 380,54 384,62" fill="var(--muted)"/>
+          <text x="395" y="92" text-anchor="start" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">sells</text>
+
+          <!-- DampenerVault -->
+          <rect x="20" y="260" width="260" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="150" y="287" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">DampenerVault</text>
+          <text x="150" y="307" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Floor · Sell-Into-Strength · Emergency</text>
+
+          <!-- CryptographicSequencer -->
+          <rect x="420" y="260" width="260" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="550" y="287" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">CryptographicSequencer</text>
+          <text x="550" y="307" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Birthday Paradox · Epochs · Prizes</text>
+
+          <!-- Arrow: TokenEngine -> Dampener -->
+          <line x1="265" y1="180" x2="150" y2="260" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="146,255 150,265 157,257" fill="var(--gold)"/>
+          <text x="182" y="218" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">239 BPS</text>
+          <text x="182" y="230" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">sell tax</text>
+
+          <!-- Arrow: TokenEngine -> Sequencer -->
+          <line x1="435" y1="180" x2="550" y2="260" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="543,257 550,265 554,255" fill="var(--gold)"/>
+          <text x="518" y="218" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">39/52</text>
+          <text x="518" y="230" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">prize tax</text>
+
+          <!-- Arrow: Dampener -> DEX (permanent LP) -->
+          <line x1="80" y1="260" x2="260" y2="59" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4"/>
+          <text x="145" y="165" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">permanent LP</text>
+
+          <!-- 75 BPS Team label -->
+          <text x="350" y="203" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--teal-light)">75 BPS → Team (every tx, every phase)</text>
+
+          <!-- Keeper Bot -->
+          <rect x="240" y="350" width="220" height="38" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1" stroke-dasharray="5,4"/>
+          <text x="350" y="374" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" fill="var(--muted)">Keeper Bot (off-chain)</text>
+
+          <!-- Keeper dashed lines -->
+          <line x1="290" y1="350" x2="150" y2="320" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="350" y1="350" x2="350" y2="180" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="410" y1="350" x2="550" y2="320" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>
+        </svg>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<section id="architecture" class="section section--alt">
-  <div class="container">
-    <p class="section-kicker">System Design</p>
-    <h2 class="section-title">Modular Topology.<br><em>Three Contracts. One Truth.</em></h2>
-    <div class="rule"></div>
-    <p class="section-lead">Separation of concerns ensures security integrity. The Ledger, The Watchdog, and The Sequencer form a deterministic liquidity engine.</p>
-    
-    <div class="arch-grid">
-      <div class="arch-card">
-        <div class="arch-icon">L</div>
-        <div class="arch-name">TokenEngine.sol</div>
-        <div class="arch-role">The Ledger / Immutable Truth</div>
-        <p class="arch-desc">Core token contract. Routes every transaction through the Great Drain mechanism. Maintains the 52-epoch heartbeat and phase-aware logic. Uses 60-snapshot TWAP for flash loan resistance.</p>
-        <div class="arch-flow">
-          <div class="flow-item">Supply<span>80.6B 52F</span></div>
-          <div class="flow-item">Clock<span>0.1s Finality</span></div>
-          <div class="flow-item">Pulse<span>52 Transaction Epoch</span></div>
-          <div class="flow-item">TWAP<span>60 Snapshots</span></div>
-        </div>
-        <div class="arch-constant">The Universal Constant: Fractal 52</div>
+<!-- ═══════════════════════════════════════════
+     5. TOKENOMICS
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="tokenomics">
+  <div class="section-inner">
+    <div class="section-kicker">Tokenomics</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>5. Supply, Vesting &amp; <em>Seed Liquidity</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+
+      <h3>5.1 Supply</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Allocation</th><th>Tokens</th><th>% of Supply</th></tr></thead>
+          <tbody>
+            <tr><td>Circulating at launch</td><td>70,917,080,937</td><td>87.923%</td></tr>
+            <tr><td>Founder vesting vault</td><td>9,741,094,233</td><td>12.077%</td></tr>
+            <tr><td class="accent"><strong>Total supply (fixed)</strong></td><td class="accent"><strong>80,658,175,170</strong></td><td class="accent"><strong>100.000%</strong></td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="arch-card">
-        <div class="arch-icon">W</div>
-        <div class="arch-name">DampenerVault.sol</div>
-        <div class="arch-role">The Watchdog</div>
-        <p class="arch-desc">Monitors 36,000-block TWAP. If L/MC &lt; 15%, executes autonomous injection. Three-tier response: Healthy, Normal Mode (50% buy), Emergency Mode (100% liquidity). LP tokens permanently locked.</p>
-        <div class="arch-flow">
-          <div class="flow-item">Monitor<span>36K Blocks TWAP</span></div>
-          <div class="flow-item">Gate<span>L/MC &lt; 15%?</span></div>
-          <div class="flow-item">Emergency<span>L/MC &lt; 7.5%</span></div>
-          <div class="flow-item">LP Lock<span>Permanent</span></div>
-        </div>
-        <div class="arch-constant">Health Gate: 15% Liquidity Ratio</div>
+
+      <p>The total supply is the first 11 digits of 52 factorial. Minted at deployment, permanently fixed — no mint function, no inflation mechanism, no governance pathway to increase supply. The only direction supply can move is down, via the burn mechanism in the Scarcity phase.</p>
+
+      <h3>5.2 Vesting</h3>
+      <p>The founder allocation of 12.077% (derived from $\sqrt{2} \times \pi \times e$) vests across 52 tranches, one every 5,200,000 blocks (approximately 6 days at QF Network's 0.1-second block time). Each tranche releases 187,328,735 tokens, with 13 tokens of dust added to the final tranche to ensure the vault empties exactly. Total vesting duration: approximately 10.4 months.</p>
+
+      <p>Vesting is claim-based: the founder must actively call <span class="inline-code">claimVesting()</span> to receive earned tranches. Unclaimed tranches accumulate but do not auto-release.</p>
+
+      <h3>5.3 Seed Liquidity</h3>
+      <p>At launch, 52,000 QF is sent to the DampenerVault in batches — a dust amount first to establish the pair and verify the plumbing, then the remainder once confirmed. The vault handles pair creation and LP setup autonomously via its one-time bootstrap function: 80% (41,600 QF) deployed as liquidity paired with matching 52F tokens, 20% (10,400 QF) retained as operating reserve.</p>
+
+      <p>The LP tokens are minted directly to the DampenerVault — the founder never holds them, never interacts with the DEX directly. Since the vault contains no LP withdrawal function, this liquidity is permanently locked from the moment of creation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     6. TAX SYSTEM
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="tax">
+  <div class="section-inner">
+    <div class="section-kicker">Economic Mechanics</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>6. Tax System <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <div class="invariant">75 BPS is routed to the team wallet on every transaction, in every phase, with no exceptions. Carved from the headline rate, not added on top.</div>
+
+      <h3>6.1 Steady-State Rates (Hardening &amp; Scarcity)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Direction</th><th>Total Tax</th><th>Prize Pot</th><th>Dampener</th><th>Team</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--green)">Buy (<em>e</em>)</td>
+              <td>272 BPS</td><td>197 BPS</td><td>0 BPS</td><td>75 BPS</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">Sell (<em>π</em>)</td>
+              <td>314 BPS</td><td>0 BPS</td><td>239 BPS</td><td>75 BPS</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="arch-card">
-        <div class="arch-icon">S</div>
-        <div class="arch-name">CryptographicSequencer.sol</div>
-        <div class="arch-role">The Prize Pot</div>
-        <p class="arch-desc">Distributes accumulated value via collision-based epochs. 52M token entry threshold. 73.9% collision probability per epoch. Of 52 parts: 13 retained by Engine for Great Drain, 39 sent to Sequencer. Of those 39: 34 to winners, 5 to Dampener liquidity.</p>
-        <div class="arch-flow">
-          <div class="flow-item">Entry<span>52M 52F Min</span></div>
-          <div class="flow-item">Logic<span>MOD-1000 Collision</span></div>
-          <div class="flow-item">Split<span>34/52 Prize / 5/52 LP</span></div>
-          <div class="flow-item">Retention<span>13/52 Drain Fuel</span></div>
-        </div>
-        <div class="arch-constant">Rewarding Volume, Not Chance</div>
+
+      <p>The asymmetry is intentional. Buys fund the prize pot via the CryptographicSequencer, incentivising purchase volume. Sells fund the DampenerVault, which converts sell-side revenue into permanent liquidity — directly counteracting the price impact of the sells that generated it.</p>
+
+      <p><em>Arithmetic verification:</em> Buy 197 + 0 + 75 = 272. Sell 0 + 239 + 75 = 314. Both check sums are exact.</p>
+
+      <h3>6.2 Anti-Sniper Zones (Launch Protection)</h3>
+      <p>The first 10,400 blocks (~17 minutes) operate under elevated tax designed to prevent sniper bots.</p>
+
+      <div class="card">
+        <div class="card-header">Zone A — Blocks 0–5,200 · ~8.7 minutes</div>
+        <p>All transactions incur 9,500 BPS (95%) tax. Of this, 9,425 BPS flows to the DampenerVault and 75 BPS to the team. Prize allocation is zero. This deters snipers while simultaneously capitalising the DampenerVault with its long-term operating funds.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Zone B — Blocks 5,200–10,400 · ~8.7 minutes</div>
+        <p>Tax decays linearly from 9,500 BPS toward the steady-state floor. Decay occurs in steps of 100 BPS every 104 blocks. Buy tax decays toward the <em>e</em> floor (272 BPS), sell tax toward the <em>π</em> floor (314 BPS). Team remains at 75 BPS throughout. By block 10,400, rates have reached their permanent values.</p>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<section id="mechanics" class="section">
-  <div class="container">
-    <p class="section-kicker">Protocol Mechanics</p>
-    <h2 class="section-title">The Great Drain.<br><em>Autonomous Deflationary Pressure.</em></h2>
-    <div class="rule"></div>
-    <p class="section-lead">The protocol's primary deflationary mechanism fires automatically when the prize pot crosses the TWAP-protected threshold. No keeper required. No human intervention.</p>
-    
-    <div class="great-drain-diagram">
-      <div class="drain-line">prizePot &gt;= threshold <span class="drain-highlight">(520M tokens × 60-min TWAP price)</span></div>
-      <div class="drain-line arrow">seized = 50% of prizePot</div>
-      <div class="drain-line branch">├─ Hardening Phase: <span class="drain-highlight">100% to Dampener liquidity accumulator</span></div>
-      <div class="drain-line branch">└─ Scarcity Phase:</div>
-      <div class="drain-line end">&nbsp;&nbsp;├─ half → market buy 52F → 0x...dEaD <span class="drain-highlight">(tokens burned)</span></div>
-      <div class="drain-line end">&nbsp;&nbsp;└─ half → 0x...dEaD as QF <span class="drain-highlight">(native burned)</span></div>
-      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-dim);color:var(--teal-light);font-size:0.7rem">
-        Threshold is flash loan resistant: same 60-snapshot TWAP ring buffer as Dampener. 36,000 block lookback. Spot price is fallback only.
+<!-- ═══════════════════════════════════════════
+     7. THE GREAT DRAIN
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="drain">
+  <div class="section-inner">
+    <div class="section-kicker">Protocol Mechanics</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>7. The Great Drain. <em>Autonomous Deflationary Pressure.</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>The Great Drain converts accumulated prize-pot QF into structural liquidity or deflationary pressure, depending on the protocol's phase and health.</p>
+
+      <h3>7.1 Trigger</h3>
+      <p>Fires when the prize pot accumulates QF equivalent to 520,000,000 tokens multiplied by the current TWAP. At low token prices, this threshold is small and fires frequently — building liquidity aggressively when it matters most. At higher prices, it requires more accumulation, allowing the prize pot to grow before each event.</p>
+
+      <h3>7.2 Seizure and Routing</h3>
+      <p>Each Drain seizes 50% of the prize pot (5,000 BPS). The remaining 50% continues accumulating.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Phase</th><th>Condition</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td class="accent">Hardening</td><td>Always</td><td>100% seized QF paired with 52F from supply → addLiquidity, deepening LP and reducing circulating 52F</td></tr>
+            <tr><td class="accent">Scarcity</td><td>LP ratio ≥ 15%</td><td>50% buys &amp; burns 52F to dead address; 50% QF to dead address</td></tr>
+            <tr><td class="accent">Scarcity</td><td>LP ratio &lt; 15%</td><td>100% → addLiquidity (health check overrides burn)</td></tr>
+          </tbody>
+        </table>
       </div>
-    </div>
 
-    <h3 style="font-family:var(--serif);font-size:1.5rem;color:var(--paper);margin:3rem 0 1.5rem;font-style:italic">Tax Architecture by Phase</h3>
-    <table class="tax-table">
-      <thead>
-        <tr>
-          <th>Phase</th>
-          <th>Side</th>
-          <th>Dampener</th>
-          <th>Prize Pot</th>
-          <th>Team</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Zone A (0–5,200)</td>
-          <td>Buy & Sell</td>
-          <td>95.00%</td>
-          <td>—</td>
-          <td>—</td>
-          <td><strong>95.00%</strong></td>
-        </tr>
-        <tr>
-          <td>Zone B (5,200–10,400)</td>
-          <td>Buy & Sell</td>
-          <td>52%→2%</td>
-          <td>—</td>
-          <td>—</td>
-          <td><strong>52%→2%</strong></td>
-        </tr>
-        <tr>
-          <td>Hardening (10,400–26M)</td>
-          <td>Buy</td>
-          <td>1.25%</td>
-          <td>1.47%</td>
-          <td>0.75%</td>
-          <td><strong>3.47%</strong></td>
-        </tr>
-        <tr>
-          <td>Hardening (10,400–26M)</td>
-          <td>Sell</td>
-          <td>1.25%</td>
-          <td>1.89%</td>
-          <td>0.75%</td>
-          <td><strong>3.89%</strong></td>
-        </tr>
-        <tr>
-          <td>Scarcity (26M+)</td>
-          <td>Buy</td>
-          <td>0.50%</td>
-          <td>1.47%</td>
-          <td>0.75%</td>
-          <td><strong>2.72% (e)</strong></td>
-        </tr>
-        <tr>
-          <td>Scarcity (26M+)</td>
-          <td>Sell</td>
-          <td>0.50%</td>
-          <td>1.89%</td>
-          <td>0.75%</td>
-          <td><strong>3.14% (π)</strong></td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="font-size:0.85rem;color:var(--muted);font-style:italic">During Sniper Zones A & B, 100% of tax flows to the Dampener Vault to build the liquidity floor. Prize pot and team allocations activate at block 10,400.</p>
+      <p>The health check is critical. Burning QF when liquidity is thin would destroy market structure. The 15% LP ratio threshold ensures burn only activates when the protocol can absorb the deflationary pressure.</p>
+
+      <h3>7.3 Cooldown</h3>
+      <p>Minimum 5,200 blocks between Drains, plus 0–519 random blocks from blockhash entropy. The cooldown variable (<span class="inline-code">nextDrainBlock</span>) is updated before external calls as a reentrancy safeguard.</p>
+
+      <h3>7.4 Self-Scaling Economics</h3>
+      <p>The Drain creates a positive feedback loop: low price → low threshold → frequent drains → LP builds → price support → higher threshold → larger prize pots → larger drain events. The system finds its own equilibrium without governance intervention.</p>
+    </div>
   </div>
-</section>
+</div>
 
-<section id="phases" class="section section--alt">
-  <div class="container">
-    <p class="section-kicker">Lifecycle Protocol</p>
-    <h2 class="section-title">The 30-Day Sovereign Switch.<br><em>From Hardening to Scarcity.</em></h2>
-    <div class="rule"></div>
-    <p class="section-lead">A fundamental shift to hyper-deflation after 26 million blocks. Phase-aware logic ensures the protocol evolves from resilience to supply contraction.</p>
-    
-    <div class="phase-indicator">
-      <div class="phase-header">
-        <div class="phase-current">Current Phase: <span>HARDENING</span></div>
-        <div class="phase-blocks">Block 3,030,000 / 26,000,000</div>
+<!-- ═══════════════════════════════════════════
+     8. DAMPENER VAULT
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="dampener">
+  <div class="section-inner">
+    <div class="section-kicker">Autonomous Liquidity</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>8. DampenerVault. <em>Three Strategies.</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>The DampenerVault is a three-strategy autonomous liquidity engine. It receives funds from sell-side tax (239 BPS) and from Great Drain events, then deploys them through three independent mechanisms.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategy</th><th>Trigger</th><th>Action</th><th>Phase</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="accent">Floor Injection</td>
+              <td>LP ratio &lt; 15%</td>
+              <td>Pull QF, market buy 52F, add as permanent LP</td>
+              <td>All phases</td>
+            </tr>
+            <tr>
+              <td class="accent">Drain Routing</td>
+              <td>Great Drain fires (Hardening)</td>
+              <td>Seized QF paired with 52F from supply → permanent LP, deepening liquidity and reducing circulating tokens</td>
+              <td>Hardening</td>
+            </tr>
+            <tr>
+              <td class="accent">Sell-Into-Strength</td>
+              <td>Spot &gt; TWAP by 18–25.9%</td>
+              <td>Sell 52F into pump (fires only on 18%+ pumps, reduces pump by max ~2%), all proceeds to permanent LP</td>
+              <td>Scarcity only</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="phase-progress">
-        <div class="phase-progress-bar"></div>
-      </div>
-      <div class="phase-markers">
-        <div class="phase-marker active">DEPLOY<br>Block 0</div>
-        <div class="phase-marker">Zone A<br>5,200</div>
-        <div class="phase-marker">Zone B<br>10,400</div>
-        <div class="phase-marker">SCARCITY<br>26M</div>
+
+      <h3>8.1 Floor Injection</h3>
+      <p>When the vault's QF balance relative to pair reserves falls below 15%, injection activates. Normal mode (7.5%–15%): 50% market-buys 52F, paired with the other 50% as liquidity. Emergency mode (below 7.5%): direct LP addition without market buy — depth over price impact. Each injection is capped at 10% of vault balance, with a randomised cooldown of 48–72 minutes.</p>
+
+      <h3>8.2 Sell-Into-Strength</h3>
+      <p>Activates exclusively in the Scarcity phase (after block 26,000,000). When speculative buying pushes spot price 18–25.9% above TWAP, the vault sells a precisely calculated quantity of 52F into the pump. The sell quantity is derived from the AMM's constant product formula — producing a price impact of at most ~2%. An 18% pump gets trimmed to roughly 16%. The organic movement stays intact.</p>
+
+      <p>This is mathematically self-limiting: a shallow pool produces a tiny sell, a deep pool allows a larger sell. The mechanism cannot over-sell because the formula is bounded by the pool's own reserves. All QF proceeds are immediately paired with remaining 52F and added as permanent liquidity.</p>
+
+      <h3>8.3 Permanent Liquidity</h3>
+      <div class="callout">
+        <p>All LP tokens received by the DampenerVault are permanently locked. There is no withdrawal function, no governance override, and no mechanism by which LP tokens can leave the vault. This is not a timelock — it is the absence of any withdrawal code. You cannot call a function that does not exist.</p>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="arch-grid" style="margin-top:3rem">
-      <div class="arch-card">
-        <div class="arch-icon">H1</div>
-        <div class="arch-name">Era of Hardening</div>
-        <div class="arch-role">Day 1 — Day 30</div>
-        <p class="arch-desc">Priority: Liquidity Depth & Stability. The Great Drain prioritizes LP Pairing. 1.25% Dampener rate accelerates reserve build-up. Goal: Build the Bank.</p>
-        <div class="arch-flow">
-          <div class="flow-item">Tax Split<span>1.25% / 1.47% / 0.75%</span></div>
-          <div class="flow-item">Drain Mode<span>100% to LP</span></div>
-          <div class="flow-item">Target<span>R &gt; 1.0 Solvency</span></div>
+<!-- ═══════════════════════════════════════════
+     9. CRYPTOGRAPHIC SEQUENCER
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="sequencer">
+  <div class="section-inner">
+    <div class="section-kicker">Prize Mechanism</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>9. CryptographicSequencer. <em>Birthday Paradox Prizes.</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>The CryptographicSequencer implements a probabilistic prize system based on the birthday paradox — the counterintuitive result that in a group of just 23 people, there is a greater than 50% chance that two share a birthday. Project 52F exploits this principle with 52 entries across a space of 1,000 possible IDs.</p>
+
+      <h3>9.1 Collision Probability</h3>
+      <p>The probability of at least one collision among <em>n</em> entries in a space of <em>d</em> possible IDs:</p>
+      <div class="katex-display">$$P = 1 - \frac{d!}{(d-n)! \cdot d^n}$$</div>
+      <p>With <em>n</em> = 52 and <em>d</em> = 1,000: $P \approx 0.739$ — roughly three out of four epochs produce a winner. The 26% no-collision rate ensures pots roll over and grow, creating occasional larger payouts.</p>
+
+      <h3>9.2 Epoch Lifecycle</h3>
+      <p>Each epoch accepts up to 52 entries. Any buy of at least 52,000,000 tokens qualifies. Each entry receives a numeric ID between 0 and 999, derived from a hash of transaction origin, blockhash, nonce, and block number. A collision resolves the epoch.</p>
+
+      <h3>9.3 Prize Pool Split</h3>
+      <p>The prize flow operates in two stages. First, TokenEngine retains 13 parts of every 52 (25%) of buy-side prize tax as Drain fuel, forwarding the remaining 39 parts to the Sequencer. The Sequencer splits this 39 into 34 (winner share) and 5 (liquidity contribution to the DampenerVault).</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Outcome</th><th>Winner (34/39)</th><th>Liquidity (5/39)</th><th>Rollover</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--green)">Collision (~74%)</td><td>Paid to colliding entries</td><td>→ DampenerVault</td><td>None</td></tr>
+            <tr><td style="color:var(--red)">No collision (~26%)</td><td>Rolls to next epoch</td><td>→ DampenerVault</td><td>Winner share grows</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>9.4 Entropy</h3>
+      <p>Entry IDs use <span class="inline-code">keccak256</span> of transaction origin, previous block's hash, an incrementing nonce, and current block number. This prevents both validator front-running and user prediction while remaining gas-efficient.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     10. SIX ROUTES TO PERMANENT LIQUIDITY
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="routes">
+  <div class="section-inner">
+    <div class="section-kicker">Structural Advantage</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>10. Six Routes <em>to Permanent Liquidity</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>Most DeFi protocols have one mechanism for building liquidity. Project 52F has six — each independent, each feeding permanently locked LP tokens into the DampenerVault. There is no withdrawal function. There is no governance override. Every route terminates in liquidity that can never be removed.</p>
+
+      <div class="routes-grid">
+        <div class="route-card">
+          <div class="route-num">01</div>
+          <div class="route-name">Zone A Capitalisation</div>
+          <div class="route-desc">94.25% of all launch volume flows to the DampenerVault in the first ~9 minutes</div>
         </div>
-        <div class="arch-constant">Blocks: 0 — 26,000,000</div>
-      </div>
-      <div class="arch-card">
-        <div class="arch-icon">S2</div>
-        <div class="arch-name">Era of Scarcity</div>
-        <div class="arch-role">Day 31+</div>
-        <p class="arch-desc">Priority: Aggressive Supply Contraction. The Great Drain flips to Double-Burn protocol. 0.50% Dampener rate. 50% buy & burn / 50% QF burn. Goal: Burn the Supply.</p>
-        <div class="arch-flow">
-          <div class="flow-item">Tax Split<span>0.50% / 1.89% / 0.75%</span></div>
-          <div class="flow-item">Drain Mode<span>50% Double-Burn</span></div>
-          <div class="flow-item">Target<span>Supply Contraction</span></div>
+        <div class="route-card">
+          <div class="route-num">02</div>
+          <div class="route-name">Sell Tax</div>
+          <div class="route-desc">239 BPS of every sell, every phase, forever — sell pressure converted to floor depth</div>
         </div>
-        <div class="arch-constant">Blocks: After 26,000,000</div>
-      </div>
-      <div class="arch-card">
-        <div class="arch-icon">SW</div>
-        <div class="arch-name">The Sovereign Switch</div>
-        <div class="arch-role">Automated Governance</div>
-        <p class="arch-desc">Hard-coded lifecycle transition. No admin keys. No manual intervention. The protocol self-governs its evolution from hardening to scarcity at exactly block 26,000,000.</p>
-        <div class="arch-flow">
-          <div class="flow-item">Trigger<span>Block 26M</span></div>
-          <div class="flow-item">Logic<span>Immutable Phase Shift</span></div>
-          <div class="flow-item">Result<span>Community Sovereignty</span></div>
+        <div class="route-card">
+          <div class="route-num">03</div>
+          <div class="route-name">Floor Injection</div>
+          <div class="route-desc">When LP ratio drops below 15%, the vault buys into weakness and adds permanent LP</div>
         </div>
-        <div class="arch-constant">Transition: Automatic & Irreversible</div>
+        <div class="route-card">
+          <div class="route-num">04</div>
+          <div class="route-name">Great Drain Routing</div>
+          <div class="route-desc">Seized prize pot QF paired with 52F from supply — liquidity deepens, circulating supply contracts</div>
+        </div>
+        <div class="route-card">
+          <div class="route-num">05</div>
+          <div class="route-name">Sequencer Liquidity Share</div>
+          <div class="route-desc">5/39 of every epoch's prize allocation flows to the DampenerVault — win or lose, liquidity grows</div>
+        </div>
+        <div class="route-card">
+          <div class="route-num">06</div>
+          <div class="route-name">Sell-Into-Strength</div>
+          <div class="route-desc">Excess pump volatility harvested into permanent LP — the vault converts speculation into floor</div>
+        </div>
+      </div>
+
+      <div class="invariant">Six independent mechanisms. One destination. Every route terminates in permanently locked liquidity. You cannot call a function that does not exist.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     11. KEEPER BOT
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="keeper">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>11. Keeper Bot <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>The three contracts are autonomous in their logic but require an external caller. The keeper bot monitors state and calls permissionless functions at regular intervals.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Call</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="accent">TokenEngine.maintain()</td><td>TWAP snapshot + drain check</td></tr>
+            <tr><td>2</td><td class="accent">Sequencer.registerFromKeeper()</td><td>Register qualifying buy events as epoch entries</td></tr>
+            <tr><td>3</td><td class="accent">DampenerVault.pull()</td><td>Pull QF, assess injection need</td></tr>
+            <tr><td>4</td><td class="accent">DampenerVault.executeBuy()</td><td>Normal: market-buy 52F (ratio 7.5%–15%)</td></tr>
+            <tr><td>4a</td><td class="accent">DampenerVault.executeEmergency()</td><td>Emergency: direct LP (ratio &lt; 7.5%)</td></tr>
+            <tr><td>5</td><td class="accent">DampenerVault.addLiq()</td><td>Add as permanent liquidity</td></tr>
+            <tr><td>6</td><td class="accent">DampenerVault.initiateSell()</td><td>Detect pump, execute sell (Scarcity only)</td></tr>
+            <tr><td>7</td><td class="accent">DampenerVault.completeSell()</td><td>Pair proceeds → permanent LP</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>11.1 Multi-Step State Machine</h3>
+      <p>PolkaVM limits cross-contract calls to ~7 per transaction. The DampenerVault splits operations across multiple keeper calls: <span class="inline-code">pull()</span> → <span class="inline-code">executeBuy()</span> → <span class="inline-code">addLiq()</span> for injection, and <span class="inline-code">initiateSell()</span> → <span class="inline-code">completeSell()</span> for sell-into-strength. Both state machines are independent.</p>
+
+      <h3>11.2 Centralisation and Liveness</h3>
+      <p>All keeper functions are permissionless — any address can call them. A malicious or absent keeper cannot steal funds, alter parameters, or redirect tax. It can only delay maintenance. Any community member can run a keeper using the published call sequence.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     12. PHASE LIFECYCLE
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="phases">
+  <div class="section-inner">
+    <div class="section-kicker">Protocol Lifecycle</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>12. Phase Lifecycle <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>Four phases, defined by block number. Transitions are automatic and irreversible.</p>
+
+      <div class="phase-timeline">
+        <div class="phase-item">
+          <div class="phase-name">Phase 1</div>
+          <div class="phase-title">Zone A</div>
+          <div class="phase-desc">Blocks 0–5,200 · ~8.7 minutes. 9,500 BPS both directions. Sniper deterrence; DampenerVault capitalisation. 95% of all volume flows to the vault.</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-name">Phase 2</div>
+          <div class="phase-title">Zone B</div>
+          <div class="phase-desc">Blocks 5,200–10,400 · ~8.7 minutes. Linear decay from 9,500 BPS toward e/π floors. Tax normalises in 100 BPS steps every 104 blocks.</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-name">Phase 3</div>
+          <div class="phase-title">Hardening</div>
+          <div class="phase-desc">Blocks 10,400–26,000,000 · ~30 days. Steady-state 272/314 BPS. Liquidity building via Great Drain (100% → LP) and floor injection. No sell-into-strength.</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-name">Phase 4 — Indefinite</div>
+          <div class="phase-title">Scarcity</div>
+          <div class="phase-desc">Block 26,000,000+. Full mechanism set active. All three Dampener strategies operational. Conditional burn pathway. Sell-into-strength harvests volatility into permanent floor.</div>
+        </div>
+      </div>
+
+      <p>The Hardening → Scarcity transition at block 26,000,000 is the most significant boundary. It activates sell-into-strength and changes Drain routing from pure LP to conditional burn/LP. By this point, ~30 days of liquidity accumulation through all six routes has established the protocol's baseline.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     13. GOVERNANCE
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="governance">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>13. Governance <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p>Minimal governance by design. Economic parameters — tax rates, drain thresholds, phase boundaries, vesting schedule — are immutable constants in contract bytecode. They cannot be changed after deployment.</p>
+
+      <h3>13.1 What Can Be Changed</h3>
+      <p>Two — and only two — contract addresses: DampenerVault and CryptographicSequencer. This allows satellite contracts to be upgraded if a critical bug is found, without redeploying TokenEngine.</p>
+
+      <h3>13.2 Two-Step Timelock</h3>
+      <p>Any address change requires a mandatory 24-hour delay. Propose → wait → confirm, in separate transactions. Either step can be cancelled. A pre-trading bypass allows rapid wiring during deployment; once <span class="inline-code">enableTrading()</span> is called, the full delay is permanently enforced.</p>
+
+      <h3>13.3 Team Wallet</h3>
+      <p>Set at deployment, receives 75 BPS from every transaction. The address can be changed for key rotation without contract redeployment.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     14. SECURITY
+     ═══════════════════════════════════════════ -->
+<div class="section section--base" id="security">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>14. Security <em>Considerations</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+
+      <div class="card">
+        <div class="card-header">Reentrancy Protection</div>
+        <p>All state variables controlling fund flows are updated before external calls. The multi-step state machine inherently prevents reentrancy — each step transitions to a new state that cannot re-enter the previous step.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Integer Arithmetic</div>
+        <p>Solidity 0.8.26 built-in overflow/underflow protection. Tax calculations use BPS with explicit sum verification to prevent rounding errors.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Access Control</div>
+        <p>Critical functions restricted by modifier: <span class="inline-code">onlyOwner</span>, <span class="inline-code">onlyDampener</span>, <span class="inline-code">onlyTokenEngine</span>. Dedicated tests verify each restricted function reverts when called by unauthorised addresses.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Oracle Design</div>
+        <p>TWAP: circular buffer of 60 snapshots, 36,000-block lookback (~1 hour). Resists single-block manipulation — an attacker would need to sustain distortion across the full window.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Entropy</div>
+        <p>Sell-into-strength uses enriched entropy: blockhash + sell nonce + cumulative injection total + vault address + caller address. Not cryptographically secure against a validator controlling block production, but the economic cost of exploitation exceeds the reward at launch-scale TVL. The threat model is explicit.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Test Coverage</div>
+        <p>280+ passing tests across two test files, covering core functionality, edge cases, access control, phase transitions, drain routing, vesting, and 20 dedicated sell-into-strength tests including adversarial cases.</p>
+      </div>
+
+      <div class="callout">
+        <p>Project 52F has not been formally audited by a third-party security firm. The absence of a formal audit should be considered a risk factor.</p>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<section id="constants" class="section">
-  <div class="container">
-    <p class="section-kicker">Clinical Architecture</p>
-    <h2 class="section-title">Every Parameter.<br><em>Mathematically Derived.</em></h2>
-    <div class="rule"></div>
-    
-    <div class="maths-grid">
-      <div class="math-card"><div class="math-sym">√2πe</div><div class="math-name">Team Allocation</div><div class="math-val">12.077%</div><p>(√2 × π × e / 100) × Supply. 52 tranches over 30 days.</p></div>
-      <div class="math-card"><div class="math-sym">52</div><div class="math-name">The Constant</div><div class="math-val">Universal Fractal</div><p>Supply, clock, pulse, and shift all derive from 52.</p></div>
-      <div class="math-card"><div class="math-sym">0.1s</div><div class="math-name">Finality</div><div class="math-val">Architectural</div><p>High-velocity network enables precise execution.</p></div>
-      <div class="math-card"><div class="math-sym">R</div><div class="math-name">Solvency</div><div class="math-val">1.33x</div><p>Guaranteed ratio ensures net liquidity production.</p></div>
-      <div class="math-card"><div class="math-sym">26M</div><div class="math-name">Phase Shift</div><div class="math-val">Block Count</div><p>Immutable transition to scarcity era.</p></div>
-    </div>
+<!-- ═══════════════════════════════════════════
+     15. DEPLOYMENT
+     ═══════════════════════════════════════════ -->
+<div class="section section--alt" id="deployment">
+  <div class="section-inner">
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>15. Deployment &amp; <em>Infrastructure</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
 
-    <div class="solvency-card">
-      <div class="solvency-equation">Team = (√2 × π × e / 100) × Supply</div>
-      <div class="solvency-proof">MATHEMATICAL ALLOCATION · IMMUTABLE VESTING</div>
-      <div class="solvency-value">12.077<span>%</span></div>
-      <p style="font-size:0.9rem;color:var(--muted);margin-top:1rem">9,741,094,233 tokens released in 52 equal tranches of 187,328,735 tokens. No admin keys can alter this schedule.</p>
-    </div>
+      <h3>15.1 QF Network</h3>
+      <p>Substrate-based blockchain, Chain ID 3426, 0.1-second block time, PolkaVM execution. Contracts compiled with <span class="inline-code">resolc</span> v0.5.0 producing PolkaVM bytecode. The network rejects EVM bytecode entirely.</p>
 
-    <h3 style="font-family:var(--serif);font-size:1.5rem;color:var(--paper);margin:3rem 0 1.5rem;font-style:italic">Dampener Three-Tier Response</h3>
-    <div class="arch-grid" style="grid-template-columns:repeat(3,1fr)">
-      <div class="arch-card">
-        <div class="arch-icon" style="color:var(--green);border-color:var(--green)">✓</div>
-        <div class="arch-name">Healthy</div>
-        <div class="arch-role">Ratio ≥ 15%</div>
-        <p class="arch-desc">No action required. Dampener continues accumulating reserves for future liquidity defence.</p>
-      </div>
-      <div class="arch-card">
-        <div class="arch-icon" style="color:var(--gold);border-color:var(--gold)">N</div>
-        <div class="arch-name">Normal Mode</div>
-        <div class="arch-role">Ratio 7.5% — 14.99%</div>
-        <p class="arch-desc">50% market buy 52F + 50% add liquidity. Creates buy pressure while deepening the floor.</p>
-      </div>
-      <div class="arch-card">
-        <div class="arch-icon" style="color:var(--red);border-color:var(--red)">!</div>
-        <div class="arch-name">Emergency Mode</div>
-        <div class="arch-role">Ratio &lt; 7.5%</div>
-        <p class="arch-desc">100% QF deployed as liquidity. Engine releases proportional 52F reserve. Ratio recovery is absolute priority.</p>
-      </div>
+      <h3>15.2 Deployment Sequence</h3>
+      <p>Strict eight-step order: DEX infrastructure → TokenEngine → DampenerVault &amp; CryptographicSequencer → cross-contract wiring → seed liquidity → pair registration → <span class="inline-code">enableTrading()</span>. The <span class="inline-code">verifyWiring()</span> function must return all-true before trading is enabled.</p>
+
+      <h3>15.3 AMM Integration</h3>
+      <p>Compatible with any Uniswap V2 AMM. At launch, 52F trades on the Nucleus X DEX. All interfaces match standard Uniswap V2 function signatures, allowing migration to alternative AMMs without contract modification.</p>
     </div>
   </div>
-</section>
+</div>
 
-<section id="build" class="section section--alt">
-  <div class="container">
-    <p class="section-kicker">Build Progress</p>
-    <h2 class="section-title">Three Contracts.<br><em>Sovereign System.</em></h2>
-    <div class="rule"></div>
-    <p class="section-lead">Mathematical architecture finalized. Security audited. Ready for QF Network deployment. The equation is solved.</p>
-    
-    <div class="timeline">
-      <div class="tl-item done">
-        <div class="tl-dot"></div>
-        <div class="tl-phase">Contract 1</div>
-        <div class="tl-name">TokenEngine.sol — The Ledger</div>
-        <div class="tl-desc">Core token, 52-epoch heartbeat, phase-aware logic, TWAP-protected Great Drain. <span class="tl-badge">Complete · 20 tests</span></div>
-      </div>
-      <div class="tl-item done">
-        <div class="tl-dot"></div>
-        <div class="tl-phase">Contract 2</div>
-        <div class="tl-name">DampenerVault.sol — The Watchdog</div>
-        <div class="tl-desc">36K block TWAP monitoring, 15% health gate, 7.5% emergency threshold. <span class="tl-badge">Complete · 13 tests</span></div>
-      </div>
-      <div class="tl-item done">
-        <div class="tl-dot"></div>
-        <div class="tl-phase">Contract 3</div>
-        <div class="tl-name">CryptographicSequencer.sol — The Prize Pot</div>
-        <div class="tl-desc">52M entry threshold, MOD-1000 collision engine, 34/39/5 revenue split. <span class="tl-badge">Complete · 8 tests</span></div>
-      </div>
-      <div class="tl-item now">
-        <div class="tl-dot"></div>
-        <div class="tl-phase">Integration</div>
-        <div class="tl-name">QF Network Mainnet</div>
-        <div class="tl-desc">Cross-contract calls, 0.1s finality optimization, mainnet deployment sequence. <span class="tl-badge" style="background:rgba(14,155,142,0.1);color:var(--teal-light)">In Progress</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="origin" class="section">
-  <div class="container">
-    <p class="section-kicker">Protocol Genesis</p>
-    <h2 class="section-title">The Proof.<br><em>Origin Story.</em></h2>
-    <div class="rule"></div>
-    <p class="section-lead">Mathematics requires no credentials. Only proof.</p>
-    
-    <div class="founder-message">
-      <div class="founder-text">
-        <p>I am a British mathematician and educator who returned to university in my late 30s — <em>three years into sobriety</em> — to master the mathematics I now teach. With no formal software development background, I built this protocol using AI-assisted development and a deep understanding of the underlying mathematics.</p>
-        <p>I currently teach mathematics and engineering at higher education level, and Project 52F is a live exploration of whether a protocol can be made structurally resistant to snipers, rug pulls, and founder trust risk from first principles, with minimal funding and no team.</p>
-        <p><em>The constants do the rest.</em></p>
-      </div>
-      <div class="founder-attrib">Founder & Architect</div>
-    </div>
-  </div>
-</section>
-
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
 <footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="footer-brand-name">Project 52F</div>
-        <p class="footer-brand-desc">Sovereign Architecture for Autonomous Liquidity. Mathematical certainty in every transaction.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Protocol</h4>
-        <ul>
-          <li><a href="#architecture">Architecture</a></li>
-          <li><a href="#mechanics">Mechanics</a></li>
-          <li><a href="#phases">Phases</a></li>
-          <li><a href="#constants">Constants</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Resources</h4>
-        <ul>
-          <li><a href="#">Whitepaper</a></li>
-          <li><a href="#">GitHub</a></li>
-          <li><a href="https://t.me/+c-FlYTpZrhU4ZTI0">Telegram</a></li>
-          <li><a href="/dashboard">Dashboard</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Network</h4>
-        <ul>
-          <li><a href="#">QF Network</a></li>
-          <li><a href="#">Chain ID: 42</a></li>
-          <li><a href="#">0.1s Finality</a></li>
-        </ul>
-      </div>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="https://t.me/+c-FlYTpZrhU4ZTI0" target="_blank">Telegram</a>
+      <a href="/dashboard/" target="_blank">Dashboard</a>
+      <a href="/Project52F_Whitepaper" download="Project52F_Whitepaper.pdf">Whitepaper</a>
+      <a href="https://github.com/OrthogonalMaffs/p52f-protocol" target="_blank">GitHub</a>
     </div>
-    <div class="footer-bottom">
-      <div class="footer-legal">© 2025 Project 52F. All rights reserved.</div>
-      <div class="footer-disclaimer">Not financial advice. Smart contracts carry risk. DYOR. The protocol operates autonomously—no admin keys, no manual intervention, no exit mechanism.</div>
+
+    <div class="disclaimer">
+      <p>This website is provided for informational purposes only and does not constitute financial advice, an offer of securities, or a solicitation to purchase tokens. The information reflects the protocol's design as of March 2026 and may change prior to mainnet deployment.</p>
+      <p>Participation in decentralised finance carries inherent risks including smart contract vulnerabilities, market volatility, regulatory uncertainty, and loss of funds. Conduct your own research and consult qualified advisors before interacting with the protocol.</p>
+      <p>Project 52F is built by a solo developer using AI-assisted development tools. The protocol has undergone extensive testing (280+ passing tests) but has not been formally audited by a third-party security firm. The absence of a formal audit should be considered a risk factor.</p>
+      <p>The mathematical constants referenced throughout (<em>e</em>, <em>π</em>, √2, 52!) are verifiable mathematical facts. The economic mechanisms are deterministic and encoded in immutable smart contract bytecode. However, the performance of any token or protocol is not guaranteed.</p>
     </div>
+
+    <div class="footer-sig">Project 52F · QF Network · Chain ID 3426 · March 2026</div>
   </div>
 </footer>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════ -->
+<script>
+// Theme
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeBtn').textContent = next === 'dark' ? '☽' : '☀';
+  localStorage.setItem('theme-52f', next);
+}
+(function() {
+  const s = localStorage.getItem('theme-52f');
+  if (s) {
+    document.documentElement.setAttribute('data-theme', s);
+    const b = document.getElementById('themeBtn');
+    if (b) b.textContent = s === 'dark' ? '☽' : '☀';
+  }
+})();
+
+// Mobile menu
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open'));
+});
+
+// Collapsible sections (mobile only)
+function toggleSection(btn) {
+  if (window.innerWidth > 768) return;
+  btn.classList.toggle('collapsed');
+  const content = btn.nextElementSibling;
+  if (content.classList.contains('collapsed')) {
+    content.classList.remove('collapsed');
+    content.style.maxHeight = content.scrollHeight + 'px';
+  } else {
+    content.style.maxHeight = content.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      content.classList.add('collapsed');
+      content.style.maxHeight = '0';
+    });
+  }
+}
+
+// KaTeX
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+});
+
+const autoRenderScript = document.querySelector('script[src*="auto-render"]');
+if (autoRenderScript) {
+  autoRenderScript.addEventListener('load', function() {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  });
+}
+
+// Scroll reveal
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.section').forEach(s => {
+  s.style.opacity = '0';
+  s.style.transform = 'translateY(14px)';
+  s.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  obs.observe(s);
+});
+</script>
 
 </body>
 </html>
