@@ -1000,6 +1000,15 @@ footer {
       <!-- Architecture Diagram -->
       <div class="diagram-container">
         <svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Protocol architecture diagram">
+          <defs>
+            <marker id="arr-m" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)"/>
+            </marker>
+            <marker id="arr-g" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--gold)"/>
+            </marker>
+          </defs>
+
           <!-- DEX -->
           <rect x="250" y="15" width="200" height="44" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
           <text x="350" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--gold)">DEX</text>
@@ -1010,13 +1019,11 @@ footer {
           <text x="350" y="167" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">ERC-20 · Tax Routing · TWAP · Great Drain · Vesting</text>
 
           <!-- Arrow: DEX -> TokenEngine (buys) -->
-          <line x1="320" y1="59" x2="320" y2="120" stroke="var(--muted)" stroke-width="1.5"/>
-          <polygon points="316,117 320,125 324,117" fill="var(--muted)"/>
+          <line x1="320" y1="59" x2="320" y2="120" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr-m)"/>
           <text x="305" y="92" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">buys</text>
 
           <!-- Arrow: TokenEngine -> DEX (sells) -->
-          <line x1="380" y1="120" x2="380" y2="59" stroke="var(--muted)" stroke-width="1.5"/>
-          <polygon points="376,62 380,54 384,62" fill="var(--muted)"/>
+          <line x1="380" y1="120" x2="380" y2="59" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr-m)"/>
           <text x="395" y="92" text-anchor="start" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">sells</text>
 
           <!-- DampenerVault -->
@@ -1030,20 +1037,18 @@ footer {
           <text x="550" y="307" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Birthday Paradox · Epochs · Prizes</text>
 
           <!-- Arrow: TokenEngine -> Dampener -->
-          <line x1="265" y1="180" x2="150" y2="260" stroke="var(--gold)" stroke-width="1.5"/>
-          <polygon points="146,255 150,265 157,257" fill="var(--gold)"/>
-          <text x="182" y="218" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">239 BPS</text>
-          <text x="182" y="230" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">sell tax</text>
+          <line x1="265" y1="180" x2="150" y2="260" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <text x="178" y="215" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">239 BPS</text>
+          <text x="178" y="227" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">sell tax</text>
 
           <!-- Arrow: TokenEngine -> Sequencer -->
-          <line x1="435" y1="180" x2="550" y2="260" stroke="var(--gold)" stroke-width="1.5"/>
-          <polygon points="543,257 550,265 554,255" fill="var(--gold)"/>
-          <text x="518" y="218" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">39/52</text>
-          <text x="518" y="230" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">prize tax</text>
+          <line x1="435" y1="180" x2="550" y2="260" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <text x="522" y="215" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">39/52</text>
+          <text x="522" y="227" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">prize tax</text>
 
-          <!-- Arrow: Dampener -> DEX (permanent LP) -->
-          <line x1="80" y1="260" x2="260" y2="59" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4"/>
-          <text x="145" y="165" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">permanent LP</text>
+          <!-- Dashed: Dampener -> DEX (permanent LP) -->
+          <line x1="80" y1="260" x2="260" y2="59" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr-m)"/>
+          <text x="140" y="155" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">permanent LP</text>
 
           <!-- 75 BPS Team label -->
           <text x="350" y="203" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--teal-light)">75 BPS → Team (every tx, every phase)</text>
