@@ -862,7 +862,7 @@ footer {
     </div>
     <div class="hero-cta anim d5">
       <a href="https://t.me/+c-FlYTpZrhU4ZTI0" class="btn btn-gold" target="_blank">Join Community</a>
-      <a href="/Project52F_Whitepaper" class="btn btn-ghost" download="Project52F_Whitepaper.pdf">Download Whitepaper</a>
+      <a href="/Project52F_Canon_v2_8.docx" class="btn btn-ghost" download>Download Whitepaper (v2.8)</a>
     </div>
   </div>
 </div>
@@ -954,7 +954,7 @@ footer {
       <h3>3.1 Total Supply</h3>
       <p>The total token supply is the first 11 digits of 52 factorial:</p>
       <div class="katex-display">$$52! = 80{,}658{,}175{,}170{,}943{,}878{,}571{,}660{,}636{,}856{,}403{,}766{,}975{,}289{,}505{,}440{,}883{,}277{,}824{,}000{,}000{,}000{,}000$$</div>
-      <p>Yielding a fixed supply of <strong>80,658,175,170 tokens</strong>. No mint function, no inflation, no governance pathway to increase supply.</p>
+      <p>Yielding a fixed supply of <strong>80,658,175 tokens</strong>. No mint function, no inflation, no governance pathway to increase supply.</p>
 
       <h3>3.2 Founder Allocation</h3>
       <p>The vesting allocation is derived from the product of the three irrational constants: $\sqrt{2} \times \pi \times e \approx 12.077\%$</p>
@@ -1084,17 +1084,17 @@ footer {
         <table>
           <thead><tr><th>Allocation</th><th>Tokens</th><th>% of Supply</th></tr></thead>
           <tbody>
-            <tr><td>Circulating at launch</td><td>70,917,080,937</td><td>87.923%</td></tr>
-            <tr><td>Founder vesting vault</td><td>9,741,094,233</td><td>12.077%</td></tr>
-            <tr><td class="accent"><strong>Total supply (fixed)</strong></td><td class="accent"><strong>80,658,175,170</strong></td><td class="accent"><strong>100.000%</strong></td></tr>
+            <tr><td>Circulating at launch</td><td>70,917,081</td><td>87.923%</td></tr>
+            <tr><td>Founder vesting vault</td><td>9,741,094</td><td>12.077%</td></tr>
+            <tr><td class="accent"><strong>Total supply (fixed)</strong></td><td class="accent"><strong>80,658,175</strong></td><td class="accent"><strong>100.000%</strong></td></tr>
           </tbody>
         </table>
       </div>
 
-      <p>The total supply is the first 11 digits of 52 factorial. Minted at deployment, permanently fixed — no mint function, no inflation mechanism, no governance pathway to increase supply. The only direction supply can move is down, via the burn mechanism in the Scarcity phase.</p>
+      <p>The total supply is the first 8 digits of 52 factorial. Minted at deployment, permanently fixed — no mint function, no inflation mechanism, no governance pathway to increase supply. The only direction supply can move is down, via the burn mechanism in the Scarcity phase.</p>
 
       <h3>5.2 Vesting</h3>
-      <p>The founder allocation of 12.077% (derived from $\sqrt{2} \times \pi \times e$) vests across 52 tranches, one every 5,200,000 blocks (approximately 6 days at QF Network's 0.1-second block time). Each tranche releases 187,328,735 tokens, with 13 tokens of dust added to the final tranche to ensure the vault empties exactly. Total vesting duration: approximately 10.4 months.</p>
+      <p>The founder allocation of 12.077% (derived from $\sqrt{2} \times \pi \times e$) vests across 52 tranches, one every 5,200,000 blocks (approximately 6 days at QF Network's 0.1-second block time). Each tranche releases 187,328 tokens, with 38 tokens of dust added to the final tranche to ensure the vault empties exactly. Total vesting duration: approximately 10.4 months.</p>
 
       <p>Vesting is claim-based: the founder must actively call <span class="inline-code">claimVesting()</span> to receive earned tranches. Unclaimed tranches accumulate but do not auto-release.</p>
 
@@ -1170,7 +1170,7 @@ footer {
       <p>The Great Drain converts accumulated prize-pot QF into structural liquidity or deflationary pressure, depending on the protocol's phase and health.</p>
 
       <h3>7.1 Trigger</h3>
-      <p>Fires when the prize pot accumulates QF equivalent to 520,000,000 tokens multiplied by the current TWAP. At low token prices, this threshold is small and fires frequently — building liquidity aggressively when it matters most. At higher prices, it requires more accumulation, allowing the prize pot to grow before each event.</p>
+      <p>Fires when the prize pot accumulates QF equivalent to 520,000 tokens multiplied by the current TWAP. At low token prices, this threshold is small and fires frequently — building liquidity aggressively when it matters most. At higher prices, it requires more accumulation, allowing the prize pot to grow before each event.</p>
 
       <h3>7.2 Seizure and Routing</h3>
       <p>Each Drain seizes 50% of the prize pot (5,000 BPS). The remaining 50% continues accumulating.</p>
@@ -1180,13 +1180,13 @@ footer {
           <thead><tr><th>Phase</th><th>Condition</th><th>Action</th></tr></thead>
           <tbody>
             <tr><td class="accent">Hardening</td><td>Always</td><td>100% seized QF paired with 52F from supply → addLiquidity, deepening LP and reducing circulating 52F</td></tr>
-            <tr><td class="accent">Scarcity</td><td>LP ratio ≥ 15%</td><td>50% buys &amp; burns 52F to dead address; 50% QF to dead address</td></tr>
-            <tr><td class="accent">Scarcity</td><td>LP ratio &lt; 15%</td><td>100% → addLiquidity (health check overrides burn)</td></tr>
+            <tr><td class="accent">Scarcity</td><td>LP ratio ≥ 23%</td><td>50% buys &amp; burns 52F to dead address; 50% QF to dead address</td></tr>
+            <tr><td class="accent">Scarcity</td><td>LP ratio &lt; 23%</td><td>100% → addLiquidity (health check overrides burn)</td></tr>
           </tbody>
         </table>
       </div>
 
-      <p>The health check is critical. Burning QF when liquidity is thin would destroy market structure. The 15% LP ratio threshold ensures burn only activates when the protocol can absorb the deflationary pressure.</p>
+      <p>The health check is critical. Burning QF when liquidity is thin would destroy market structure. The 23% LP ratio threshold ensures burn only activates when the protocol can absorb the deflationary pressure.</p>
 
       <h3>7.3 Cooldown</h3>
       <p>Minimum 5,200 blocks between Drains, plus 0–519 random blocks from blockhash entropy. The cooldown variable (<span class="inline-code">nextDrainBlock</span>) is updated before external calls as a reentrancy safeguard.</p>
@@ -1216,7 +1216,7 @@ footer {
           <tbody>
             <tr>
               <td class="accent">Floor Injection</td>
-              <td>LP ratio &lt; 15%</td>
+              <td>LP ratio &lt; 23%</td>
               <td>Pull QF, market buy 52F, add as permanent LP</td>
               <td>All phases</td>
             </tr>
@@ -1237,7 +1237,7 @@ footer {
       </div>
 
       <h3>8.1 Floor Injection</h3>
-      <p>When the vault's QF balance relative to pair reserves falls below 15%, injection activates. Normal mode (7.5%–15%): 50% market-buys 52F, paired with the other 50% as liquidity. Emergency mode (below 7.5%): direct LP addition without market buy — depth over price impact. Each injection is capped at 10% of vault balance, with a randomised cooldown of 48–72 minutes.</p>
+      <p>When the vault's QF balance relative to pair reserves falls below 23%, injection activates. During Hardening, regardless of ratio severity, the vault pulls 52F directly from the engine reserve and pairs it with full QF — no market buy, maximum LP depth per unit of QF. During Scarcity, normal mode (10%–23%): 50% market-buys 52F, paired with the other 50% as liquidity; emergency mode (below 10%): direct LP addition without market buy — depth over price impact. Each injection is capped at 10% of vault balance, with a randomised cooldown of 48–72 minutes.</p>
 
       <h3>8.2 Sell-Into-Strength</h3>
       <p>Activates exclusively in the Scarcity phase (after block 26,000,000). When speculative buying pushes spot price 18–25.9% above TWAP, the vault sells a precisely calculated quantity of 52F into the pump. The sell quantity is derived from the AMM's constant product formula — producing a price impact of at most ~2%. An 18% pump gets trimmed to roughly 16%. The organic movement stays intact.</p>
@@ -1271,7 +1271,7 @@ footer {
       <p>With <em>n</em> = 52 and <em>d</em> = 1,000: $P \approx 0.739$ — roughly three out of four epochs produce a winner. The 26% no-collision rate ensures pots roll over and grow, creating occasional larger payouts.</p>
 
       <h3>9.2 Epoch Lifecycle</h3>
-      <p>Each epoch accepts up to 52 entries. Any buy of at least 52,000,000 tokens qualifies. Each entry receives a numeric ID between 0 and 999, derived from a hash of transaction origin, blockhash, nonce, and block number. A collision resolves the epoch.</p>
+      <p>Each epoch accepts up to 52 entries. Any buy of at least 52,000 tokens qualifies. Each entry receives a numeric ID between 0 and 999, derived from a hash of transaction origin, blockhash, nonce, and block number. A collision resolves the epoch.</p>
 
       <h3>9.3 Prize Pool Split</h3>
       <p>The prize flow operates in two stages. First, TokenEngine retains 13 parts of every 52 (25%) of buy-side prize tax as Drain fuel, forwarding the remaining 39 parts to the Sequencer. The Sequencer splits this 39 into 34 (winner share) and 5 (liquidity contribution to the DampenerVault).</p>
@@ -1319,7 +1319,7 @@ footer {
         <div class="route-card">
           <div class="route-num">03</div>
           <div class="route-name">Floor Injection</div>
-          <div class="route-desc">When LP ratio drops below 15%, the vault buys into weakness and adds permanent LP</div>
+          <div class="route-desc">When LP ratio drops below 23%, the vault buys into weakness and adds permanent LP</div>
         </div>
         <div class="route-card">
           <div class="route-num">04</div>
@@ -1362,8 +1362,8 @@ footer {
             <tr><td>1</td><td class="accent">TokenEngine.maintain()</td><td>TWAP snapshot + drain check</td></tr>
             <tr><td>2</td><td class="accent">Sequencer.registerFromKeeper()</td><td>Register qualifying buy events as epoch entries</td></tr>
             <tr><td>3</td><td class="accent">DampenerVault.pull()</td><td>Pull QF, assess injection need</td></tr>
-            <tr><td>4</td><td class="accent">DampenerVault.executeBuy()</td><td>Normal: market-buy 52F (ratio 7.5%–15%)</td></tr>
-            <tr><td>4a</td><td class="accent">DampenerVault.executeEmergency()</td><td>Emergency: direct LP (ratio &lt; 7.5%)</td></tr>
+            <tr><td>4</td><td class="accent">DampenerVault.executeBuy()</td><td>Scarcity normal: market-buy 52F (ratio 10%–23%)</td></tr>
+            <tr><td>4a</td><td class="accent">DampenerVault.executeEmergency()</td><td>Hardening any ratio &lt; 23%, or Scarcity emergency (ratio &lt; 10%): direct engine pull + LP</td></tr>
             <tr><td>5</td><td class="accent">DampenerVault.addLiq()</td><td>Add as permanent liquidity</td></tr>
             <tr><td>6</td><td class="accent">DampenerVault.initiateSell()</td><td>Detect pump, execute sell (Scarcity only)</td></tr>
             <tr><td>7</td><td class="accent">DampenerVault.completeSell()</td><td>Pair proceeds → permanent LP</td></tr>
@@ -1524,7 +1524,7 @@ footer {
     <div class="footer-links">
       <a href="https://t.me/+c-FlYTpZrhU4ZTI0" target="_blank">Telegram</a>
       <a href="/dashboard/" target="_blank">Dashboard</a>
-      <a href="/Project52F_Whitepaper" download="Project52F_Whitepaper.pdf">Whitepaper</a>
+      <a href="/Project52F_Canon_v2_8.docx" download>Whitepaper</a>
       <a href="https://github.com/OrthogonalMaffs/p52f-protocol" target="_blank">GitHub</a>
     </div>
 
