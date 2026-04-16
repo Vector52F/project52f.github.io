@@ -69,7 +69,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
 <div class="tab-bar">
   <button class="tab-btn active" id="tabLiteBtn" onclick="setTab('lite')">Overview</button>
   <button class="tab-btn" id="tabAdvBtn" onclick="setTab('adv')">Advanced</button>
-  <span class="tab-hint">e=2.718... π=3.141... 52!=80,658,175,170</span>
+  <span class="tab-hint">e=2.718... π=3.141... 52!=80,658,175</span>
 </div>
 
 <main>
@@ -98,7 +98,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
     <div class="hero-label">TRANSACTIONS THIS EPOCH</div>
     <div class="hero-meta">
       <span class="chip chip-green">● ACTIVE</span>
-      <span class="hero-meta-text">MOD-1000 collision engine · 52M entry threshold</span>
+      <span class="hero-meta-text">MOD-1000 collision engine · 52K entry threshold</span>
     </div>
   </div>
 
@@ -154,7 +154,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       <div class="stat-box">
         <div class="stat-label">L/MC Ratio</div>
         <div class="stat-val green" id="liteLmcRatio">18.4%</div>
-        <div class="stat-sub">Healthy (≥15%)</div>
+        <div class="stat-sub">Healthy (≥23%)</div>
       </div>
       <div class="stat-box">
         <div class="stat-label">Vault Balance</div>
@@ -163,7 +163,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       </div>
     </div>
     <div class="threshold-info">
-      <strong>Three-Tier Response:</strong> Healthy (≥15%) · Normal (7.5–14.99%) · Emergency (&lt;7.5%)<br>
+      <strong>Three-Tier Response:</strong> Healthy (≥23%) · Normal (11.5–22.99%) · Emergency (&lt;11.5%)<br>
       <strong>TWAP:</strong> 60 snapshots · 36,000 block lookback · Flash loan resistant<br>
       <strong>Cooldown:</strong> 48–72 min randomised (defeats front-running)
     </div>
@@ -216,7 +216,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       <div class="grid-2" style="gap:10px;margin-top:16px">
         <div class="stat-box">
           <div class="stat-label">Entry Threshold</div>
-          <div class="stat-val teal">52M 52F</div>
+          <div class="stat-val teal">52K 52F</div>
           <div class="stat-sub">Per qualifying transaction</div>
         </div>
         <div class="stat-box">
@@ -337,13 +337,13 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
         </div>
         <div class="health-track">
           <div class="health-fill" id="advHealthFill" style="width:37%;background:var(--green)"></div>
-          <div class="health-line" style="left:30%" data-label="15%"></div>
-          <div class="health-line emergency" style="left:15%" data-label="7.5%"></div>
+          <div class="health-line" style="left:46%" data-label="23%"></div>
+          <div class="health-line emergency" style="left:23%" data-label="11.5%"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:8px">
-          <span>Emergency (&lt;7.5%)</span>
-          <span>Normal (7.5-15%)</span>
-          <span>Healthy (≥15%)</span>
+          <span>Emergency (&lt;11.5%)</span>
+          <span>Normal (11.5-23%)</span>
+          <span>Healthy (≥23%)</span>
         </div>
       </div>
       
@@ -408,7 +408,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       </div>
       <div class="threshold-info" style="margin-top:16px">
         <strong>D</strong> = Dampener Vault · <strong>P</strong> = Prize Pot · <strong>T</strong> = Team<br>
-        Scarcity Phase (26M+): Buy 2.72% (e) · Sell 3.14% (π) · Same split, drain switches to burn if ratio ≥ 15%
+        Scarcity Phase (26M+): Buy 2.72% (e) · Sell 3.14% (π) · Same split, drain switches to burn if ratio ≥ 23%
       </div>
     </div>
   </div>
@@ -419,7 +419,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
 
 <footer>
   <div class="footer-content">
-    <span>52F</span> Protocol · QF Network · <span>e</span>=2.71828 <span>π</span>=3.14159 <span>52!</span>=80,658,175,170 · <a href="/" style="color:var(--muted);text-decoration:none">← Back to Home</a>
+    <span>52F</span> Protocol · QF Network · <span>e</span>=2.71828 <span>π</span>=3.14159 <span>52!</span>=80,658,175 · <a href="/" style="color:var(--muted);text-decoration:none">← Back to Home</a>
   </div>
 </footer>
 
