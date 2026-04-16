@@ -827,7 +827,8 @@ footer {
   footer { padding: 3rem 1.2rem 2rem; }
   thead th { white-space: normal; padding: 0.5rem; font-size: 0.6rem; letter-spacing: 0.05em; }
   td { padding: 0.5rem; font-size: 0.68rem; word-break: break-word; }
-  table { min-width: 0; table-layout: fixed; width: 100%; }
+  table { min-width: 0; width: 100%; }
+  .col-narrow { white-space: nowrap; width: 1%; }
   .inline-code { font-size: 0.65em; word-break: break-all; }
   .hide-mobile { display: none; }
   .katex-display .katex { font-size: 0.55em; }
@@ -1184,11 +1185,11 @@ footer {
 
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Phase</th><th>Condition</th><th>Action</th></tr></thead>
+          <thead><tr><th class="col-narrow">Phase</th><th class="col-narrow">Condition</th><th>Action</th></tr></thead>
           <tbody>
-            <tr><td class="accent">Hardening</td><td>Always</td><td>100% seized QF paired with 52F from supply → addLiquidity, deepening LP and reducing circulating 52F</td></tr>
-            <tr><td class="accent">Scarcity</td><td>LP ratio ≥ 23%</td><td>50% buys &amp; burns 52F to dead address; 50% QF to dead address</td></tr>
-            <tr><td class="accent">Scarcity</td><td>LP ratio &lt; 23%</td><td>100% → addLiquidity (health check overrides burn)</td></tr>
+            <tr><td class="accent col-narrow">Hardening</td><td class="col-narrow">Always</td><td>100% seized QF paired with 52F from supply → addLiquidity, deepening LP and reducing circulating 52F</td></tr>
+            <tr><td class="accent col-narrow">Scarcity</td><td class="col-narrow">LP ratio ≥ 23%</td><td>50% buys &amp; burns 52F to dead address; 50% QF to dead address</td></tr>
+            <tr><td class="accent col-narrow">Scarcity</td><td class="col-narrow">LP ratio &lt; 23%</td><td>100% → addLiquidity (health check overrides burn)</td></tr>
           </tbody>
         </table>
       </div>
