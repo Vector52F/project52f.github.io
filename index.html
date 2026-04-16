@@ -557,6 +557,7 @@ nav {
    ═══════════════════════════════════════════ */
 .table-wrap {
   overflow-x: auto;
+  max-width: 100%;
   margin: 1.5rem 0;
 }
 
@@ -803,7 +804,7 @@ footer {
    KATEX
    ═══════════════════════════════════════════ */
 .katex { font-size: 1.1em; }
-.katex-display { margin: 1.5rem 0; overflow-x: auto; }
+.katex-display { margin: 1.5rem 0; overflow-x: auto; max-width: 100%; }
 
 /* ═══════════════════════════════════════════
    ANIMATIONS
@@ -824,6 +825,10 @@ footer {
    ═══════════════════════════════════════════ */
 @media (max-width: 768px) {
   footer { padding: 3rem 1.2rem 2rem; }
+  thead th { white-space: normal; padding: 0.6rem; font-size: 0.65rem; }
+  td { padding: 0.6rem; font-size: 0.68rem; word-break: break-word; }
+  table { min-width: 0; }
+  .inline-code { font-size: 0.65em; word-break: break-all; }
 }
 </style>
 </head>
