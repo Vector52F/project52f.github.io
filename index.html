@@ -825,10 +825,12 @@ footer {
    ═══════════════════════════════════════════ */
 @media (max-width: 768px) {
   footer { padding: 3rem 1.2rem 2rem; }
-  thead th { white-space: normal; padding: 0.6rem; font-size: 0.65rem; }
-  td { padding: 0.6rem; font-size: 0.68rem; word-break: break-word; }
-  table { min-width: 0; }
+  thead th { white-space: normal; padding: 0.5rem; font-size: 0.6rem; letter-spacing: 0.05em; }
+  td { padding: 0.5rem; font-size: 0.68rem; word-break: break-word; }
+  table { min-width: 0; table-layout: fixed; width: 100%; }
   .inline-code { font-size: 0.65em; word-break: break-all; }
+  .hide-mobile { display: none; }
+  .katex-display .katex { font-size: 0.55em; }
 }
 </style>
 </head>
@@ -986,13 +988,13 @@ footer {
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Component</th><th>Type</th><th>Responsibility</th></tr>
+            <tr><th>Component</th><th class="hide-mobile">Type</th><th>Responsibility</th></tr>
           </thead>
           <tbody>
-            <tr><td class="accent">TokenEngine</td><td>Solidity contract</td><td>ERC-20 token, tax routing, Great Drain, vesting, TWAP oracle, team wallet</td></tr>
-            <tr><td class="accent">DampenerVault</td><td>Solidity contract</td><td>Floor injection, sell-into-strength, emergency mode, permanent LP lock</td></tr>
-            <tr><td class="accent">CryptographicSequencer</td><td>Solidity contract</td><td>Birthday Paradox epochs, collision detection, winner payouts</td></tr>
-            <tr><td class="accent">Keeper Bot</td><td>Off-chain script</td><td>TWAP snapshots, drain checks, injection triggers, sell-into-strength triggers</td></tr>
+            <tr><td class="accent">TokenEngine</td><td class="hide-mobile">Solidity contract</td><td>ERC-20 token, tax routing, Great Drain, vesting, TWAP oracle, team wallet</td></tr>
+            <tr><td class="accent">DampenerVault</td><td class="hide-mobile">Solidity contract</td><td>Floor injection, sell-into-strength, emergency mode, permanent LP lock</td></tr>
+            <tr><td class="accent">CryptographicSequencer</td><td class="hide-mobile">Solidity contract</td><td>Birthday Paradox epochs, collision detection, winner payouts</td></tr>
+            <tr><td class="accent">Keeper Bot</td><td class="hide-mobile">Off-chain script</td><td>TWAP snapshots, drain checks, injection triggers, sell-into-strength triggers</td></tr>
           </tbody>
         </table>
       </div>
@@ -1127,15 +1129,15 @@ footer {
       <h3>6.1 Steady-State Rates (Hardening &amp; Scarcity)</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Direction</th><th>Total Tax</th><th>Prize Pot</th><th>Dampener</th><th>Team</th></tr></thead>
+          <thead><tr><th>Direction</th><th>Total Tax</th><th class="hide-mobile">Prize Pot</th><th class="hide-mobile">Dampener</th><th class="hide-mobile">Team</th></tr></thead>
           <tbody>
             <tr>
               <td style="color:var(--green)">Buy (<em>e</em>)</td>
-              <td>272 BPS</td><td>197 BPS</td><td>0 BPS</td><td>75 BPS</td>
+              <td>272 BPS</td><td class="hide-mobile">197 BPS</td><td class="hide-mobile">0 BPS</td><td class="hide-mobile">75 BPS</td>
             </tr>
             <tr>
               <td style="color:var(--red)">Sell (<em>π</em>)</td>
-              <td>314 BPS</td><td>0 BPS</td><td>239 BPS</td><td>75 BPS</td>
+              <td>314 BPS</td><td class="hide-mobile">0 BPS</td><td class="hide-mobile">239 BPS</td><td class="hide-mobile">75 BPS</td>
             </tr>
           </tbody>
         </table>
@@ -1217,25 +1219,25 @@ footer {
 
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Strategy</th><th>Trigger</th><th>Action</th><th>Phase</th></tr></thead>
+          <thead><tr><th>Strategy</th><th>Trigger</th><th>Action</th><th class="hide-mobile">Phase</th></tr></thead>
           <tbody>
             <tr>
               <td class="accent">Floor Injection</td>
               <td>LP ratio &lt; 23%</td>
               <td>Pull QF, market buy 52F, add as permanent LP</td>
-              <td>All phases</td>
+              <td class="hide-mobile">All phases</td>
             </tr>
             <tr>
               <td class="accent">Drain Routing</td>
               <td>Great Drain fires (Hardening)</td>
               <td>Seized QF paired with 52F from supply → permanent LP, deepening liquidity and reducing circulating tokens</td>
-              <td>Hardening</td>
+              <td class="hide-mobile">Hardening</td>
             </tr>
             <tr>
               <td class="accent">Sell-Into-Strength</td>
               <td>Spot &gt; TWAP by 18–25.9%</td>
               <td>Sell 52F into pump (fires only on 18%+ pumps, reduces pump by max ~2%), all proceeds to permanent LP</td>
-              <td>Scarcity only</td>
+              <td class="hide-mobile">Scarcity only</td>
             </tr>
           </tbody>
         </table>
