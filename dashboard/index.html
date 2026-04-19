@@ -109,7 +109,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       <div class="win-sub" id="liteWinSub">2 winners · MOD-1000 match confirmed</div>
     </div>
     <div class="win-prize">
-      <span class="win-prize-val" id="liteWinPrize">33.5M</span>
+      <span class="win-prize-val" id="liteWinPrize">33.5K</span>
       <div class="win-prize-label">52F EACH</div>
     </div>
   </div>
@@ -124,7 +124,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       <span class="lite-stat-label">Epoch</span>
     </div>
     <div class="lite-stat">
-      <span class="lite-stat-val gold" id="liteRollover">41.2M</span>
+      <span class="lite-stat-val gold" id="liteRollover">41.2K</span>
       <span class="lite-stat-label">Rollover Pot</span>
     </div>
   </div>
@@ -132,13 +132,13 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
   <div class="pot-lite">
     <div class="pot-lite-left">
       <div class="label">Prize Pot</div>
-      <div><span class="val" id="litePotVal">247.8M</span><span class="unit">52F</span></div>
+      <div><span class="val" id="litePotVal">247.8K</span><span class="unit">52F</span></div>
     </div>
     <div class="pot-lite-bar">
       <div class="pot-bar-track">
         <div class="pot-bar-fill" id="litePotBar" style="width:47.7%"></div>
       </div>
-      <div class="pot-bar-label">Great Drain at 520M 52F (TWAP-protected)</div>
+      <div class="pot-bar-label">Great Drain at 520K 52F (TWAP-protected)</div>
     </div>
     <div class="pot-lite-pct" id="litePotPct">47.7%</div>
   </div>
@@ -234,7 +234,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
         </div>
         <div class="stat-box">
           <div class="stat-label">Rollover Pot</div>
-          <div class="stat-val gold" id="advRollover">41.2M 52F</div>
+          <div class="stat-val gold" id="advRollover">41.2K 52F</div>
         </div>
         <div class="stat-box">
           <div class="stat-label">Epoch Max Blocks</div>
@@ -249,7 +249,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
     <div class="adv-section-title">Prize Pot & Great Drain</div>
     <div class="card">
       <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">
-        <div style="font-family:var(--serif);font-size:2.2rem;font-weight:700;color:var(--gold);letter-spacing:-2px;font-style:italic" id="advPotAmount">247,831,204</div>
+        <div style="font-family:var(--serif);font-size:2.2rem;font-weight:700;color:var(--gold);letter-spacing:-2px;font-style:italic" id="advPotAmount">247,831</div>
         <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);letter-spacing:0.1em">52F IN PRIZE POT</div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;margin-bottom:6px">
@@ -259,7 +259,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
       <div class="drain-bar-track">
         <div class="drain-bar-fill" id="advDrainBar" style="width:47.7%"></div>
       </div>
-      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-align:right">Fires at 520,000,000 52F (TWAP-protected)</div>
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-align:right">Fires at 520,000 52F (TWAP-protected)</div>
       
       <div class="grid-3" style="gap:10px;margin-top:16px">
         <div class="stat-box">
@@ -297,7 +297,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
         </div>
         <div class="stat-box">
           <div class="stat-label">Needed for Next Drain</div>
-          <div class="stat-val gold" id="advPotNeeded">272.2M 52F</div>
+          <div class="stat-val gold" id="advPotNeeded">272.2K 52F</div>
         </div>
       </div>
     </div>
@@ -434,10 +434,10 @@ var MOCK = {
   collisionCount: 23,
   lastCollisionEpoch: 144,
   lastCollisionWinners: 2,
-  lastCollisionPrize: 33500000,
-  rolloverPot: 41200000,
-  prizePot: 247831204,
-  drainThreshold: 520000000,
+  lastCollisionPrize: 33500,
+  rolloverPot: 41200,
+  prizePot: 247831,
+  drainThreshold: 520000,
   drainCount: 3,
   totalBurned: '0 52F',
   totalPaired: '390M 52F',
@@ -454,10 +454,10 @@ var MOCK = {
     { block: 8940200, amount: '210 QF', ratio: '14.2%' }
   ],
   events: [
-    { type: 'collision', title: 'Epoch #144 — Collision!', sub: '2 winners · 33.5M 52F each · MOD-847', time: '2h ago' },
-    { type: 'rollover', title: 'Epoch #145 — No collision', sub: 'Rolled over · pot +27.8M 52F', time: '1h ago' },
-    { type: 'rollover', title: 'Epoch #146 — No collision', sub: 'Rolled over · pot +31.2M 52F', time: '30m ago' },
-    { type: 'drain', title: 'Great Drain Fired', sub: '150M 52F → Dampener liquidity accumulator', time: '4h ago' }
+    { type: 'collision', title: 'Epoch #144 — Collision!', sub: '2 winners · 33.5K 52F each · MOD-847', time: '2h ago' },
+    { type: 'rollover', title: 'Epoch #145 — No collision', sub: 'Rolled over · pot +27.8K 52F', time: '1h ago' },
+    { type: 'rollover', title: 'Epoch #146 — No collision', sub: 'Rolled over · pot +31.2K 52F', time: '30m ago' },
+    { type: 'drain', title: 'Great Drain Fired', sub: '150K 52F → Dampener liquidity accumulator', time: '4h ago' }
   ]
 };
 
