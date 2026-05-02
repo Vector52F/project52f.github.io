@@ -58,6 +58,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
     <div class="live-indicator">
       <div class="live-dot mock" id="liveDot"></div>
       <span id="liveLabel">MOCK</span>
+      <span id="liveLastUpdated" style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-left:8px"></span>
     </div>
     <div class="mode-toggle">
       <button class="mode-btn active" id="btnMock" onclick="setMode('mock')">MOCK</button>
@@ -73,6 +74,8 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
 </div>
 
 <main>
+
+<div id="liveErrorBanner" style="display:none;background:rgba(255,90,95,0.12);border:1px solid rgba(255,90,95,0.3);color:var(--red);padding:10px 14px;border-radius:6px;margin-bottom:14px;font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em"></div>
 
 <!-- LITE PANEL -->
 <div class="tab-panel active" id="panelLite">
@@ -461,6 +464,156 @@ var MOCK = {
   ]
 };
 
+// Snapshot of the original MOCK so toggling back to MOCK mode is a clean restore.
+var MOCK_ORIGINAL = JSON.parse(JSON.stringify(MOCK));
+
+// ===== LIVE DATA =====
+var LIVE_API = 'https://api.project52f.uk';
+var LIVE_POLL_MS = 15000;
+var livePollId = null;
+var liveLastFetchedAt = null;
+var liveLabelTickerId = null;
+
+// wei (string) → integer "1e18 unit" count (52F or QF), truncated to fit Number safely.
+function w18(s) {
+  try { return Number(BigInt(s || '0') / 1000000000000000000n); } catch { return 0; }
+}
+function relativeTime(ms) {
+  if (!ms) return 'unknown';
+  var d = Date.now() - ms;
+  if (d < 0) return 'just now';
+  if (d < 60000) return Math.round(d / 1000) + 's ago';
+  if (d < 3600000) return Math.round(d / 60000) + 'm ago';
+  if (d < 86400000) return Math.round(d / 3600000) + 'h ago';
+  return Math.round(d / 86400000) + 'd ago';
+}
+
+function transformLive(s, l) {
+  var winners = (l && l.recentWinners) || [];
+  var injs    = (l && l.recentInjections) || [];
+  var drains  = (l && l.recentDrains) || [];
+  var events  = (l && l.recentEvents) || [];
+
+  return {
+    deployBlock: 3000000,                                   // protocol constant
+    currentBlock: Number(s.phase.currentBlock),
+    shieldEndBlock: 26000000,                               // protocol constant
+    epochCounter: Number(s.epoch.entries),
+    epochId: Number(s.epoch.number),
+    collisionCount: winners.length,                          // since keeper deploy
+    lastCollisionEpoch: winners[0] && winners[0].epoch ? Number(winners[0].epoch) : 0,
+    lastCollisionWinners: (winners[0] && winners[0].winners && winners[0].winners.length) || 0,
+    lastCollisionPrize: winners[0] && winners[0].prizePerWinner ? w18(winners[0].prizePerWinner) : 0,
+    rolloverPot: 0,                                          // sequencer.rolledOverPrizePool not yet in keeper output
+    prizePot: w18(s.epoch.prizePot),
+    drainThreshold: 520000,                                  // protocol constant (DRAIN_THRESHOLD_TOKENS)
+    drainCount: l && typeof l.drainCount === 'number' ? l.drainCount : 0,
+    totalBurned: w18(l && l.totalBurned52f) + ' 52F',        // always 0 by design — no event emits this
+    totalPaired: w18(l && l.totalLPAddedQF).toLocaleString() + ' QF',  // unit corrected (actual cum. LP-add is in QF)
+    lastDrainBlock: drains[0] && drains[0].block ? drains[0].block : 0,
+    lmcRatioPct: Number(s.dampener.ratioBPS) / 100,
+    vaultQF: w18(s.dampener.balance),
+    lifetimeInjected: w18(s.dampener.totalInjected),
+    totalLPReceived: Number(s.dampener.totalLPReceived || 0),
+    lastInjectionBlock: injs[0] && injs[0].block ? injs[0].block : 0,
+    cooldownReady: !!s.dampener.injectionEligible && s.dampener.nextInjectionBlock === '0',
+    injections: injs.slice(0, 3).map(function(inj) {
+      var qf = inj.injectionAmount ? w18(inj.injectionAmount) : (inj.qfReceived ? w18(inj.qfReceived) : 0);
+      return {
+        block: inj.block,
+        amount: qf + ' QF',
+        ratio: inj.ratioAfter ? (Number(inj.ratioAfter) / 100).toFixed(1) + '%' : '—',
+      };
+    }),
+    events: events.slice(0, 4).map(mapEventToFeed),
+  };
+}
+
+function mapEventToFeed(ev) {
+  var ago = relativeTime(ev.timestamp);
+  switch (ev.type) {
+    case 'drain':
+      return { type: 'drain', title: 'Great Drain Fired',
+               sub: w18(ev.seized) + ' 52F seized · ' + (ev.isHardening ? 'Hardening' : 'Scarcity'),
+               time: ago };
+    case 'injection':
+      return { type: 'rollover', title: 'Floor Injection',
+               sub: w18(ev.injectionAmount) + ' QF · ratio ' +
+                    (ev.ratioAfter ? (Number(ev.ratioAfter)/100).toFixed(1) + '%' : '—'),
+               time: ago };
+    case 'sellIntoStrength':
+      return { type: 'rollover', title: 'Sell-Into-Strength',
+               sub: w18(ev.qfReceived) + ' QF → permanent LP',
+               time: ago };
+    case 'qualifyingBuy':
+      return { type: 'rollover', title: 'Qualifying Buy',
+               sub: 'Epoch #' + ev.epoch + ' · entry #' + (ev.entryPosition || '?') + ' · ID ' + (ev.assignedId || '?'),
+               time: ago };
+    case 'epochResolved':
+      return { type: 'collision', title: 'Epoch #' + ev.epoch + ' — Collision Detected',
+               sub: ((ev.winners && ev.winners.length) || 0) + ' winners · ' +
+                    w18(ev.prizePerWinner) + ' 52F each',
+               time: ago };
+    case 'epochRolledOver':
+      return { type: 'rollover', title: 'Epoch #' + ev.epoch + ' — Rolled Over',
+               sub: 'Carried ' + w18(ev.prizePoolCarried) + ' 52F',
+               time: ago };
+    default:
+      return { type: 'rollover', title: ev.type || 'event', sub: '', time: ago };
+  }
+}
+
+function setLiveBanner(msg) {
+  var el = document.getElementById('liveErrorBanner');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+  el.style.display = 'block';
+  el.textContent = '⚠ live data unavailable — showing mock data (' + msg + ')';
+}
+
+function tickLastUpdatedLabel() {
+  var el = document.getElementById('liveLastUpdated');
+  if (!el) return;
+  if (liveLastFetchedAt) el.textContent = 'updated ' + relativeTime(liveLastFetchedAt);
+  else el.textContent = '';
+}
+
+async function fetchLiveData() {
+  try {
+    var stateRes, ledgerRes;
+    try {
+      var both = await Promise.all([
+        fetch(LIVE_API + '/state.json',  { cache: 'no-store' }),
+        fetch(LIVE_API + '/ledger.json', { cache: 'no-store' }),
+      ]);
+      stateRes = both[0]; ledgerRes = both[1];
+    } catch (netErr) {
+      throw new Error('network: ' + (netErr.message || 'fetch failed'));
+    }
+    if (stateRes.status === 503) throw new Error('keeper not yet publishing state');
+    if (!stateRes.ok)             throw new Error('state HTTP ' + stateRes.status);
+
+    var state  = await stateRes.json();
+    var ledger = null;
+    if (ledgerRes.ok) {
+      ledger = await ledgerRes.json();
+    } else if (ledgerRes.status !== 503) {
+      throw new Error('ledger HTTP ' + ledgerRes.status);
+    } // 503 ledger → treat as empty
+
+    MOCK = transformLive(state, ledger);
+    liveLastFetchedAt = state.meta && state.meta.updatedAtTimestamp ? state.meta.updatedAtTimestamp : Date.now();
+    init();
+    setLiveBanner(null);
+    tickLastUpdatedLabel();
+  } catch (err) {
+    console.warn('live fetch failed, falling back to MOCK:', err);
+    MOCK = JSON.parse(JSON.stringify(MOCK_ORIGINAL));
+    init();
+    setLiveBanner(err.message || String(err));
+  }
+}
+
 function fmtM(n) {
   if (n >= 1000000000) return (n / 1000000000).toFixed(1) + 'B';
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
@@ -503,17 +656,32 @@ function setMode(mode) {
   var label = document.getElementById('liveLabel');
   var btnMock = document.getElementById('btnMock');
   var btnLive = document.getElementById('btnLive');
-  
+
   if (mode === 'live') {
     dot.classList.remove('mock');
     label.textContent = 'LIVE';
     btnMock.classList.remove('active');
     btnLive.classList.add('active');
+    // First fetch is immediate; subsequent polls every LIVE_POLL_MS.
+    fetchLiveData();
+    if (livePollId) clearInterval(livePollId);
+    livePollId = setInterval(fetchLiveData, LIVE_POLL_MS);
+    // Tick the "updated Xs ago" label every second so it stays current.
+    if (liveLabelTickerId) clearInterval(liveLabelTickerId);
+    liveLabelTickerId = setInterval(tickLastUpdatedLabel, 1000);
   } else {
     dot.classList.add('mock');
     label.textContent = 'MOCK';
     btnLive.classList.remove('active');
     btnMock.classList.add('active');
+    if (livePollId) { clearInterval(livePollId); livePollId = null; }
+    if (liveLabelTickerId) { clearInterval(liveLabelTickerId); liveLabelTickerId = null; }
+    liveLastFetchedAt = null;
+    setLiveBanner(null);
+    var el = document.getElementById('liveLastUpdated');
+    if (el) el.textContent = '';
+    MOCK = JSON.parse(JSON.stringify(MOCK_ORIGINAL));
+    init();
   }
 }
 
