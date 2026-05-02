@@ -416,6 +416,58 @@ footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px
     </div>
   </div>
 
+  <div class="adv-section" id="protocolTotalsSection">
+    <div class="adv-section-title">Protocol Totals</div>
+    <div style="font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;color:var(--muted);margin:-10px 0 14px;font-style:italic">Cumulative since launch</div>
+    <div class="card">
+      <div id="ptPlaceholder" style="display:none;padding:20px;text-align:center;font-family:var(--serif);font-style:italic;color:var(--muted)">
+        No epochs completed yet — totals will appear here after the first epoch resolves.
+      </div>
+      <div class="grid-2" id="ptGrid" style="gap:16px">
+        <div class="stat-box">
+          <div class="stat-label">Total Prizes Distributed</div>
+          <div class="stat-val gold" id="ptPrizes">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total LP Added</div>
+          <div class="stat-val teal" id="ptLPAdded">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Epochs Completed</div>
+          <div class="stat-val" id="ptEpochs">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Injected (Dampener)</div>
+          <div class="stat-val teal" id="ptInjected">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Collisions</div>
+          <div class="stat-val green" id="ptCollisions">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total 52F Burned</div>
+          <div class="stat-val red" id="ptBurned52f">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Qualifying Buys</div>
+          <div class="stat-val" id="ptBuys">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total QF Burned</div>
+          <div class="stat-val red" id="ptBurnedQF">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Average Epoch Length</div>
+          <div class="stat-val" id="ptAvgEpoch">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">LP Health (% time ≥ 23%)</div>
+          <div class="stat-val" id="ptLPHealth">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 </main>
@@ -461,7 +513,20 @@ var MOCK = {
     { type: 'rollover', title: 'Epoch #145 — No collision', sub: 'Rolled over · pot +27.8K 52F', time: '1h ago' },
     { type: 'rollover', title: 'Epoch #146 — No collision', sub: 'Rolled over · pot +31.2K 52F', time: '30m ago' },
     { type: 'drain', title: 'Great Drain Fired', sub: '150K 52F → Dampener liquidity accumulator', time: '4h ago' }
-  ]
+  ],
+
+  // Cumulative protocol totals — values consistent with ~30 days of launch-scale
+  // activity (block 26M ≈ 30 days at 0.1s/block; just before Scarcity transition,
+  // hence zero burns). Wei strings parsed via BigInt for live mode.
+  totalPrizesDistributedQF:   '125000000000000000000000',  // 125,000 over 23 collisions
+  totalEpochsCompleted:       30,
+  totalCollisions:            23,
+  totalQualifyingBuysAllTime: 1456,
+  averageEpochBlocks:         864000,                       // ~24h per epoch
+  totalLPAddedQF:             '12500000000000000000000',    // 12,500 QF cumulative
+  totalBurned52f:             '0',                          // still Hardening pre-26M
+  totalBurnedQF:              '0',
+  lpHealthPct:                '87.50'
 };
 
 // Snapshot of the original MOCK so toggling back to MOCK mode is a clean restore.
@@ -526,6 +591,18 @@ function transformLive(s, l) {
       };
     }),
     events: events.slice(0, 4).map(mapEventToFeed),
+
+    // Protocol totals — direct passthrough from ledger.json. All fields
+    // explicitly mapped (no assumption of MOCK shape match).
+    totalPrizesDistributedQF:   (l && l.totalPrizesDistributedQF)   || '0',
+    totalEpochsCompleted:       (l && typeof l.totalEpochsCompleted       === 'number') ? l.totalEpochsCompleted       : 0,
+    totalCollisions:            (l && typeof l.totalCollisions            === 'number') ? l.totalCollisions            : 0,
+    totalQualifyingBuysAllTime: (l && typeof l.totalQualifyingBuysAllTime === 'number') ? l.totalQualifyingBuysAllTime : 0,
+    averageEpochBlocks:         (l && typeof l.averageEpochBlocks         === 'number') ? l.averageEpochBlocks         : 0,
+    totalLPAddedQF:             (l && l.totalLPAddedQF)                                                                || '0',
+    totalBurned52f:             (l && l.totalBurned52f)                                                                || '0',
+    totalBurnedQF:              (l && l.totalBurnedQF)                                                                 || '0',
+    lpHealthPct:                (l && l.lpHealthPct)                                                                   || '0.00',
   };
 }
 
@@ -728,6 +805,68 @@ function renderEvents() {
   });
 }
 
+// 4-decimal QF or 52F display from a wei-string. e.g. "125000000000000000000000" → "125,000.0000".
+function formatWei4dp(weiStr) {
+  try {
+    var wei = BigInt(weiStr || '0');
+    var whole = wei / 1000000000000000000n;
+    var frac = wei % 1000000000000000000n;
+    var fracStr = frac.toString().padStart(18, '0').slice(0, 4);
+    return whole.toLocaleString('en-GB') + '.' + fracStr;
+  } catch (e) { return '—'; }
+}
+
+// Whole tokens from a wei-string with comma separator. e.g. "247831000000000000000000" → "247,831".
+function formatWeiWhole(weiStr) {
+  try {
+    var wei = BigInt(weiStr || '0');
+    return (wei / 1000000000000000000n).toLocaleString('en-GB');
+  } catch (e) { return '—'; }
+}
+
+// Blocks → "X.X min (Y,YYY blocks)" at 0.1s/block (QF Network).
+function formatAvgEpoch(blocks) {
+  var b = Number(blocks || 0);
+  if (b <= 0) return '—';
+  var min = b / 10 / 60;
+  return min.toFixed(1) + ' min (' + b.toLocaleString('en-GB') + ' blocks)';
+}
+
+function renderProtocolTotals() {
+  var section = document.getElementById('protocolTotalsSection');
+  var grid = document.getElementById('ptGrid');
+  var placeholder = document.getElementById('ptPlaceholder');
+  if (!section) return;
+
+  var epochs = Number(MOCK.totalEpochsCompleted || 0);
+  if (epochs === 0) {
+    placeholder.style.display = 'block';
+    grid.style.display = 'none';
+    return;
+  }
+  placeholder.style.display = 'none';
+  grid.style.display = 'grid';
+
+  document.getElementById('ptPrizes').textContent     = formatWei4dp(MOCK.totalPrizesDistributedQF) + ' QF';
+  document.getElementById('ptEpochs').textContent     = epochs.toLocaleString('en-GB');
+  document.getElementById('ptCollisions').textContent = Number(MOCK.totalCollisions || 0).toLocaleString('en-GB');
+  document.getElementById('ptBuys').textContent       = Number(MOCK.totalQualifyingBuysAllTime || 0).toLocaleString('en-GB');
+  document.getElementById('ptAvgEpoch').textContent   = formatAvgEpoch(MOCK.averageEpochBlocks);
+  document.getElementById('ptLPAdded').textContent    = formatWei4dp(MOCK.totalLPAddedQF) + ' QF';
+  document.getElementById('ptInjected').textContent   = formatWei4dp(MOCK.totalLPAddedQF) + ' QF';
+  document.getElementById('ptBurned52f').textContent  = formatWeiWhole(MOCK.totalBurned52f) + ' 52F';
+  document.getElementById('ptBurnedQF').textContent   = formatWei4dp(MOCK.totalBurnedQF) + ' QF';
+
+  // LP-Health colour grading: green ≥ 80, gold (amber) 50–79, red < 50.
+  var pctNum = parseFloat(MOCK.lpHealthPct || '0') || 0;
+  var lpEl = document.getElementById('ptLPHealth');
+  lpEl.textContent = pctNum.toFixed(2) + '%';
+  lpEl.classList.remove('green', 'gold', 'red');
+  if (pctNum >= 80) lpEl.classList.add('green');
+  else if (pctNum >= 50) lpEl.classList.add('gold');
+  else lpEl.classList.add('red');
+}
+
 function renderInjections() {
   var container = document.getElementById('advInjectionList');
   if (!container) return;
@@ -805,6 +944,7 @@ function init() {
   // Lists
   renderEvents();
   renderInjections();
+  renderProtocolTotals();
 }
 
 // Run on load
