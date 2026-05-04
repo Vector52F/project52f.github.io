@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XHW6SEMGRE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XHW6SEMGRE');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>52F · Launch Countdown</title>
+<meta name="description" content="Project 52F launch countdown — live tax decay schedule and on-chain phase indicator.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Palette mapping: site convention. Accent uses --gold #c9a84c (matches
+     index.html / dashboard); heading uses body #b8c4d0 (matches the
+     dashboard's --paper fallback). #edeae2 and #d4a87a not introduced. */
+  :root {
+    --p52f-bg: #0e1520;
+    --p52f-heading: #b8c4d0;
+    --p52f-body: #b8c4d0;
+    --p52f-muted: #6e8299;
+    --p52f-accent: #c9a84c;
+    --p52f-cliff: #e24b4a;
+    --p52f-buy: #97c459;
+    --p52f-sell: #ef9f27;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--p52f-bg);
+    color: var(--p52f-body);
+    font-family: 'DM Mono', ui-monospace, monospace;
+    min-height: 100vh;
+  }
+  .page {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .page-nav {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p52f-muted);
+    margin-bottom: 16px;
+  }
+  .page-nav a {
+    color: var(--p52f-muted);
+    text-decoration: none;
+    border-bottom: 0.5px solid rgba(184,196,208,0.2);
+    padding-bottom: 1px;
+  }
+  .page-nav a:hover { color: var(--p52f-accent); border-bottom-color: var(--p52f-accent); }
+  .p52f-root {
+    background: var(--p52f-bg);
+    color: var(--p52f-body);
+    font-family: 'DM Mono', ui-monospace, monospace;
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+    border: 0.5px solid rgba(184,196,208,0.15);
+  }
+  .p52f-h {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--p52f-accent);
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 0.25rem;
+    letter-spacing: 0.01em;
+    font-style: italic;
+  }
+  .p52f-sub {
+    font-size: 12px;
+    color: var(--p52f-muted);
+    margin: 0 0 1.25rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .p52f-status {
+    font-size: 11px;
+    color: var(--p52f-muted);
+    padding: 6px 10px;
+    border: 0.5px solid rgba(184,196,208,0.15);
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .p52f-status.live { color: var(--p52f-buy); border-color: rgba(151,196,89,0.3); }
+  .p52f-status.err  { color: var(--p52f-cliff); border-color: rgba(226,75,74,0.3); }
+  .p52f-countdown {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 0 0 1.5rem;
+  }
+  .p52f-cd-cell {
+    background: rgba(184,196,208,0.04);
+    border: 0.5px solid rgba(184,196,208,0.1);
+    border-radius: 8px;
+    padding: 0.75rem 0.25rem;
+    text-align: center;
+  }
+  .p52f-cd-num {
+    font-size: 24px;
+    color: var(--p52f-heading);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .p52f-cd-lbl {
+    font-size: 10px;
+    color: var(--p52f-muted);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .p52f-tax-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0 0 1rem;
+  }
+  .p52f-tax-cell {
+    background: rgba(184,196,208,0.04);
+    border: 0.5px solid rgba(184,196,208,0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+  .p52f-tax-cell.buy  { border-left: 2px solid var(--p52f-buy); }
+  .p52f-tax-cell.sell { border-left: 2px solid var(--p52f-sell); }
+  .p52f-tax-lbl {
+    font-size: 10px;
+    color: var(--p52f-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .p52f-tax-num {
+    font-size: 22px;
+    color: var(--p52f-heading);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .p52f-tax-routing {
+    font-size: 10px;
+    color: var(--p52f-muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .p52f-phase {
+    background: rgba(201,168,76,0.08);
+    border: 0.5px solid rgba(201,168,76,0.25);
+    color: var(--p52f-accent);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin: 0 0 1rem;
+    text-transform: uppercase;
+  }
+  .p52f-block-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--p52f-muted);
+    margin: 0 0 1rem;
+    padding: 8px 0;
+    border-top: 0.5px solid rgba(184,196,208,0.1);
+    border-bottom: 0.5px solid rgba(184,196,208,0.1);
+  }
+  .p52f-chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin: 1rem 0 0.5rem;
+  }
+  .p52f-cliff-note {
+    color: var(--p52f-muted);
+    text-align: center;
+    line-height: 1.5;
+    padding-top: 8px;
+    border-top: 0.5px solid rgba(184,196,208,0.1);
+    margin-top: 0.5rem;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 14px;
+  }
+  .p52f-target {
+    font-size: 11px;
+    color: var(--p52f-muted);
+    text-align: center;
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+  .p52f-target-time {
+    color: var(--p52f-body);
+    font-family: 'DM Mono', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="page-nav"><a href="/">← project52f.uk</a></div>
+
+<div class="p52f-root" id="p52f-root">
+  <h1 style="position: absolute; left: -9999px;">Project 52F launch countdown</h1>
+
+  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+    <div>
+      <p class="p52f-h">Project 52F</p>
+      <p class="p52f-sub" id="p52f-subtitle">Launch countdown</p>
+    </div>
+    <span class="p52f-status" id="p52f-status">connecting</span>
+  </div>
+
+  <div class="p52f-countdown" id="p52f-countdown">
+    <div class="p52f-cd-cell"><div class="p52f-cd-num" id="cd-d">--</div><div class="p52f-cd-lbl">days</div></div>
+    <div class="p52f-cd-cell"><div class="p52f-cd-num" id="cd-h">--</div><div class="p52f-cd-lbl">hrs</div></div>
+    <div class="p52f-cd-cell"><div class="p52f-cd-num" id="cd-m">--</div><div class="p52f-cd-lbl">min</div></div>
+    <div class="p52f-cd-cell"><div class="p52f-cd-num" id="cd-s">--</div><div class="p52f-cd-lbl">sec</div></div>
+  </div>
+
+  <div class="p52f-tax-row">
+    <div class="p52f-tax-cell buy">
+      <div class="p52f-tax-lbl">Buy tax</div>
+      <div class="p52f-tax-num" id="buy-pct">95.00%</div>
+      <div class="p52f-tax-routing" id="buy-routing">9,425 dampener · 75 team</div>
+    </div>
+    <div class="p52f-tax-cell sell">
+      <div class="p52f-tax-lbl">Sell tax</div>
+      <div class="p52f-tax-num" id="sell-pct">95.00%</div>
+      <div class="p52f-tax-routing" id="sell-routing">9,425 dampener · 75 team</div>
+    </div>
+  </div>
+
+  <div class="p52f-phase" id="p52f-phase">Pre-launch</div>
+
+  <div class="p52f-block-info" id="p52f-block-info">
+    <span id="block-current">block: --</span>
+    <span id="block-elapsed">elapsed: --</span>
+  </div>
+
+  <div class="p52f-chart-wrap">
+    <canvas id="p52f-chart" role="img" aria-label="Tax decay curve from 9,500 BPS through Zone B staircase to the discontinuous drop at block 10,400">52F tax curve: starts at 9,500 BPS in Zone A, steps down by 100 BPS every 104 blocks through Zone B to 4,600 BPS, then drops to 272 buy / 314 sell BPS at block 10,400.</canvas>
+  </div>
+
+  <div class="p52f-cliff-note" id="p52f-cliff-note">
+    Tax cliff at block 10,400 — drops from 4,600 BPS to baseline.
+  </div>
+
+  <div class="p52f-target" id="p52f-target-display">
+    target launch · <span class="p52f-target-time" id="p52f-target-time">to be set</span>
+  </div>
+</div>
+
+</div><!-- /.page -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<script>
+(async function() {
+  // ============================================================
+  // CONFIG — Vector updates TARGET_LAUNCH_UTC when launch is set
+  // ============================================================
+  const CONFIG = {
+    TE_ADDRESS: '0xed5d8faa917782182271528b6948e2dc98ff1e6e',
+    RPC_URL: 'https://archive.mainnet.qfnode.net/eth',
+    TARGET_LAUNCH_UTC: '2026-05-05T20:00:00Z',
+    POLL_INTERVAL_MS: 5000,
+  };
+
+  // Constants from TokenEngine_v3.sol (audited 2026-05-04)
+  const ZONE_A_END = 5200;
+  const SNIPER_END = 10400;
+  const SHIELD_END = 26000000;
+  const ZONE_A_TAX_BPS = 9500;
+  const ZONE_B_STEP_BLOCKS = 104;
+  const ZONE_B_STEP_BPS = 100;
+  const E_BUY_TAX_BPS = 272;
+  const PI_SELL_TAX_BPS = 314;
+  const TAX_TEAM_BPS = 75;
+  const BUY_PRIZE_BPS = 197;
+  const SELL_DAMPENER_BPS = 239;
+
+  // Function selectors (keccak-256 first 4 bytes, verified against
+  // src/TokenEngine_v3.sol on 2026-05-04 via viem)
+  const SEL_TRADING_ENABLED       = '0x4ada218b';  // tradingEnabled() -> bool
+  const SEL_DEPLOY_BLOCK          = '0xa3ec191a';  // deployBlock() -> uint32
+  const SEL_GET_CURRENT_TAX_RATES = '0x807e3ee9';  // getCurrentTaxRates() -> (uint256,uint256,string)
+
+  // Plugin registration (Chart.js 4 + annotation plugin 3 via UMD).
+  // Plugin auto-registers on modern UMD builds, but be explicit so the
+  // live-marker line is guaranteed to render.
+  if (typeof Chart !== 'undefined' && window['chartjs-plugin-annotation']) {
+    Chart.register(window['chartjs-plugin-annotation']);
+  }
+
+  // ============================================================
+  // RPC helpers
+  // ============================================================
+  let rpcId = 1;
+  async function rpc(method, params) {
+    const res = await fetch(CONFIG.RPC_URL, {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({jsonrpc: '2.0', method, params, id: rpcId++})
+    });
+    const j = await res.json();
+    if (j.error) throw new Error(j.error.message);
+    return j.result;
+  }
+
+  async function ethCall(to, data) {
+    return rpc('eth_call', [{to, data}, 'latest']);
+  }
+
+  async function blockNumber() {
+    const hex = await rpc('eth_blockNumber', []);
+    return parseInt(hex, 16);
+  }
+
+  // ABI-decode getCurrentTaxRates() return data: (uint256, uint256, string).
+  // Layout:
+  //   bytes  0..31  buyBps      (uint256)
+  //   bytes 32..63  sellBps     (uint256)
+  //   bytes 64..95  offset to string (typically 0x60 = 96)
+  //   at offset:    bytes  0..31  string length
+  //                 bytes 32..    string data padded to 32-byte boundary
+  function decodeTaxRates(hex) {
+    if (!hex || hex === '0x') throw new Error('empty taxRates response');
+    const data = hex.slice(2);
+    const buyBps  = parseInt(data.slice(0, 64), 16);
+    const sellBps = parseInt(data.slice(64, 128), 16);
+    const offset  = parseInt(data.slice(128, 192), 16) * 2;  // chars not bytes
+    const strLen  = parseInt(data.slice(offset, offset + 64), 16);
+    const strHex  = data.slice(offset + 64, offset + 64 + strLen * 2);
+    let str = '';
+    for (let i = 0; i < strHex.length; i += 2) {
+      str += String.fromCharCode(parseInt(strHex.substr(i, 2), 16));
+    }
+    return { buyBps, sellBps, phase: str };
+  }
+
+  // ============================================================
+  // Tax math — used ONLY for chart curve geometry and "next step in N
+  // blocks" derivation. Live BPS values come from getCurrentTaxRates().
+  // ============================================================
+  function effectiveTax(elapsed) {
+    if (elapsed < ZONE_A_END) {
+      return {
+        buyBps: ZONE_A_TAX_BPS,
+        sellBps: ZONE_A_TAX_BPS,
+        phase: 'Sniper Zone A',
+        nextStepBlocks: ZONE_A_END - elapsed
+      };
+    }
+    if (elapsed < SNIPER_END) {
+      const blocksIntoB = elapsed - ZONE_A_END;
+      const steps = Math.floor(blocksIntoB / ZONE_B_STEP_BLOCKS);
+      const decay = steps * ZONE_B_STEP_BPS;
+      const buyBps  = (decay + E_BUY_TAX_BPS  >= ZONE_A_TAX_BPS) ? E_BUY_TAX_BPS  : ZONE_A_TAX_BPS - decay;
+      const sellBps = (decay + PI_SELL_TAX_BPS >= ZONE_A_TAX_BPS) ? PI_SELL_TAX_BPS : ZONE_A_TAX_BPS - decay;
+      const nextStepAt = ZONE_A_END + (steps + 1) * ZONE_B_STEP_BLOCKS;
+      return {
+        buyBps, sellBps,
+        phase: 'Sniper Zone B',
+        nextStepBlocks: nextStepAt - elapsed
+      };
+    }
+    if (elapsed < SHIELD_END) {
+      return { buyBps: E_BUY_TAX_BPS, sellBps: PI_SELL_TAX_BPS, phase: 'Hardening', nextStepBlocks: null };
+    }
+    return   { buyBps: E_BUY_TAX_BPS, sellBps: PI_SELL_TAX_BPS, phase: 'Scarcity',  nextStepBlocks: null };
+  }
+
+  function bpsToPct(bps) {
+    return (bps / 100).toFixed(2) + '%';
+  }
+
+  function buyRouting(bps) {
+    if (bps > E_BUY_TAX_BPS) {
+      const dampener = bps - TAX_TEAM_BPS;
+      return `${dampener.toLocaleString()} dampener · ${TAX_TEAM_BPS} team`;
+    }
+    return `${BUY_PRIZE_BPS} prize · ${TAX_TEAM_BPS} team`;
+  }
+
+  function sellRouting(bps) {
+    if (bps > PI_SELL_TAX_BPS) {
+      const dampener = bps - TAX_TEAM_BPS;
+      return `${dampener.toLocaleString()} dampener · ${TAX_TEAM_BPS} team`;
+    }
+    return `${SELL_DAMPENER_BPS} dampener · ${TAX_TEAM_BPS} team`;
+  }
+
+  // ============================================================
+  // Render
+  // ============================================================
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function renderCountdown(targetMs, nowMs) {
+    let diff = Math.max(0, targetMs - nowMs);
+    const days  = Math.floor(diff / 86400000); diff -= days  * 86400000;
+    const hours = Math.floor(diff /  3600000); diff -= hours *  3600000;
+    const mins  = Math.floor(diff /    60000); diff -= mins  *    60000;
+    const secs  = Math.floor(diff /     1000);
+    document.getElementById('cd-d').textContent = pad(days);
+    document.getElementById('cd-h').textContent = pad(hours);
+    document.getElementById('cd-m').textContent = pad(mins);
+    document.getElementById('cd-s').textContent = pad(secs);
+  }
+
+  function setStatus(text, cls) {
+    const el = document.getElementById('p52f-status');
+    el.textContent = text;
+    el.className = 'p52f-status' + (cls ? ' ' + cls : '');
+  }
+
+  function renderTax(buyBps, sellBps, phase, blockNum, elapsed, nextStepBlocks) {
+    document.getElementById('buy-pct').textContent  = bpsToPct(buyBps);
+    document.getElementById('sell-pct').textContent = bpsToPct(sellBps);
+    document.getElementById('buy-routing').textContent  = buyRouting(buyBps);
+    document.getElementById('sell-routing').textContent = sellRouting(sellBps);
+    document.getElementById('p52f-phase').textContent = phase;
+    document.getElementById('block-current').textContent = 'block: ' + blockNum.toLocaleString();
+    document.getElementById('block-elapsed').textContent = 'elapsed: ' + elapsed.toLocaleString();
+
+    const cliffEl = document.getElementById('p52f-cliff-note');
+    if (phase === 'Sniper Zone B' && nextStepBlocks != null) {
+      const blocksToCliff = SNIPER_END - elapsed;
+      cliffEl.textContent = `next decay in ${nextStepBlocks} blocks · cliff in ${blocksToCliff.toLocaleString()} blocks`;
+    } else if (phase === 'Sniper Zone A') {
+      cliffEl.textContent = `Zone A active · ${nextStepBlocks.toLocaleString()} blocks until decay starts`;
+    } else if (phase === 'Hardening') {
+      const blocksToScarcity = SHIELD_END - elapsed;
+      cliffEl.textContent = `Hardening · ${blocksToScarcity.toLocaleString()} blocks until Scarcity`;
+    } else if (phase === 'Scarcity') {
+      cliffEl.textContent = `Scarcity phase · steady-state baseline`;
+    } else {
+      cliffEl.textContent = `Tax cliff at block 10,400 — drops from 4,600 BPS to baseline.`;
+    }
+  }
+
+  function showLaunchedUI() {
+    document.getElementById('p52f-subtitle').textContent = 'Live tax & phase';
+    document.getElementById('p52f-countdown').style.display = 'none';
+    document.getElementById('p52f-target-display').style.display = 'none';
+  }
+
+  // ============================================================
+  // Static curve chart (always shows full schedule)
+  // ============================================================
+  function buildCurveData() {
+    const labels = [];
+    const buyData = [];
+    const sellData = [];
+    for (let b = 0; b <= 10500; b += 50) {
+      labels.push(b);
+      const t = effectiveTax(b);
+      buyData.push(t.buyBps / 100);
+      sellData.push(t.sellBps / 100);
+    }
+    return { labels, buyData, sellData };
+  }
+
+  let chart = null;
+
+  function renderChart(elapsedBlocks) {
+    const ctx = document.getElementById('p52f-chart').getContext('2d');
+    const data = buildCurveData();
+
+    if (chart) {
+      chart.options.plugins.annotation = elapsedBlocks != null
+        ? {annotations: {now: {
+            type: 'line',
+            xMin: elapsedBlocks,
+            xMax: elapsedBlocks,
+            borderColor: '#c9a84c',
+            borderWidth: 2,
+            borderDash: [4,4]
+          }}}
+        : {annotations: {}};
+      chart.update('none');
+      return;
+    }
+
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: 'Buy %',
+            data: data.buyData,
+            borderColor: '#97c459',
+            backgroundColor: 'rgba(151,196,89,0.08)',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0,
+            fill: false,
+            stepped: 'before'
+          },
+          {
+            label: 'Sell %',
+            data: data.sellData,
+            borderColor: '#ef9f27',
+            backgroundColor: 'rgba(239,159,39,0.08)',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0,
+            borderDash: [3,3],
+            fill: false,
+            stepped: 'before'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'nearest', intersect: false },
+        scales: {
+          x: {
+            type: 'linear',
+            min: 0,
+            max: 10500,
+            title: { display: true, text: 'blocks since launch', color: '#6e8299', font: {size: 10} },
+            ticks: {
+              color: '#6e8299', font: {size: 10},
+              callback: (v) => (v === 0 || v === 5200 || v === 10400) ? v.toLocaleString() : ''
+            },
+            grid: { color: 'rgba(184,196,208,0.05)' }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            title: { display: true, text: 'tax %', color: '#6e8299', font: {size: 10} },
+            ticks: { color: '#6e8299', font: {size: 10}, callback: v => v + '%' },
+            grid: { color: 'rgba(184,196,208,0.05)' }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0e1520',
+            borderColor: 'rgba(184,196,208,0.2)',
+            borderWidth: 0.5,
+            titleColor: '#b8c4d0',
+            bodyColor: '#b8c4d0',
+            callbacks: {
+              title: (items) => 'block ' + items[0].parsed.x.toLocaleString(),
+              label: (item) => item.dataset.label + ' ' + item.parsed.y.toFixed(2) + '%'
+            }
+          },
+          annotation: elapsedBlocks != null
+            ? {annotations: {now: {
+                type: 'line',
+                xMin: elapsedBlocks,
+                xMax: elapsedBlocks,
+                borderColor: '#c9a84c',
+                borderWidth: 2,
+                borderDash: [4,4]
+              }}}
+            : {annotations: {}}
+        }
+      }
+    });
+  }
+
+  // ============================================================
+  // Main loop — gate on tradingEnabled(), then read live state
+  // from getCurrentTaxRates() + deployBlock().
+  // ============================================================
+  let isLaunched = false;
+
+  async function tick() {
+    const targetMs = Date.parse(CONFIG.TARGET_LAUNCH_UTC);
+    const nowMs = Date.now();
+
+    if (!isLaunched) renderCountdown(targetMs, nowMs);
+
+    try {
+      const tradingHex = await ethCall(CONFIG.TE_ADDRESS, SEL_TRADING_ENABLED);
+      // ABI bool: 32-byte word, 0x...01 = true, 0x...00 = false
+      const trading = !!tradingHex && BigInt(tradingHex) === 1n;
+
+      if (trading) {
+        if (!isLaunched) {
+          isLaunched = true;
+          showLaunchedUI();
+          setStatus('live', 'live');
+        }
+        const [taxHex, deployBlockHex, currentBlock] = await Promise.all([
+          ethCall(CONFIG.TE_ADDRESS, SEL_GET_CURRENT_TAX_RATES),
+          ethCall(CONFIG.TE_ADDRESS, SEL_DEPLOY_BLOCK),
+          blockNumber()
+        ]);
+        const { buyBps, sellBps, phase } = decodeTaxRates(taxHex);
+        const deployBlk = parseInt(deployBlockHex, 16);
+        const elapsed = currentBlock - deployBlk;
+        // Local effectiveTax() consulted ONLY for nextStepBlocks (not exposed
+        // by contract). BPS + phase strings come from getCurrentTaxRates().
+        const local = effectiveTax(elapsed);
+        renderTax(buyBps, sellBps, phase, currentBlock, elapsed, local.nextStepBlocks);
+        renderChart(Math.min(elapsed, 10500));
+      } else {
+        setStatus('awaiting launch', '');
+        document.getElementById('p52f-phase').textContent = 'Pre-launch';
+        document.getElementById('block-current').textContent = 'block: not yet';
+        document.getElementById('block-elapsed').textContent = 'elapsed: --';
+        // Static schedule already drawn by initial renderChart(null)
+      }
+    } catch (err) {
+      setStatus('rpc error', 'err');
+    }
+
+    // Format target time display
+    if (!isLaunched) {
+      const target = new Date(targetMs);
+      const opts = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC'};
+      document.getElementById('p52f-target-time').textContent = target.toLocaleString('en-GB', opts) + ' UTC';
+    }
+  }
+
+  // Initial chart with no live marker
+  renderChart(null);
+  tick();
+
+  // 1s ticker for the countdown seconds digit
+  setInterval(() => {
+    if (isLaunched) return;
+    renderCountdown(Date.parse(CONFIG.TARGET_LAUNCH_UTC), Date.now());
+  }, 1000);
+
+  // Slower RPC poll
+  setInterval(tick, CONFIG.POLL_INTERVAL_MS);
+})();
+</script>
+</body>
+</html>
