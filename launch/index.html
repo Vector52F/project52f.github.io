@@ -285,10 +285,9 @@
   const CONFIG = {
     TE_ADDRESS: '0xed5d8faa917782182271528b6948e2dc98ff1e6e',
     RPC_URL: 'https://archive.mainnet.qfnode.net/eth',
-    // Set to ISO-8601 UTC string (e.g. '2026-05-05T20:00:00Z') to enable
-    // the 4-cell countdown clock. While null, the widget shows a
-    // "reticulating splines......" placeholder instead.
-    TARGET_LAUNCH_UTC: null,
+    // Launch target: Monday 2026-05-11 22:00 UK (BST = UTC+1) = 2026-05-11T21:00:00Z UTC.
+    // 4-cell countdown clock activates on this value being non-null.
+    TARGET_LAUNCH_UTC: '2026-05-11T21:00:00Z',
     POLL_INTERVAL_MS: 5000,
   };
 
