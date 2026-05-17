@@ -283,11 +283,13 @@
   // CONFIG — Vector updates TARGET_LAUNCH_UTC when launch is set
   // ============================================================
   const CONFIG = {
-    TE_ADDRESS: '0xed5d8faa917782182271528b6948e2dc98ff1e6e',
+    // Stack 5 TokenCore (mainnet 2026-05-14, replaces v3 0xed5d8faa…).
+    TE_ADDRESS: '0xf39ab20221ec21882fe47fab2ceb9d6e1801aa5c',
     RPC_URL: 'https://archive.mainnet.qfnode.net/eth',
-    // Launch target: Monday 2026-05-11 22:00 UK (BST = UTC+1) = 2026-05-11T21:00:00Z UTC.
-    // 4-cell countdown clock activates on this value being non-null.
-    TARGET_LAUNCH_UTC: '2026-05-11T21:00:00Z',
+    // Launch target deferred indefinitely as of 2026-05-17 pending
+    // external conditions. Set to null to deactivate the 4-cell
+    // countdown clock; the page shows a "deferred" state instead.
+    TARGET_LAUNCH_UTC: null,
     POLL_INTERVAL_MS: 5000,
   };
 

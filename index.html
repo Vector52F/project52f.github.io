@@ -917,6 +917,40 @@ footer {
 </div>
 
 <!-- ═══════════════════════════════════════════
+     2.5. PROJECT HISTORY — STACK 4 → STACK 5 (NEW IN V5.0)
+     ═══════════════════════════════════════════ -->
+<div class="section" id="history">
+  <div class="section-inner">
+    <div class="section-kicker">Project History</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>2.5. Two Iterations. <em>One Architecture.</em> <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p class="section-lead">Project 52F is on its second mainnet deploy iteration. Stack 4 was withdrawn before trading was enabled after a structural tax-bypass finding. Stack 5 closes that bypass by moving tax capture into the lowest-level transfer primitive. The community can read the on-chain history at the stranded Stack 4 addresses and the active Stack 5 deployment.</p>
+
+      <h3>2.5.1 Stack 3 (Original Design, March 2026)</h3>
+      <p>The original protocol was a four-contract design: TokenEngine, DampenerVault, CryptographicSequencer, and a self-built MinimalDEX. The TokenEngine exposed <span class="inline-code">buy()</span> and <span class="inline-code">sell()</span> entrypoints that handled tax capture inline, routing tax revenue to three accumulators (Dampener, Prize Pot, Team) before completing the underlying pair swap. The design was sound for a closed ecosystem in which all user interaction flowed through the TokenEngine's entrypoints. It was abandoned when Project 52F migrated from the self-built MinimalDEX to Nucleus X (the production DEX on QF Network) for production launch.</p>
+
+      <h3>2.5.2 Stack 4 (April–May 2026) and the Tax-Bypass Finding</h3>
+      <p>Stack 4 separated the TokenEngine into multiple contracts and moved DEX interaction to Nucleus X. A TaxRouter contract replaced the inline capture: users were expected to route trades through TaxRouter, which would compute tax, take it as 52F, and forward the remainder to the Nucleus X pair.</p>
+      <p>Stack 4 deployed to QF Mainnet on 2026-05-10/11 with all six contracts wired, bootstrap LP locked, and trading awaiting the launch slot. A structural audit performed before <span class="inline-code">enableTrading()</span> was called identified the bypass: because tax capture lived in TaxRouter's <span class="inline-code">buy()</span>/<span class="inline-code">sell()</span> and not in TokenCore's <span class="inline-code">_transfer</span>, any user who routed around TaxRouter — by calling <span class="inline-code">pair.swap()</span> directly, by using Nucleus X's router, or by deploying a custom router — escaped the tax entirely. TokenCore's <span class="inline-code">_transfer</span> was a vanilla ERC-20 move with no tax hook.</p>
+      <p>The finding was structural, not a coding mistake: the architecture itself could not enforce taxation against off-path routes. Stack 4 was paused before <span class="inline-code">enableTrading()</span>. The contracts remain on chain as stranded artefacts (addresses listed in the deployed-contracts appendix).</p>
+
+      <h3>2.5.3 Stack 5 (May 2026) — The Rebuild</h3>
+      <p>Stack 5 rewrites the tax-capture surface from first principles:</p>
+      <ol>
+        <li><strong>Tax capture moves into <span class="inline-code">TokenCore._transfer</span>.</strong> Every transfer where one side is the canonical pair and neither side is tax-exempt captures tax automatically. Routing path is irrelevant.</li>
+        <li><strong>TaxRouter is deleted.</strong> No protocol-side buy/sell entrypoint exists. Users transact via Nucleus X's router (or any router); the mechanism is symmetric and unavoidable.</li>
+        <li><strong>A new TaxConverter contract handles post-capture conversion and routing.</strong> When <span class="inline-code">_transfer</span> captures tax as 52F, the keeper observes the event and calls <span class="inline-code">TaxConverter.convertTax</span> one or two blocks later, converting to native QF and forwarding the split.</li>
+        <li><strong>Tax rate unifies to π + π/e ≈ 4.29% steady state.</strong> Team takes π/e (115 BPS); the directional component (π = 314 BPS) routes to prize on buys, dampener on sells. See Section 6.</li>
+      </ol>
+      <p>Stack 5 source freeze: 2026-05-13. Test suite: 306/306 passing across 24 test files. Mainnet deploy: 2026-05-14 through 2026-05-17. Launch slot deferred pending external conditions.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      3. THE MATHEMATICS
      ═══════════════════════════════════════════ -->
 <div class="section section--alt" id="mathematics">
@@ -944,14 +978,14 @@ footer {
           <div class="const-use">Supply from 52!, epochs hold 52 entries, 52 vesting tranches, zone boundaries at multiples of 5,200</div>
         </div>
         <div class="const-cell">
-          <div class="const-sym">e</div>
-          <div class="const-label">Euler's Number ≈ 2.718</div>
-          <div class="const-use">Buy tax: 272 BPS. Exponential growth governs the mechanism that compounds participation</div>
-        </div>
-        <div class="const-cell">
           <div class="const-sym">π</div>
           <div class="const-label">Pi ≈ 3.14159</div>
-          <div class="const-use">Sell tax: 314 BPS. The cyclical constant feeds the circular defence mechanism</div>
+          <div class="const-use">Directional tax share: 314 BPS. Routes to the prize pot on buys, the DampenerVault on sells</div>
+        </div>
+        <div class="const-cell">
+          <div class="const-sym">π/e</div>
+          <div class="const-label">Asymmetry constant ≈ 1.155</div>
+          <div class="const-use">Team tax share: 115 BPS on every taxed swap. Same ratio governs the Birthday Paradox collision rate</div>
         </div>
         <div class="const-cell">
           <div class="const-sym">√2</div>
@@ -981,11 +1015,13 @@ footer {
   <div class="section-inner">
     <div class="section-kicker">Protocol Architecture</div>
     <button class="section-toggle" onclick="toggleSection(this)">
-      <h2>4. Three Contracts. <em>One Keeper.</em> <span class="collapse-icon">▾</span></h2>
+      <h2>4. Seven Contracts. <em>One Keeper.</em> <span class="collapse-icon">▾</span></h2>
     </button>
     <div class="section-content">
       <div class="rule"></div>
-      <p class="section-lead">Three smart contracts handle token logic, liquidity management, and prize distribution. A keeper bot maintains them. The protocol trades on a Uniswap V2-compatible DEX.</p>
+      <p class="section-lead">Seven smart contracts handle token logic, tax routing, liquidity management, vesting, governance, and prize distribution. A keeper bot maintains them. The protocol trades on Nucleus X — a Uniswap V2-compatible DEX on QF Network.</p>
+
+      <div class="invariant">Stack 5 (May 2026) reorganises the Stack 4 architecture to move tax capture into the lowest-level ERC-20 primitive (<span class="inline-code">TokenCore._transfer</span>), eliminating a router-level bypass that paused Stack 4 before launch. See Section 2.5 — Project History.</div>
 
       <div class="table-wrap">
         <table>
@@ -993,18 +1029,24 @@ footer {
             <tr><th>Component</th><th class="hide-mobile">Type</th><th>Responsibility</th></tr>
           </thead>
           <tbody>
-            <tr><td class="accent">TokenEngine</td><td class="hide-mobile">Solidity contract</td><td>ERC-20 token, tax routing, Great Drain, vesting, TWAP oracle, team wallet</td></tr>
-            <tr><td class="accent">DampenerVault</td><td class="hide-mobile">Solidity contract</td><td>Floor injection, sell-into-strength, emergency mode, permanent LP lock</td></tr>
-            <tr><td class="accent">CryptographicSequencer</td><td class="hide-mobile">Solidity contract</td><td>Birthday Paradox epochs, collision detection, winner payouts</td></tr>
-            <tr><td class="accent">Keeper Bot</td><td class="hide-mobile">Off-chain script</td><td>TWAP snapshots, drain checks, injection triggers, sell-into-strength triggers</td></tr>
+            <tr><td class="accent">TokenCore</td><td class="hide-mobile">Solidity contract</td><td>ERC-20 ledger; tax capture in <span class="inline-code">_transfer</span>; pre-trading whitelist; system-contract registry; trading gate</td></tr>
+            <tr><td class="accent">TaxConverter</td><td class="hide-mobile">Solidity contract</td><td>Per-transaction 52F→QF conversion via pair swap; split routing (team / prize / dampener); immutable wiring</td></tr>
+            <tr><td class="accent">MechanicsEngine</td><td class="hide-mobile">Solidity contract</td><td>Team / prize / dampener accumulators; Great Drain trigger; Sequencer forwarding (Fibonacci 13/52 retention)</td></tr>
+            <tr><td class="accent">DampenerVault</td><td class="hide-mobile">Solidity contract</td><td>Floor injection, sell-into-strength, emergency mode; recoverable bootstrap LP; permanent post-launch LP burn to dead</td></tr>
+            <tr><td class="accent">VestingEngine</td><td class="hide-mobile">Solidity contract</td><td>52-tranche founder allocation, claimable at intervals of 5,200,000 blocks</td></tr>
+            <tr><td class="accent">AdminEngine</td><td class="hide-mobile">Solidity contract</td><td>Generic <span class="inline-code">propose(target, selector, data) / confirm(id)</span> envelope; 0-delay pre-trading bypass, 864,000-block (~24h) timelock post-trading</td></tr>
+            <tr><td class="accent">CryptographicSequencer</td><td class="hide-mobile">Solidity contract</td><td>Birthday Paradox epochs, collision detection, winner payouts (reused from Stack 3 unchanged)</td></tr>
+            <tr><td class="accent">Keeper Bot</td><td class="hide-mobile">Off-chain script</td><td>Off-chain TWAP; drain checks; per-tx <span class="inline-code">convertTax</span> calls; injection triggers; sell-into-strength triggers; qualifying-buy registration</td></tr>
           </tbody>
         </table>
       </div>
 
-      <p>All three contracts are written in Solidity 0.8.26 and compiled with <span class="inline-code">resolc</span>, the PolkaVM-compatible Solidity compiler. Zero inline assembly — a constraint imposed by the target runtime.</p>
+      <p>All seven contracts are written in Solidity 0.8.26 and compiled with <span class="inline-code">resolc 0.5.0</span>, the PolkaVM-compatible Solidity compiler. Zero inline assembly — a constraint imposed by the target runtime.</p>
 
       <h3>4.1 Information Flow</h3>
-      <p>Every transaction passes through TokenEngine, which routes tax to the appropriate destination. TokenEngine is intentionally agnostic to the internal mechanics of both satellite contracts — it sends funds according to fixed BPS allocations. Either satellite could be upgraded via the governance timelock without modifying TokenEngine's core logic.</p>
+      <p>Every pair-touching transfer triggers <span class="inline-code">TokenCore._transfer</span>'s tax-capture branch, which deducts the per-phase tax rate as 52F and emits a <span class="inline-code">TaxCaptured</span> event. One or two blocks later the keeper calls <span class="inline-code">TaxConverter.convertTax(amount, isBuy, rateBps)</span>, which pulls the captured 52F from TokenCore's engine reserve, swaps it to native QF on the pair, and forwards the split to MechanicsEngine (team + prize) and DampenerVault (dampener). The deferral keeps user-facing trades within PolkaVM's per-transaction weight budget.</p>
+
+      <p>MechanicsEngine holds the accumulators and runs the Great Drain. The Sequencer receives 39/52 of every prize-pot drain from MechanicsEngine and splits it into 34 winner-share and 5 liquidity-deepening parts. AdminEngine is the single gateway for every privileged setter on TokenCore, MechanicsEngine, DampenerVault, and VestingEngine; setters route through <span class="inline-code">propose → confirm</span> with a 24-hour timelock once trading is live.</p>
 
       <!-- Architecture Diagram -->
       <div class="diagram-container">
@@ -1018,58 +1060,74 @@ footer {
             </marker>
           </defs>
 
-          <!-- DEX -->
+          <!-- Nucleus X Pair -->
           <rect x="250" y="15" width="200" height="44" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
-          <text x="350" y="42" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--gold)">DEX</text>
+          <text x="350" y="35" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" font-weight="500" fill="var(--gold)">Nucleus X Pair</text>
+          <text x="350" y="50" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">52F / WQFI</text>
 
-          <!-- TokenEngine -->
+          <!-- TokenCore -->
           <rect x="175" y="120" width="350" height="60" rx="3" fill="var(--ink-card)" stroke="var(--gold-dim)" stroke-width="2"/>
-          <text x="350" y="147" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--gold)">TokenEngine</text>
-          <text x="350" y="167" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">ERC-20 · Tax Routing · TWAP · Great Drain · Vesting</text>
+          <text x="350" y="147" text-anchor="middle" font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="var(--gold)">TokenCore</text>
+          <text x="350" y="167" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">ERC-20 · Tax capture in _transfer · Pre-trading gate</text>
 
-          <!-- Arrow: DEX -> TokenEngine (buys) -->
+          <!-- Arrow: Pair -> TokenCore (any pair-touching transfer triggers capture) -->
           <line x1="320" y1="59" x2="320" y2="120" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr-m)"/>
-          <text x="305" y="92" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">buys</text>
+          <text x="305" y="92" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">any swap</text>
 
-          <!-- Arrow: TokenEngine -> DEX (sells) -->
+          <!-- Arrow: TokenCore -> Pair (return path) -->
           <line x1="380" y1="120" x2="380" y2="59" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr-m)"/>
-          <text x="395" y="92" text-anchor="start" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">sells</text>
+          <text x="395" y="92" text-anchor="start" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">post-tax</text>
+
+          <!-- TaxConverter (keeper-driven, 1-2 blocks later) -->
+          <rect x="250" y="220" width="200" height="38" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="350" y="237" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" font-weight="500" fill="var(--gold)">TaxConverter</text>
+          <text x="350" y="252" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">52F → QF · keeper-driven</text>
+
+          <!-- Arrow: TokenCore reserve -> TaxConverter -->
+          <line x1="350" y1="180" x2="350" y2="220" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <text x="358" y="200" text-anchor="start" font-family="DM Mono, monospace" font-size="8" fill="var(--gold)">captured 52F</text>
 
           <!-- DampenerVault -->
-          <rect x="20" y="260" width="260" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
-          <text x="150" y="287" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">DampenerVault</text>
-          <text x="150" y="307" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Floor · Sell-Into-Strength · Emergency</text>
+          <rect x="20" y="310" width="200" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="120" y="337" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">DampenerVault</text>
+          <text x="120" y="357" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Floor · Sell-Into-Strength · LP</text>
+
+          <!-- MechanicsEngine -->
+          <rect x="250" y="310" width="200" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="350" y="337" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">MechanicsEngine</text>
+          <text x="350" y="357" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Team · Prize · Great Drain</text>
 
           <!-- CryptographicSequencer -->
-          <rect x="420" y="260" width="260" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
-          <text x="550" y="287" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">CryptographicSequencer</text>
-          <text x="550" y="307" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Birthday Paradox · Epochs · Prizes</text>
+          <rect x="480" y="310" width="200" height="60" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="580" y="337" text-anchor="middle" font-family="DM Mono, monospace" font-size="12" font-weight="500" fill="var(--gold)">CryptographicSequencer</text>
+          <text x="580" y="357" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="var(--muted)">Birthday Paradox · 73.4%</text>
 
-          <!-- Arrow: TokenEngine -> Dampener -->
-          <line x1="265" y1="180" x2="150" y2="260" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
-          <text x="178" y="215" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">239 BPS</text>
-          <text x="178" y="227" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">sell tax</text>
+          <!-- Arrow: TaxConverter -> DampenerVault (sell-side π) -->
+          <line x1="285" y1="258" x2="170" y2="310" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <text x="200" y="285" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">π (sells)</text>
 
-          <!-- Arrow: TokenEngine -> Sequencer -->
-          <line x1="435" y1="180" x2="550" y2="260" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
-          <text x="522" y="215" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">39/52</text>
-          <text x="522" y="227" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">prize tax</text>
+          <!-- Arrow: TaxConverter -> MechanicsEngine (team + prize) -->
+          <line x1="350" y1="258" x2="350" y2="310" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <text x="358" y="285" text-anchor="start" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--gold)">π/e + π (buys)</text>
 
-          <!-- Dashed: Dampener -> DEX (permanent LP) -->
-          <line x1="80" y1="260" x2="260" y2="59" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr-m)"/>
-          <text x="140" y="155" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">permanent LP</text>
+          <!-- Arrow: MechanicsEngine -> Sequencer (39/52) -->
+          <line x1="450" y1="340" x2="480" y2="340" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+          <text x="465" y="333" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" font-weight="500" fill="var(--gold)">39/52</text>
 
-          <!-- 75 BPS Team label -->
-          <text x="350" y="203" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--teal-light)">75 BPS → Team (every tx, every phase)</text>
+          <!-- Dashed: DampenerVault -> Pair (permanent LP burn) -->
+          <line x1="60" y1="310" x2="260" y2="59" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr-m)"/>
+          <text x="105" y="160" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">permanent LP</text>
+
+          <!-- Dashed: Sequencer -> DampenerVault (5/39 liquidity feedback) -->
+          <line x1="480" y1="370" x2="220" y2="370" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-m)"/>
+          <text x="350" y="385" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">5/39 → liquidity</text>
+
+          <!-- π/e Team headline label -->
+          <text x="350" y="203" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" font-weight="500" fill="var(--teal-light)">429 BPS = π + π/e — every taxed swap · team takes π/e (115 BPS)</text>
 
           <!-- Keeper Bot -->
-          <rect x="240" y="350" width="220" height="38" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1" stroke-dasharray="5,4"/>
-          <text x="350" y="374" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" fill="var(--muted)">Keeper Bot (off-chain)</text>
-
-          <!-- Keeper dashed lines -->
-          <line x1="290" y1="350" x2="150" y2="320" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>
-          <line x1="350" y1="350" x2="350" y2="180" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>
-          <line x1="410" y1="350" x2="550" y2="320" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3,3"/>
+          <rect x="240" y="395" width="220" height="0" rx="0" fill="none" stroke="none"/>
+          <!-- (keeper visualised via TaxConverter's dashed border) -->
         </svg>
       </div>
     </div>
@@ -1126,7 +1184,7 @@ footer {
     </button>
     <div class="section-content">
       <div class="rule"></div>
-      <div class="invariant">75 BPS is routed to the team wallet on every transaction, in every phase, with no exceptions. Carved from the headline rate, not added on top.</div>
+      <div class="invariant">Steady-state tax is <strong>π + π/e ≈ 4.29%</strong> on every taxed swap. The team share is <strong>π/e ≈ 1.15%</strong> — the same asymmetry constant that governs the Birthday Paradox collision rate driving the prize game. The directional share is <strong>π ≈ 3.14%</strong>, routed to the prize pot on buys and the DampenerVault on sells. No exceptions; no phase distinction in the rate.</div>
 
       <h3>6.1 Steady-State Rates (Hardening &amp; Scarcity)</h3>
       <div class="table-wrap">
@@ -1134,32 +1192,34 @@ footer {
           <thead><tr><th>Direction</th><th>Total Tax</th><th class="hide-mobile">Prize Pot</th><th class="hide-mobile">Dampener</th><th class="hide-mobile">Team</th></tr></thead>
           <tbody>
             <tr>
-              <td style="color:var(--green)">Buy (<em>e</em>)</td>
-              <td>272 BPS</td><td class="hide-mobile">197 BPS</td><td class="hide-mobile">0 BPS</td><td class="hide-mobile">75 BPS</td>
+              <td style="color:var(--green)">Buy</td>
+              <td>429 BPS (π + π/e)</td><td class="hide-mobile">314 BPS (π)</td><td class="hide-mobile">0 BPS</td><td class="hide-mobile">115 BPS (π/e)</td>
             </tr>
             <tr>
-              <td style="color:var(--red)">Sell (<em>π</em>)</td>
-              <td>314 BPS</td><td class="hide-mobile">0 BPS</td><td class="hide-mobile">239 BPS</td><td class="hide-mobile">75 BPS</td>
+              <td style="color:var(--red)">Sell</td>
+              <td>429 BPS (π + π/e)</td><td class="hide-mobile">0 BPS</td><td class="hide-mobile">314 BPS (π)</td><td class="hide-mobile">115 BPS (π/e)</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p>The asymmetry is intentional. Buys fund the prize pot via the CryptographicSequencer, incentivising purchase volume. Sells fund the DampenerVault, which converts sell-side revenue into permanent liquidity — directly counteracting the price impact of the sells that generated it.</p>
+      <p>Stack 5 unifies the buy and sell rates at <em>π + π/e</em>. The team share (<em>π/e</em>) is constant across direction and phase. The directional share (<em>π</em>) routes asymmetrically — to the prize pot on buys (funding the CryptographicSequencer game), to the DampenerVault on sells (converting sell-side revenue into permanent liquidity, directly counteracting the price impact of the sells that generated it). A single headline rate is harder to game (no incentive to disguise sells as buys via wrapping intermediaries) and the underlying <em>π + π/e</em> identity has more mathematical motivation than two unrelated constants.</p>
 
-      <p><em>Arithmetic verification:</em> Buy 197 + 0 + 75 = 272. Sell 0 + 239 + 75 = 314. Both check sums are exact.</p>
+      <p>Tax is captured inside <span class="inline-code">TokenCore._transfer</span> — the lowest-level ERC-20 primitive — so it applies to every pair-touching transfer regardless of which router or path the user takes. There is no entrypoint that bypasses the capture.</p>
+
+      <p><em>Arithmetic verification:</em> 314 + 115 + 0 = 429 (buy); 0 + 314 + 115 = 429 (sell). Both check sums are exact.</p>
 
       <h3>6.2 Anti-Sniper Zones (Launch Protection)</h3>
       <p>The first 10,400 blocks (~17 minutes) operate under elevated tax designed to prevent sniper bots.</p>
 
       <div class="card">
         <div class="card-header">Zone A — Blocks 0–5,200 · ~8.7 minutes</div>
-        <p>All transactions incur 9,500 BPS (95%) tax. Of this, 9,425 BPS flows to the DampenerVault and 75 BPS to the team. Prize allocation is zero. This deters snipers while simultaneously capitalising the DampenerVault with its long-term operating funds.</p>
+        <p>All transactions incur 9,500 BPS (95%) tax. The team takes the proportional <em>π/e</em> share of every captured swap (~115/9,500 ≈ 1.21% of captured QF). The remainder (~9,385/9,500) flows to the DampenerVault. Prize allocation is zero in Zone A. This deters snipers while simultaneously capitalising the DampenerVault with its long-term operating funds.</p>
       </div>
 
       <div class="card">
-        <div class="card-header">Zone B — Blocks 5,200–10,400 · ~8.7 minutes</div>
-        <p>Zone B is a 5,200-block staircase. Tax steps down 100 BPS every 104 blocks — 50 steps — ending Zone B at 4,600 BPS (46%). Buy and sell follow the same staircase, with team allocation held at 75 BPS throughout. Then at block 10,400 the schedule transitions sharply to its long-run baseline of 272 BPS (2.72%) buy and 314 BPS (3.14%) sell — a deliberate cliff, not a smooth glide. The cliff is the design: it gives launch a clean, memorable moment when normal trading conditions begin.</p>
+        <div class="card-header">Zone B — Blocks 5,200–10,400 · stochastic decay</div>
+        <p>Zone B taper: 50 steps of 100 BPS each, taking the rate from 9,500 BPS down to the 429 BPS steady-state floor. Each step interval is randomised via blockhash entropy in the range 4–208 blocks. The exact decay timeline is unpredictable — a deliberate design choice to prevent bots from precisely timing the rate transition. Team's share throughout Zone B is <em>π/e × (captured QF) / (rateBps)</em>; the rest routes to the dampener. The transition to steady state at the end of Zone B is the moment normal trading conditions begin.</p>
       </div>
     </div>
   </div>
@@ -1283,7 +1343,7 @@ footer {
       <p>Each epoch accepts up to 52 entries. Any buy of at least 52,000 tokens qualifies. Each entry receives a numeric ID between 0 and 999, derived from a hash of transaction origin, blockhash, nonce, and block number. A collision resolves the epoch.</p>
 
       <h3>9.3 Prize Pool Split</h3>
-      <p>The prize flow operates in two stages. First, TokenEngine retains 13 parts of every 52 (25%) of buy-side prize tax as Drain fuel, forwarding the remaining 39 parts to the Sequencer. The Sequencer splits this 39 into 34 (winner share) and 5 (liquidity contribution to the DampenerVault).</p>
+      <p>The prize flow operates in two stages. First, MechanicsEngine retains 13 parts of every 52 (25%) of buy-side prize tax as Drain fuel, forwarding the remaining 39 parts to the Sequencer. The Sequencer splits this 39 into 34 (winner share) and 5 (liquidity contribution to the DampenerVault).</p>
 
       <div class="table-wrap">
         <table>
@@ -1368,7 +1428,8 @@ footer {
         <table>
           <thead><tr><th>#</th><th>Call</th><th>Purpose</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td class="accent">TokenEngine.maintain()</td><td>TWAP snapshot + drain check</td></tr>
+            <tr><td>1</td><td class="accent">MechanicsEngine.maintain(twapPrice)</td><td>Off-chain TWAP delivery + drain trigger check</td></tr>
+            <tr><td>2</td><td class="accent">TaxConverter.convertTax(amount, isBuy, rateBps)</td><td>Per-tx 52F→QF conversion + routing (only <span class="inline-code">onlyKeeper</span>-gated function)</td></tr>
             <tr><td>2</td><td class="accent">Sequencer.registerFromKeeper()</td><td>Register qualifying buy events as epoch entries</td></tr>
             <tr><td>3</td><td class="accent">DampenerVault.pull()</td><td>Pull QF, assess injection need</td></tr>
             <tr><td>4</td><td class="accent">DampenerVault.executeBuy()</td><td>Scarcity normal: market-buy 52F (ratio 10%–23%)</td></tr>
@@ -1411,12 +1472,12 @@ footer {
         <div class="phase-item">
           <div class="phase-name">Phase 2</div>
           <div class="phase-title">Zone B</div>
-          <div class="phase-desc">Blocks 5,200–10,400 · ~8.7 minutes. 50-step staircase from 9,500 BPS down to 4,600 BPS, then a sharp drop to 272/314 BPS at block 10,400.</div>
+          <div class="phase-desc">Blocks 5,200–10,400 · stochastic decay. 50 steps of 100 BPS taking the rate from 9,500 BPS to the 429 BPS steady-state floor. Each step interval randomised via blockhash (4–208 blocks per step) — exact timeline unpredictable by design.</div>
         </div>
         <div class="phase-item">
           <div class="phase-name">Phase 3</div>
           <div class="phase-title">Hardening</div>
-          <div class="phase-desc">Blocks 10,400–26,000,000 · ~30 days. Steady-state 272/314 BPS. Liquidity building via Great Drain (100% → LP) and floor injection. No sell-into-strength.</div>
+          <div class="phase-desc">Blocks 10,400–26,000,000 · ~30 days. Steady-state 429 BPS (π + π/e) on every taxed swap. Liquidity building via Great Drain (100% → LP) and DampenerVault floor injection. No sell-into-strength.</div>
         </div>
         <div class="phase-item">
           <div class="phase-name">Phase 4 — Indefinite</div>
@@ -1443,13 +1504,13 @@ footer {
       <p>Minimal governance by design. Economic parameters — tax rates, drain thresholds, phase boundaries, vesting schedule — are immutable constants in contract bytecode. They cannot be changed after deployment.</p>
 
       <h3>13.1 What Can Be Changed</h3>
-      <p>Two — and only two — contract addresses: DampenerVault and CryptographicSequencer. This allows satellite contracts to be upgraded if a critical bug is found, without redeploying TokenEngine.</p>
+      <p>Privileged setters on TokenCore, MechanicsEngine, DampenerVault, and VestingEngine — all routed through AdminEngine's generic <span class="inline-code">propose(target, selector, data)</span> envelope. This allows wiring fixes (e.g. pointing TokenCore at a freshly-deployed Nucleus X pair) or operator parameters (team wallet, keeper) without redeploying the core contracts. The economic constants — tax rates, drain thresholds, phase boundaries, vesting schedule — are immutable in bytecode and have no setter on any contract.</p>
 
       <h3>13.2 Two-Step Timelock</h3>
-      <p>Any address change requires a mandatory 24-hour delay. Propose → wait → confirm, in separate transactions. Either step can be cancelled. A pre-trading bypass allows rapid wiring during deployment; once <span class="inline-code">enableTrading()</span> is called, the full delay is permanently enforced.</p>
+      <p>Every AdminEngine proposal requires a propose → confirm pair in separate transactions. Pre-trading delay = 0 (deploy-time wiring bypass). Post-trading delay = 864,000 blocks (~24 hours at 0.1s blocks). Either step can be cancelled by the owner before confirm. AdminEngine's <span class="inline-code">tokenCore</span> pointer is immutable, set at construction — so the engine cannot be redirected away from its bound TokenCore.</p>
 
       <h3>13.3 Team Wallet</h3>
-      <p>Set at deployment, receives 75 BPS from every transaction. The address can be changed for key rotation without contract redeployment.</p>
+      <p>Set via <span class="inline-code">MechanicsEngine.setTeamWallet</span> at deploy time (subject to the AdminEngine timelock thereafter). Receives 115 BPS (π/e) — the team's share — from every taxed swap, forwarded by the keeper or by the natural accumulator threshold trigger. The address can be changed for key rotation through the standard propose/confirm flow.</p>
     </div>
   </div>
 </div>
@@ -1477,7 +1538,7 @@ footer {
 
       <div class="card">
         <div class="card-header">Access Control</div>
-        <p>Critical functions restricted by modifier: <span class="inline-code">onlyOwner</span>, <span class="inline-code">onlyDampener</span>, <span class="inline-code">onlyTokenEngine</span>. Dedicated tests verify each restricted function reverts when called by unauthorised addresses.</p>
+        <p>Critical functions restricted by modifier: <span class="inline-code">onlyAdmin</span> (admin == AdminEngine post Phase 2), <span class="inline-code">onlySystem</span> (registered system contracts on TokenCore — DampenerVault, MechanicsEngine, TaxConverter), <span class="inline-code">onlyKeeper</span> (TaxConverter's keeper hot wallet for <span class="inline-code">convertTax</span>), <span class="inline-code">onlyOwner</span> (AdminEngine's launch-wallet owner, transferable via two-step ownership flow). Dedicated tests verify each restricted function reverts when called by unauthorised addresses.</p>
       </div>
 
       <div class="card">
@@ -1517,10 +1578,72 @@ footer {
       <p>Substrate-based blockchain, Chain ID 3426, 0.1-second block time, PolkaVM execution. Contracts compiled with <span class="inline-code">resolc</span> v0.5.0 producing PolkaVM bytecode. The network rejects EVM bytecode entirely.</p>
 
       <h3>15.2 Deployment Sequence</h3>
-      <p>Strict eight-step order: DEX infrastructure → TokenEngine → DampenerVault &amp; CryptographicSequencer → cross-contract wiring → seed liquidity → pair registration → <span class="inline-code">enableTrading()</span>. The <span class="inline-code">verifyWiring()</span> function must return all-true before trading is enabled.</p>
+      <p>Stack 5's launch sequence is a deterministic seven-phase process executed via <span class="inline-code">scripts/lib/stack5-harness.html</span> — a browser-based harness that signs each step against the launch wallet via Talisman. <em>Phase 0:</em> pre-flight checks. <em>Phase 1:</em> deploy the six core contracts plus the v3 Sequencer (seven deploys total). <em>Phase 2:</em> transfer admin to AdminEngine on TC/ME/DV/VE. <em>Phase 3:</em> create + pre-seed the 52F/WQFI pair via Nucleus X's factory (193 × 1e18 52F + 1 WQFI + first-mint to launch wallet, pinning the opening price ratio). <em>Phase 4:</em> deploy TaxConverter + 17 AdminEngine wiring setters. <em>Phase 5:</em> bootstrap — fund DampenerVault with 52,000 QF in two rounds (100 QF test + 51,900 QF main); DV converts 80% to LP and retains 20% as the dampener reserve. <em>Phase 6:</em> sealBootstrap — irreversible close of the bootstrap window. <em>Phase 7:</em> launch gate — burn the launch-wallet first-mint LP and DampenerVault's retained bootstrap LP to <span class="inline-code">0x...dEaD</span>, set the deploy-block (pinning Zone A start), and <span class="inline-code">systemSetTradingEnabled()</span>. The harness verifies state at every step; the launch gate is the point of no return.</p>
 
       <h3>15.3 AMM Integration</h3>
-      <p>Compatible with any Uniswap V2 AMM. At launch, 52F trades on the Nucleus X DEX. All interfaces match standard Uniswap V2 function signatures, allowing migration to alternative AMMs without contract modification.</p>
+      <p>52F trades on Nucleus X — the Uniswap V2-compatible DEX on QF Network operated by Doomly. The protocol depends on the pair existing and being whitelisted in the Nucleus X UI but is not coupled to Nucleus X internals; it interacts only via the standard pair contract's <span class="inline-code">swap</span>, <span class="inline-code">mint</span>, <span class="inline-code">getReserves</span>, and <span class="inline-code">token0</span>/<span class="inline-code">token1</span> reads. Stack 5 imposes no inline assembly and contains no router-side logic, so migration to an alternative V2 AMM would require only a re-deployed pair and a TaxConverter re-deploy (which immutably references the pair address).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     16. DEPLOYED CONTRACTS (NEW IN V5.0)
+     ═══════════════════════════════════════════ -->
+<div class="section" id="addresses">
+  <div class="section-inner">
+    <div class="section-kicker">Mainnet</div>
+    <button class="section-toggle" onclick="toggleSection(this)">
+      <h2>16. Deployed Contracts <span class="collapse-icon">▾</span></h2>
+    </button>
+    <div class="section-content">
+      <div class="rule"></div>
+      <p class="section-lead">Stack 5 mainnet addresses, verified on chain 2026-05-17. Launch wallet <span class="inline-code">5G8ysTvBngECW6iFbJY8YgheVo41VrREGAH2DdXbn6Lpt26x</span> (sr25519 substrate-native) → H160 <span class="inline-code">0xe737842Fa90357013400B41ba1E280EA8EF99B63</span>.</p>
+
+      <h3>16.1 Stack 5 Protocol (Active)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Contract</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td class="accent">TokenCore</td><td><span class="inline-code">0xf39ab20221ec21882fe47fab2ceb9d6e1801aa5c</span></td></tr>
+            <tr><td class="accent">AdminEngine</td><td><span class="inline-code">0x8034e5c48fb6b97521f1cbb8093a6ed53fdacb5b</span></td></tr>
+            <tr><td class="accent">MechanicsEngine</td><td><span class="inline-code">0x46dd70a27c44f92493c795fbdace7ab6e921df2f</span></td></tr>
+            <tr><td class="accent">DampenerVault</td><td><span class="inline-code">0xe4e7752afd2a779dcd7acd9b70d3a3cf38df8723</span></td></tr>
+            <tr><td class="accent">TaxConverter</td><td><span class="inline-code">0x7412dcc070837edb156ca0732a53680329233b35</span></td></tr>
+            <tr><td class="accent">VestingEngine</td><td><span class="inline-code">0x0809b3e992b8a5fc4068a686cdc791f8fb3d6cb2</span></td></tr>
+            <tr><td class="accent">CryptographicSequencer</td><td><span class="inline-code">0xbe7323d7096b858aa6eb1b1a73710cfacde30fb4</span></td></tr>
+            <tr><td class="accent">52F / WQFI Pair</td><td><span class="inline-code">0x2f6cae6908399a05811faa34a51f9c87f5df21db</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>16.2 Nucleus X Infrastructure (Doomly)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Contract</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td>Factory</td><td><span class="inline-code">0x0d69bbfe6c8ef4f220cc4ae2a4e2f9b4f1ec22c0</span></td></tr>
+            <tr><td>Router</td><td><span class="inline-code">0xf360f52139cee546c2e6856f83b3bb8ed6cba04c</span></td></tr>
+            <tr><td>WQFI</td><td><span class="inline-code">0x3e0f6253764e624833eac23c4caeff1530070c8b</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>16.3 Stack 4 (Stranded — Do Not Interact)</h3>
+      <p>Stack 4 contracts remain on chain but were never traded against. <span class="inline-code">tradingEnabled = false</span> on Stack 4's TokenCore; the launch sequence was paused before <span class="inline-code">enableTrading()</span>. Listed here for transparency and source-code archaeology only.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Contract</th><th>Address</th></tr></thead>
+          <tbody>
+            <tr><td>TaxRouter v4 (deleted in Stack 5)</td><td><span class="inline-code">0xc41013fa64cd7c594624c5357ac8cf0f778f835f</span></td></tr>
+            <tr><td>TokenCore v4</td><td><span class="inline-code">0xe47368d265c3d074ec8d88a8a1d30a0dd004f1c2</span></td></tr>
+            <tr><td>AdminEngine v4</td><td><span class="inline-code">0x6adddacc31a9c7a5e495994cbf34e573572186f2</span></td></tr>
+            <tr><td>MechanicsEngine v4.1</td><td><span class="inline-code">0x94e0da81eb26fd83d74cf13a18b8f248ccb1f78a</span></td></tr>
+            <tr><td>DampenerVault v4</td><td><span class="inline-code">0xd3bb81bd5fb122c418ed0f4ef4cee86b53c45404</span></td></tr>
+            <tr><td>VestingEngine v4</td><td><span class="inline-code">0xf5b7a7142450fd1e85c8f2cb6826dd19498e2ee0</span></td></tr>
+            <tr><td>52F/WQFI Pair v4</td><td><span class="inline-code">0x5e88595bb50936aaacc266b287f546da2a7a6340</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
