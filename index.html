@@ -930,18 +930,18 @@ footer {
       <p class="section-lead">Project 52F is on its second mainnet deploy iteration. Stack 4 was withdrawn before trading was enabled after a structural tax-bypass finding. Stack 5 closes that bypass by moving tax capture into the lowest-level transfer primitive. The community can read the on-chain history at the stranded Stack 4 addresses and the active Stack 5 deployment.</p>
 
       <h3>2.5.1 Stack 3 (Original Design, March 2026)</h3>
-      <p>The original protocol was a four-contract design: TokenEngine, DampenerVault, CryptographicSequencer, and a self-built MinimalDEX. The TokenEngine exposed <span class="inline-code">buy()</span> and <span class="inline-code">sell()</span> entrypoints that handled tax capture inline, routing tax revenue to three accumulators (Dampener, Prize Pot, Team) before completing the underlying pair swap. The design was sound for a closed ecosystem in which all user interaction flowed through the TokenEngine's entrypoints. It was abandoned when Project 52F migrated from the self-built MinimalDEX to Nucleus X (the production DEX on QF Network) for production launch.</p>
+      <p>The original protocol was a four-contract design: TokenEngine, DampenerVault, CryptographicSequencer, and a self-built MinimalDEX. The TokenEngine exposed <span class="inline-code">buy()</span> and <span class="inline-code">sell()</span> entrypoints that handled tax capture inline, routing tax revenue to three accumulators (Dampener, Prize Pot, Team) before completing the underlying pair swap. The design was sound for a closed ecosystem in which all user interaction flowed through the TokenEngine's entrypoints. It was abandoned when Project 52F migrated from the self-built MinimalDEX to an external V2-compatible DEX on QF Network for production launch.</p>
 
       <h3>2.5.2 Stack 4 (April–May 2026) and the Tax-Bypass Finding</h3>
-      <p>Stack 4 separated the TokenEngine into multiple contracts and moved DEX interaction to Nucleus X. A TaxRouter contract replaced the inline capture: users were expected to route trades through TaxRouter, which would compute tax, take it as 52F, and forward the remainder to the Nucleus X pair.</p>
-      <p>Stack 4 deployed to QF Mainnet on 2026-05-10/11 with all six contracts wired, bootstrap LP locked, and trading awaiting the launch slot. A structural audit performed before <span class="inline-code">enableTrading()</span> was called identified the bypass: because tax capture lived in TaxRouter's <span class="inline-code">buy()</span>/<span class="inline-code">sell()</span> and not in TokenCore's <span class="inline-code">_transfer</span>, any user who routed around TaxRouter — by calling <span class="inline-code">pair.swap()</span> directly, by using Nucleus X's router, or by deploying a custom router — escaped the tax entirely. TokenCore's <span class="inline-code">_transfer</span> was a vanilla ERC-20 move with no tax hook.</p>
+      <p>Stack 4 separated the TokenEngine into multiple contracts and moved DEX interaction to an external V2-compatible DEX. A TaxRouter contract replaced the inline capture: users were expected to route trades through TaxRouter, which would compute tax, take it as 52F, and forward the remainder to the external pair.</p>
+      <p>Stack 4 deployed to QF Mainnet on 2026-05-10/11 with all six contracts wired, bootstrap LP locked, and trading awaiting the launch slot. A structural audit performed before <span class="inline-code">enableTrading()</span> was called identified the bypass: because tax capture lived in TaxRouter's <span class="inline-code">buy()</span>/<span class="inline-code">sell()</span> and not in TokenCore's <span class="inline-code">_transfer</span>, any user who routed around TaxRouter — by calling <span class="inline-code">pair.swap()</span> directly, by using the DEX's own router, or by deploying a custom router — escaped the tax entirely. TokenCore's <span class="inline-code">_transfer</span> was a vanilla ERC-20 move with no tax hook.</p>
       <p>The finding was structural, not a coding mistake: the architecture itself could not enforce taxation against off-path routes. Stack 4 was paused before <span class="inline-code">enableTrading()</span>. The contracts remain on chain as stranded artefacts (addresses listed in the deployed-contracts appendix).</p>
 
       <h3>2.5.3 Stack 5 (May 2026) — The Rebuild</h3>
       <p>Stack 5 rewrites the tax-capture surface from first principles:</p>
       <ol>
         <li><strong>Tax capture moves into <span class="inline-code">TokenCore._transfer</span>.</strong> Every transfer where one side is the canonical pair and neither side is tax-exempt captures tax automatically. Routing path is irrelevant.</li>
-        <li><strong>TaxRouter is deleted.</strong> No protocol-side buy/sell entrypoint exists. Users transact via Nucleus X's router (or any router); the mechanism is symmetric and unavoidable.</li>
+        <li><strong>TaxRouter is deleted.</strong> No protocol-side buy/sell entrypoint exists. Users transact via VectorSwap's router (or any router); the mechanism is symmetric and unavoidable.</li>
         <li><strong>A new TaxConverter contract handles post-capture conversion and routing.</strong> When <span class="inline-code">_transfer</span> captures tax as 52F, the keeper observes the event and calls <span class="inline-code">TaxConverter.convertTax</span> one or two blocks later, converting to native QF and forwarding the split.</li>
         <li><strong>Tax rate unifies to π + π/e ≈ 4.29% steady state.</strong> Team takes π/e (115 BPS); the directional component (π = 314 BPS) routes to prize on buys, dampener on sells. See Section 6.</li>
       </ol>
@@ -1019,7 +1019,7 @@ footer {
     </button>
     <div class="section-content">
       <div class="rule"></div>
-      <p class="section-lead">Seven smart contracts handle token logic, tax routing, liquidity management, vesting, governance, and prize distribution. A keeper bot maintains them. The protocol trades on Nucleus X — a Uniswap V2-compatible DEX on QF Network.</p>
+      <p class="section-lead">Seven smart contracts handle token logic, tax routing, liquidity management, vesting, governance, and prize distribution. A keeper bot maintains them. The protocol trades on VectorSwap — a Uniswap V2-compatible DEX on QF Network.</p>
 
       <div class="invariant">Stack 5 (May 2026) reorganises the Stack 4 architecture to move tax capture into the lowest-level ERC-20 primitive (<span class="inline-code">TokenCore._transfer</span>), eliminating a router-level bypass that paused Stack 4 before launch. See Section 2.5 — Project History.</div>
 
@@ -1060,9 +1060,9 @@ footer {
             </marker>
           </defs>
 
-          <!-- Nucleus X Pair -->
+          <!-- VectorSwap Pair -->
           <rect x="250" y="15" width="200" height="44" rx="3" fill="var(--ink-card)" stroke="var(--border)" stroke-width="1.5"/>
-          <text x="350" y="35" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" font-weight="500" fill="var(--gold)">Nucleus X Pair</text>
+          <text x="350" y="35" text-anchor="middle" font-family="DM Mono, monospace" font-size="11" font-weight="500" fill="var(--gold)">VectorSwap Pair</text>
           <text x="350" y="50" text-anchor="middle" font-family="DM Mono, monospace" font-size="8" fill="var(--muted)">52F / WQFI</text>
 
           <!-- TokenCore -->
@@ -1504,7 +1504,7 @@ footer {
       <p>Minimal governance by design. Economic parameters — tax rates, drain thresholds, phase boundaries, vesting schedule — are immutable constants in contract bytecode. They cannot be changed after deployment.</p>
 
       <h3>13.1 What Can Be Changed</h3>
-      <p>Privileged setters on TokenCore, MechanicsEngine, DampenerVault, and VestingEngine — all routed through AdminEngine's generic <span class="inline-code">propose(target, selector, data)</span> envelope. This allows wiring fixes (e.g. pointing TokenCore at a freshly-deployed Nucleus X pair) or operator parameters (team wallet, keeper) without redeploying the core contracts. The economic constants — tax rates, drain thresholds, phase boundaries, vesting schedule — are immutable in bytecode and have no setter on any contract.</p>
+      <p>Privileged setters on TokenCore, MechanicsEngine, DampenerVault, and VestingEngine — all routed through AdminEngine's generic <span class="inline-code">propose(target, selector, data)</span> envelope. This allows wiring fixes (e.g. pointing TokenCore at a freshly-deployed VectorSwap pair) or operator parameters (team wallet, keeper) without redeploying the core contracts. The economic constants — tax rates, drain thresholds, phase boundaries, vesting schedule — are immutable in bytecode and have no setter on any contract.</p>
 
       <h3>13.2 Two-Step Timelock</h3>
       <p>Every AdminEngine proposal requires a propose → confirm pair in separate transactions. Pre-trading delay = 0 (deploy-time wiring bypass). Post-trading delay = 864,000 blocks (~24 hours at 0.1s blocks). Either step can be cancelled by the owner before confirm. AdminEngine's <span class="inline-code">tokenCore</span> pointer is immutable, set at construction — so the engine cannot be redirected away from its bound TokenCore.</p>
@@ -1578,10 +1578,10 @@ footer {
       <p>Substrate-based blockchain, Chain ID 3426, 0.1-second block time, PolkaVM execution. Contracts compiled with <span class="inline-code">resolc</span> v0.5.0 producing PolkaVM bytecode. The network rejects EVM bytecode entirely.</p>
 
       <h3>15.2 Deployment Sequence</h3>
-      <p>Stack 5's launch sequence is a deterministic seven-phase process executed via <span class="inline-code">scripts/lib/stack5-harness.html</span> — a browser-based harness that signs each step against the launch wallet via Talisman. <em>Phase 0:</em> pre-flight checks. <em>Phase 1:</em> deploy the six core contracts plus the v3 Sequencer (seven deploys total). <em>Phase 2:</em> transfer admin to AdminEngine on TC/ME/DV/VE. <em>Phase 3:</em> create + pre-seed the 52F/WQFI pair via Nucleus X's factory (193 × 1e18 52F + 1 WQFI + first-mint to launch wallet, pinning the opening price ratio). <em>Phase 4:</em> deploy TaxConverter + 17 AdminEngine wiring setters. <em>Phase 5:</em> bootstrap — fund DampenerVault with 52,000 QF in two rounds (100 QF test + 51,900 QF main); DV converts 80% to LP and retains 20% as the dampener reserve. <em>Phase 6:</em> sealBootstrap — irreversible close of the bootstrap window. <em>Phase 7:</em> launch gate — burn the launch-wallet first-mint LP and DampenerVault's retained bootstrap LP to <span class="inline-code">0x...dEaD</span>, set the deploy-block (pinning Zone A start), and <span class="inline-code">systemSetTradingEnabled()</span>. The harness verifies state at every step; the launch gate is the point of no return.</p>
+      <p>Stack 5's launch sequence is a deterministic seven-phase process executed via <span class="inline-code">scripts/lib/stack5-harness.html</span> — a browser-based harness that signs each step against the launch wallet via Talisman. <em>Phase 0:</em> pre-flight checks. <em>Phase 1:</em> deploy the six core contracts plus the v3 Sequencer (seven deploys total). <em>Phase 2:</em> transfer admin to AdminEngine on TC/ME/DV/VE. <em>Phase 3:</em> create + pre-seed the 52F/WQFI pair via VectorSwap's factory (193 × 1e18 52F + 1 WQFI + first-mint to launch wallet, pinning the opening price ratio). <em>Phase 4:</em> deploy TaxConverter + 17 AdminEngine wiring setters. <em>Phase 5:</em> bootstrap — fund DampenerVault with 52,000 QF in two rounds (100 QF test + 51,900 QF main); DV converts 80% to LP and retains 20% as the dampener reserve. <em>Phase 6:</em> sealBootstrap — irreversible close of the bootstrap window. <em>Phase 7:</em> launch gate — burn the launch-wallet first-mint LP and DampenerVault's retained bootstrap LP to <span class="inline-code">0x...dEaD</span>, set the deploy-block (pinning Zone A start), and <span class="inline-code">systemSetTradingEnabled()</span>. The harness verifies state at every step; the launch gate is the point of no return.</p>
 
       <h3>15.3 AMM Integration</h3>
-      <p>52F trades on Nucleus X — the Uniswap V2-compatible DEX on QF Network operated by Doomly. The protocol depends on the pair existing and being whitelisted in the Nucleus X UI but is not coupled to Nucleus X internals; it interacts only via the standard pair contract's <span class="inline-code">swap</span>, <span class="inline-code">mint</span>, <span class="inline-code">getReserves</span>, and <span class="inline-code">token0</span>/<span class="inline-code">token1</span> reads. Stack 5 imposes no inline assembly and contains no router-side logic, so migration to an alternative V2 AMM would require only a re-deployed pair and a TaxConverter re-deploy (which immutably references the pair address).</p>
+      <p>52F trades on VectorSwap — the Uniswap V2-compatible DEX on QF Network. The protocol depends on the pair existing and being whitelisted in the VectorSwap UI but is not coupled to VectorSwap internals; it interacts only via the standard pair contract's <span class="inline-code">swap</span>, <span class="inline-code">mint</span>, <span class="inline-code">getReserves</span>, and <span class="inline-code">token0</span>/<span class="inline-code">token1</span> reads. Stack 5 imposes no inline assembly and contains no router-side logic, so migration to an alternative V2 AMM would require only a re-deployed pair and a TaxConverter re-deploy (which immutably references the pair address).</p>
     </div>
   </div>
 </div>
@@ -1597,33 +1597,34 @@ footer {
     </button>
     <div class="section-content">
       <div class="rule"></div>
-      <p class="section-lead">Stack 5 mainnet addresses, verified on chain 2026-05-17. Launch wallet <span class="inline-code">5G8ysTvBngECW6iFbJY8YgheVo41VrREGAH2DdXbn6Lpt26x</span> (sr25519 substrate-native) → H160 <span class="inline-code">0xe737842Fa90357013400B41ba1E280EA8EF99B63</span>.</p>
+      <p class="section-lead">Stack 5 mainnet addresses, deployed on chain 2026-06-01 on VectorSwap. Launch wallet <span class="inline-code">5G8ysTvBngECW6iFbJY8YgheVo41VrREGAH2DdXbn6Lpt26x</span> (sr25519 substrate-native) → H160 <span class="inline-code">0xe737842Fa90357013400B41ba1E280EA8EF99B63</span>.</p>
 
       <h3>16.1 Stack 5 Protocol (Active)</h3>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Contract</th><th>Address</th></tr></thead>
           <tbody>
-            <tr><td class="accent">TokenCore</td><td><span class="inline-code">0xf39ab20221ec21882fe47fab2ceb9d6e1801aa5c</span></td></tr>
-            <tr><td class="accent">AdminEngine</td><td><span class="inline-code">0x8034e5c48fb6b97521f1cbb8093a6ed53fdacb5b</span></td></tr>
-            <tr><td class="accent">MechanicsEngine</td><td><span class="inline-code">0x46dd70a27c44f92493c795fbdace7ab6e921df2f</span></td></tr>
-            <tr><td class="accent">DampenerVault</td><td><span class="inline-code">0xe4e7752afd2a779dcd7acd9b70d3a3cf38df8723</span></td></tr>
-            <tr><td class="accent">TaxConverter</td><td><span class="inline-code">0x7412dcc070837edb156ca0732a53680329233b35</span></td></tr>
-            <tr><td class="accent">VestingEngine</td><td><span class="inline-code">0x0809b3e992b8a5fc4068a686cdc791f8fb3d6cb2</span></td></tr>
-            <tr><td class="accent">CryptographicSequencer</td><td><span class="inline-code">0xbe7323d7096b858aa6eb1b1a73710cfacde30fb4</span></td></tr>
-            <tr><td class="accent">52F / WQFI Pair</td><td><span class="inline-code">0x2f6cae6908399a05811faa34a51f9c87f5df21db</span></td></tr>
+            <tr><td class="accent">TokenCore</td><td><span class="inline-code">0x25e68c5eaa9f5b65886b662f80559b3ea1147858</span></td></tr>
+            <tr><td class="accent">AdminEngine</td><td><span class="inline-code">0x2f83215a7d2b3dfbd3952580f47212495e692097</span></td></tr>
+            <tr><td class="accent">MechanicsEngine</td><td><span class="inline-code">0x3f7fbbf3bdd3af68b1c25045fc3c29e44fed0368</span></td></tr>
+            <tr><td class="accent">DampenerVault</td><td><span class="inline-code">0x10aa93dac20cfe5d25a0bc3275e9b07be697eec2</span></td></tr>
+            <tr><td class="accent">TaxConverter</td><td><span class="inline-code">0x2103a1c5ef8e85a7397e0f744ea71efade20bb50</span></td></tr>
+            <tr><td class="accent">VestingEngine</td><td><span class="inline-code">0x202f6948b082737d9d904ba3164bdad7aaf82962</span></td></tr>
+            <tr><td class="accent">CryptographicSequencer</td><td><span class="inline-code">0x1b14ee0481786ff89b55d639e9cfd5b352b3b5d7</span></td></tr>
+            <tr><td class="accent">52F / WQFI Pair</td><td><span class="inline-code">0x6239c953a0af0f8fa2feb392350ded1c4769a308</span></td></tr>
           </tbody>
         </table>
       </div>
 
-      <h3>16.2 Nucleus X Infrastructure (Doomly)</h3>
+      <h3>16.2 VectorSwap Infrastructure</h3>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Contract</th><th>Address</th></tr></thead>
           <tbody>
-            <tr><td>Factory</td><td><span class="inline-code">0x0d69bbfe6c8ef4f220cc4ae2a4e2f9b4f1ec22c0</span></td></tr>
-            <tr><td>Router</td><td><span class="inline-code">0xf360f52139cee546c2e6856f83b3bb8ed6cba04c</span></td></tr>
-            <tr><td>WQFI</td><td><span class="inline-code">0x3e0f6253764e624833eac23c4caeff1530070c8b</span></td></tr>
+            <tr><td>Factory</td><td><span class="inline-code">0x98f709b8c227ad9e033c32346b97d8a88d1952f8</span></td></tr>
+            <tr><td>Router</td><td><span class="inline-code">0x8da9accead71c5b95ff5d718d12728538352055b</span></td></tr>
+            <tr><td>FeeForwarder</td><td><span class="inline-code">0xe15948891c1baaff4fee3fcf47eb54ff73caee6c</span></td></tr>
+            <tr><td>WQFI</td><td><span class="inline-code">0x4652e74765d637b0e0d4b9e839e589fb837f954f</span></td></tr>
           </tbody>
         </table>
       </div>
